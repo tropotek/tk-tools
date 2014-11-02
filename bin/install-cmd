@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+# Tropotek Development Tools Installer
+#
+# Date: 04/05/2008
+# Author: Michel Mifsud http://www.tropotek.com/
+#
+
+ROOT_UID=0
+USER=`whoami`
+BIN_DIR=/usr/local/bin           # where we will be installing the package binaries
+PWD=`pwd`
+
+# Run as root, of course.
+if [ "$UID" -ne "$ROOT_UID" ]
+then
+  BIN_DIR=/home/$USER/bin
+fi
+
+echo
+echo "---------------------------------------------------"
+echo "      Tropotek Development Tools Installer         "
+echo "---------------------------------------------------"
+echo "  Installing Development Tools.                    "
+echo "---------------------------------------------------"
+if [ "$UID" -eq "$ROOT_UID" ]
+then
+  echo "  root: Installs to /usr/local/bin                 "
+else
+  echo "  user: Installs to /home/{user}/bin               "
+fi
+echo "---------------------------------------------------"
+echo
+#echo -n "Continue? [y/n]: "
+read -s -n1 -p "Continue? [y/n]: " key
+echo $key
+if [ "$key" != y ]
+then
+  echo "Aborting Installation."
+  exit 0
+fi
+
+
+FILES=(
+  'tkStrreplace.php'
+  'tklog'
+  'tkUpdate.php'
+  'tkCommit.php'
+  'tkMerge.php'
+  'tkStatus.php'
+  'tkInfo.php'
+  'tkPassGen.php'
+  'tkMigrate.php'
+  'tkToUtf8.php'
+  'tkVidHtml5Cnv'
+  'tkTag.php'
+  'tkTagProject.php'
+)
+
+
+count=${#FILES[@]}
+index=0
+
+# rm "$BIN_DIR/tk*"
+while [ "$index" -lt "$count" ]
+do
+  file=${FILES[$index]}
+  link=${file/%\.php/}
+  echo "Installing: $link "
+  if [ -f "$BIN_DIR/$link" -o -L "$BIN_DIR/$link" ]
+    then
+    echo ' x Deleting existing link.'
+    rm "$BIN_DIR/$link"
+  fi
+  ln -s "$PWD/$file" "$BIN_DIR/$link"
+
+  #echo 'ln -s "' $PWD/$file '" "' $BIN_DIR/$link '"'
+  let "index = $index + 1"
+done
+
+exit 0

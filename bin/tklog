@@ -1,0 +1,35 @@
+#!/bin/sh
+# 
+# PHP tail Log command
+# Place an error.log file in your ~/public_html/log/ folder
+#  so Tk 2.0 apps can log data and this command will
+#  allow you to view it in real time... Cool Hey!
+# 
+# Date: 03/01/2013
+# Author: Michael Mifsud
+#
+# TODO: use mkdir to create the folder if one
+#  does not exist
+#
+#
+
+
+FILE=/home/${USER}/log/error.log
+rm -f $FILE
+touch $FILE
+
+echo 
+echo 
+echo 
+echo 
+echo 
+echo 
+echo 
+printf "\033c"
+echo
+echo "--  PHP Debug Tail Log: $FILE  --"
+echo
+
+tail -f -n 1000 $FILE
+
+
