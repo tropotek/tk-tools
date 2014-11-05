@@ -42,19 +42,17 @@ fi
 
 
 FILES=(
-  'tkStrreplace.php'
   'tklog'
-  'tkUpdate.php'
   'tkCommit.php'
-  'tkMerge.php'
-  'tkStatus.php'
-  'tkInfo.php'
+  'tkMd5.php'
   'tkPassGen.php'
-  'tkMigrate.php'
-  'tkToUtf8.php'
-  'tkVidHtml5Cnv'
+  'tkStatus.php'
+  'tkStrreplace.php'
   'tkTag.php'
   'tkTagProject.php'
+  'tkToUtf8.php'
+  'tkUpdate.php'
+  'tkVidHtml5Cnv'
 )
 
 

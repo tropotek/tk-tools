@@ -36,7 +36,7 @@ $tmp .= '/tk_'.md5(time());
 
 
 $help = "
-Usage: ".basename($argv[0])." [SVN-URL] [OPTIONS...]
+Usage: ".basename($argv[0])." [REPO-URL] [OPTIONS...]
 Tag a single package release from the repository. Works only on trunk packages.
 This command will search the repository for the next version number.
 

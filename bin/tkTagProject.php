@@ -34,7 +34,7 @@ $packagePrefixList = array('ttek', 'ttek\-plugin', 'ttek\-theme', 'tropotek', 't
 
 
 $help = "
-Usage: " . basename($argv[0]) . " [SVN-URL] [OPTIONS...]
+Usage: " . basename($argv[0]) . " [REPO-URL] [OPTIONS...]
 Tag a release from the repository. Works only on trunk projects.
 This command will search the search the project for all packages
 in use and tag and release them with new version along with the

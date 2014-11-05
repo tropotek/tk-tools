@@ -29,49 +29,34 @@ foreach ($argv as $param) {
 }
 
 try {
+    $p = escapeshellarg($cwd);
 
-
-
-    if (is_dir($cwd . '/.svn')) {   // if current path has .svn commit this repos
-        echo " - Updating Repository: " . $cwd . "\n";
-        $p = escapeshellarg($cwd);
-        echo `cd $p && svn update`;
-    } else {    // Commit any subdirecories that contain .svn. (warning recursive)
-        foreach (new DirectoryIterator($cwd) as $res) {
-            if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
-                continue;
-            }
-            $path = $res->getRealPath();
-            if ($res->isDir() && is_dir($path . '/.svn')) {
-                //echo " - Update child working directory: " . $path . "\n";
-                $p = escapeshellarg($path);
-                $cmd = basename($argv[0]);
-                echo `cd $p && $cmd`;
-                //echo `svn update $p`;
-            }
-        }
+    if (is_dir($cwd . '/.git')) {   // GIT
+        echo "UPDATE: " . $p . "\n";
+        echo '  - GIT: ' . `cd $p && git pull`;
+    } else if (is_dir($cwd . '/.svn')) {   // SVN
+        echo "UPDATE: " . $p . "\n";
+        echo '  - SVN: ' . `cd $p && svn update`;
     }
 
-    foreach ($vendorPaths as $vendorPath) {
-        $vendorPath = $cwd . $vendorPath;
+    // Update for project folders
+    foreach ($vendorPaths as $vPath) {
+        $vendorPath = rtrim($cwd, '/') . $vPath;
         if (is_dir($vendorPath)) {      // If vendor path exists
             foreach (new DirectoryIterator($vendorPath) as $res) {
                 if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
                     continue;
                 }
                 $path = $res->getRealPath();
-                echo $path."\n";
-                if ($res->isDir() && is_dir($path . '/.svn')) {
-                    echo " - Update Repository: " . basename($path) . "\n";
-                    $p = escapeshellarg($path);
-                    $cmd = basename($argv[0]);
-                    echo `svn update $p`;
+                if (!$res->isDir() && !is_dir($path.'/.svn') && !is_dir($path.'/.git')) {
+                    continue;
                 }
+                $p = escapeshellarg($path);
+                $cmd = basename($argv[0]);
+                echo `cd $p && $cmd`;
             }
         }
     }
-
-   echo "\n";
 } catch(Exception $e) {
     print(basename($argv[0]) . ": \n" . $e->__toString());
     exit(-1);

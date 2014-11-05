@@ -56,61 +56,42 @@ foreach ($argv as $param) {
 }
 
 try {
-
     if (!$commitMsg) {
         throw new Exception('Please add a commit message.');
         //$commitMsg = 'Auto commit from ' . $project;
     }
-    if (is_dir($cwd . '/.svn')) {   // if current path has .svn commit this repos
-        echo " - Commit: " . $cwd . "\n";
-        _exec("cd '$cwd' && svn ci -m '$commitMsg'");
-    } else {    // Commit any subdirectories that contain .svn. (warning recursive)
-        foreach (new DirectoryIterator($cwd) as $res) {
-            if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
-                continue;
-            }
-            $path = $res->getRealPath();
-            if ($res->isDir() && is_dir($path . '/.svn')) {
-                $p = escapeshellarg($path);
-                $cmd = basename($argv[0]) . ' \'' . $commitMsg . '\' --novendor';
-                _exec("cd $p && $cmd");
-            }
-        }
+
+    $p = escapeshellarg($cwd);
+    $commitMsg = escapeshellarg($commitMsg);
+
+    if (is_dir($cwd . '/.git')) {   // GIT
+        echo "COMMIT: " . $p . "\n";
+        echo '  - GIT: ' . `cd $p && git add -u && git commit -m $commitMsg && git push`;
+    } else if (is_dir($cwd . '/.svn')) {   // SVN
+        echo "COMMIT: " . $p . "\n";
+        echo '  - SVN: ' . `cd $p && svn ci -m $commitMsg`;
     }
 
-    // Compat: If project has externals (old tkLib commit style)
-    if (is_file($externFile)) {
-        $file = explode("\n", trim(file_get_contents($externFile)));
-        foreach ($file as $line) {
-            if (!$line || $line[0] == '#') continue;
-            preg_match('/(\S+)\s+(\S+)/', $line, $regs);
-            if (isset($regs[1])) {
-                echo " - Commit package: " . $regs[1] . "\n";
-                _exec("svn ci -m '$commitMsg' lib/{$regs[1]}");
-            }
-        }
-    }
-
-    // New composer style commit
+    // Commit child projects
     if (!$novendor) {
-        foreach ($vendorPaths as $vendorPath) {
-            $vendorPath = $cwd . $vendorPath;
-            if (is_dir($vendorPath)) {
+        foreach ($vendorPaths as $vPath) {
+            $vendorPath = rtrim($cwd, '/') . $vPath;
+            if (is_dir($vendorPath)) {      // If vendor path exists
                 foreach (new DirectoryIterator($vendorPath) as $res) {
                     if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
                         continue;
                     }
                     $path = $res->getRealPath();
-                    if ($res->isDir() && is_dir($path . '/.svn')) {
-                        $p = escapeshellarg($path);
-                        $cmd = basename($argv[0]) . ' \'' . $commitMsg . '\' --novendor ';
-                        _exec("cd $p && $cmd");
+                    if (!$res->isDir() && !is_dir($path.'/.svn') && !is_dir($path.'/.git')) {
+                        continue;
                     }
+                    $p = escapeshellarg($path);
+                    $cmd = basename($argv[0]);
+                    echo `cd $p && $cmd  $commitMsg --novendor `;
                 }
             }
         }
     }
-
 
 } catch (Exception $e) {
     print(basename("\nERROR: ".$e->getMessage().' [' . $e->getLine() ."]\n"));
@@ -118,19 +99,3 @@ try {
     exit(-1);
 }
 
-
-
-/**
- *
- * @param $cmd
- * @return string
- */
-function _exec($cmd)
-{
-    global $debug;
-    if ($debug) {
-        echo $cmd . "\n";
-        return;
-    }
-    echo `$cmd`;
-}
