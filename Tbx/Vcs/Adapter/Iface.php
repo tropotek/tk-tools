@@ -283,8 +283,17 @@ abstract class Iface
     abstract public function setFileContents($path, $str);
 
     /**
-     * Returns true if the $cmpPath and $srcPath are different
-     * IE: have modifications.
+     * Return a list of modified files from the head/master tag
+     *
+     * @param string $tagName The tag/version name of the tag folder
+     * @param array $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
+     * @return array
+     */
+    abstract public function diff($tagName, $excludeFiles);
+
+    /**
+     * Returns true if the tag is different than the head
+     * IE: master/head has modifications since last release.
      *
      * This can be used to make decisions based on if the two tags
      * have had any modifications, ie: like releasing a version if
@@ -292,9 +301,12 @@ abstract class Iface
      *
      * @param string $tagName The tag/version name of the tag folder
      * @param array $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
-     * @return boolean
+     * @return integer
      */
-    abstract public function isDiff($tagName, $excludeFiles);
+    public function isDiff($tagName, $excludeFiles = array('composer.json', 'changelog.md'))
+    {
+        return count($this->diff($tagName, $excludeFiles));
+    }
 
     /**
      * Tag a new release, basically copy the release to a tag folder

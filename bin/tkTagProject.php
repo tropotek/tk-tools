@@ -30,7 +30,7 @@ if (!$tmp) {
     $tmp = '/tmp';
 }
 $tmp .= '/tk_'.md5(time());
-$packagePrefixList = array('ttek', 'ttek\-plugin', 'ttek\-theme', 'tropotek', 'tropotek\-plugin', 'tropotek\-theme', 'ems\-plugin', 'ems');
+$packagePrefixList = array('ttek', 'ttek\-plugin', 'ttek\-theme', 'tropotek', 'tropotek\-plugin', 'tropotek\-theme', 'unimelb\-plg', 'ems');
 
 
 $help = "
@@ -109,6 +109,7 @@ try {
         $vcs = new \Tbx\Vcs\Adapter\Svn($repo, $tmp, $dryRun, true);
     }
 
+    echo "Retrieving project composer.json file.\n";
     $vcs->checkout();
     if (!$vcs->isFile('/composer.json')) {
         throw new Exception('Only composer projects can be released.');
@@ -129,10 +130,17 @@ try {
         $regex = implode('|', $packagePrefixList);
         if (!preg_match('/^('.$regex.')\//i', $name)) continue;
         $json = '';
-        foreach($trunkJson->repositories as $repoObj) {
-            $json = fileGetContents($repoObj->url . 'p/' . $name . '.json');
+        if (isset($trunkJson->repositories)) {
+            foreach ($trunkJson->repositories as $repoObj) {
+                $json = fileGetContents($repoObj->url . 'p/' . $name . '.json');
+                $json = json_decode($json);
+                if ($json !== null)
+                    break;
+            }
+        }
+        if (!$json) {
+            $json = fileGetContents('https://packagist.org/p/' . $name . '.json');
             $json = json_decode($json);
-            if ($json !== null) break;
         }
         if (!$json) continue;
 
@@ -152,14 +160,20 @@ try {
         $currVer = array_pop($verList);
         $packages[$name]['version'] = $currVer;
 
+        echo "=> Tagging: " . $packages[$name]['uri'] . "\n";
         $cmd = sprintf('tkTag %s %s %s --noclean --tmpPath=%s', escapeshellarg($packages[$name]['uri']), $dr, $forceTagStr, escapeshellarg($tmp));
+        $line = exec($cmd, $out, $ret);
 
-        // Use exec
-        $line = system($cmd);
-        if ($line === false) {
+        if ($ret != 0) {
             throw new Exception('Error tagging package: ' . $name);
         }
-        $newVersion = trim(substr($line, 1));
+
+        $out = implode("\n", $out);
+        echo $out;
+        if (preg_match('/- Version: (.+)/i', $out, $regs)) {
+            $newVersion = $regs[1];
+        }
+
         $packages[$name]['newVersion'] = $newVersion;
         $packages[$name]['released'] = false;
         if ($packages[$name]['newVersion'] != $packages[$name]['version']) {

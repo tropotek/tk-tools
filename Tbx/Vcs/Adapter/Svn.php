@@ -117,24 +117,7 @@ class Svn extends Iface
      * @param array $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
      * @return integer
      */
-    public function isDiff($tagName, $excludeFiles = array('composer.json'))
-    {
-        return count($this->diff($tagName, $excludeFiles));
-    }
-
-    /**
-     * Returns true if the $cmpPath and $srcPath are different
-     * IE: have modifications.
-     *
-     * This can be used to make decisions based on if the two tags
-     * have had any modifications, ie: like releasing a version if
-     * changes have been committed or not.
-     *
-     * @param string $tagName The tag/version name of the tag folder
-     * @param array $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
-     * @return integer
-     */
-    public function diff($tagName, $excludeFiles = array('composer.json'))
+    public function diff($tagName, $excludeFiles = array('composer.json', 'changelog.md'))
     {
         $this->output = '';
         $tagName = trim($tagName, '/');

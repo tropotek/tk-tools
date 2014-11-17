@@ -75,7 +75,8 @@ class Git extends Iface
     public function getTagList($force = false)
     {
         if (!$this->tagList || $force) {
-            exec('git ls-remote --tags ' . $this->getUri(), $out);
+            $cmd = 'git ls-remote --tags ' . $this->getUri();
+            exec($cmd, $out);
             $this->tagList = array();
             foreach($out as $line) {
                 if (!$line) continue;
@@ -135,29 +136,77 @@ class Git extends Iface
      * @param array $excludeFiles (GIT Unused) All files must have the initial / removed as it is assumed relative to the project.
      * @throws \Exception
      * @return boolean
-     * @todo See svn diff method
      */
-     public function isDiff($tagName, $excludeFiles = array('composer.json'))
+//     public function isDiff_old($tagName, $excludeFiles = array('composer.json'))
+//    {
+//
+//
+//        return false;
+//
+//
+//
+//
+//        $out = array();
+//        $cmd = 'git ls-remote ' . $this->getUri();
+//        exec($cmd, $out);
+//        $masterId = '';
+//        vd($out);
+//        foreach($out as $i => $line) {
+//            if (preg_match('/\^\{\}$/', $line)) continue;
+//            if (preg_match('/^([0-9a-f]{40})\s+(\S+)/i', $line, $regs)) {
+//                vd('1', $regs);
+//                if ($i == 0) {
+//                    $masterId = $regs[1];
+//                    continue;
+//                }
+//                $tag = basename($regs[2]);
+//                if (preg_match('/^[0-9]/', $tag) && $tagName == $tag) {
+//                    vd('2', $regs);
+//                    if ($masterId == $regs[1]) {
+//                        return false;
+//                    }
+//                    break;
+//                }
+//            }
+//        }
+//        vd('Release', $masterId);
+//        return true;
+//    }
+
+    /**
+     *
+     *
+     *
+     * @param string $tagName
+     * @param array  $excludeFiles
+     * @return array
+     */
+    public function diff($tagName, $excludeFiles = array('composer.json', 'changelog.md'))
     {
-        $out = array();
-        exec('git ls-remote ' . $this->getUri(), $out);
-        $masterId = '';
-        foreach($out as $i => $line) {
-            if (preg_match('/^([0-9a-f]{40})\s+(\S+)/i', $line, $regs)) {
-                if ($i == 0) {
-                    $masterId = $regs[1];
-                    continue;
-                }
-                $tag = basename($regs[2]);
-                if (preg_match('/^[0-9]/', $tag) && $tagName == $tag) {
-                    if ($masterId == $regs[1]) {
-                        return false;
-                    }
-                    break;
-                }
-            }
+        $this->output = '';
+        $tagName = trim($tagName, '/');
+        $cmd = 'git ls-remote ' . $this->getUri();
+//        $cmd = "git diff HEAD ".escapeshellarg($tagName)." --minimal | grep '^diff --git '";
+        if ($this->isDryRun()) {
+            echo ' = ' . $cmd . "\n";
         }
-        return true;
+        exec($cmd, $this->output);
+
+        // TODO: Cause git does not have a remote diff command, we have to just fake it.
+        // This means that tags will be created every time this command is run regardless of
+        // any changes in the trunk.
+
+        // We only want this to return a list of changed files so that tags are created only when the repo
+        // has updates and is not the same as an existing tag.
+        $changed = array('release.md');
+        foreach($this->output as $line) {
+            ;
+        }
+
+
+        //TODO:
+
+        return $changed;
     }
 
 
@@ -166,11 +215,15 @@ class Git extends Iface
      *
      * @param $path
      * @return array
+     * @todo: See why this command does not work.
      */
     public function makeChangelog($path = 'master')
     {
-        $cmd = sprintf('git log -n 20 --format=oneline %s %s', $path, $this->getCurrentTag());
-        exec($cmd, $list);
+        $cmd = sprintf('git log -n 20 --format=oneline %s %s', escapeshellarg($path), escapeshellarg($this->getCurrentTag()));
+        exec($cmd, $list, $ret);
+        if ($ret) {
+            return false;
+        }
         $exists = array();
         $logs = array();
         foreach ($list as $i => $log) {
@@ -215,20 +268,21 @@ class Git extends Iface
         }
 
         $logArr =  $this->makeChangelog();
-
-        $this->changelog  = sprintf("Ver %s [%s]:\n----------------\n", $version, date('Y-m-d'));
-        foreach ($logArr as $line) {
-            if (str_word_count($line) <= 1) continue;
-            $this->changelog .= " - " . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
+        $log = '';
+        if (is_array($logArr)) {
+            $this->changelog = sprintf("Ver %s [%s]:\n----------------\n", $version, date('Y-m-d'));
+            foreach ($logArr as $line) {
+                if (str_word_count($line) <= 1)
+                    continue;
+                $this->changelog .= " - " . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
+            }
+            $log = $this->getFileContents('changelog.md');
+            if ($log && $this->changelog) {
+                $logTag = '#CHANGELOG#';
+                $changelog = $logTag . "\n\n" . $this->changelog;
+                $log = str_replace($logTag, $changelog, $log);
+            }
         }
-
-        $log = $this->getFileContents('changelog.md');
-        if ($log && $this->changelog) {
-            $logTag = '#CHANGELOG#';
-            $changelog = $logTag . "\n\n" . $this->changelog;
-            $log = str_replace($logTag, $changelog, $log);
-        }
-
 
         // Tag trunk
         $cmd = sprintf("cd %s && git tag -a %s -m %s", $this->getTmpDir() . '/master', $version, escapeshellarg($message) );
@@ -255,6 +309,22 @@ class Git extends Iface
         }
         return $this->output;
     }
+//mifsudm@252s-dev:~/public_html/Unimelb$ git ls-remote https://github.com/tropotek/tk-installers.git
+//436f5dda4395b32fff81ee3b555be493e82f970c        HEAD
+//436f5dda4395b32fff81ee3b555be493e82f970c        refs/heads/master
+//1a171437273291ef8496c31cd8b98ad1b24b6212        refs/tags/1.2.0
+//9cc3722e58adaf7998f490f3ab2fa6a2d52d8360        refs/tags/1.2.0^{}
+
+
+//mifsudm@252s-dev:~/public_html/Unimelb$ git ls-remote https://github.com/tropotek/tk-installers.git
+//af964ca433e1bdf086464bbd4f1c470343d76f64        HEAD
+//af964ca433e1bdf086464bbd4f1c470343d76f64        refs/heads/master
+//1a171437273291ef8496c31cd8b98ad1b24b6212        refs/tags/1.2.0
+//9cc3722e58adaf7998f490f3ab2fa6a2d52d8360        refs/tags/1.2.0^{}
+//8fc036421fb7e7e29c088e7fb0d5167fdcf7423d        refs/tags/1.2.1
+//75d2d0ae625be6efb54666fe1feec581ae708884        refs/tags/1.2.1^{}
+
+
 
     /**
      * Returns true if the path is a file

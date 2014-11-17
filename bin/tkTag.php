@@ -124,14 +124,12 @@ try {
         $vcs = new \Tbx\Vcs\Adapter\Svn($repo, $tmp, $dryRun, $noClean);
     }
     $tagList = $vcs->getTagList();
-
     $curVer = $vcs->getCurrentTag();
     if (!$curVer) {
         $curVer = '0.0.0';
     }
     $newVer = '';
     $aliasVer = '';
-
     if (!$forceTag && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$vcs->isDiff($curVer)) {
         $version = $curVer;
         echo " - Status: Skipped\n";
@@ -180,7 +178,6 @@ try {
             echo jsonPrettyPrint(json_encode($pkg)) . "\n";
         }
     }
-
     echo ' - ' . "\n";
 
 } catch (Exception $e) {
