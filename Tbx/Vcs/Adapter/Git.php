@@ -186,7 +186,7 @@ class Git extends Iface
         $this->output = '';
         $tagName = trim($tagName, '/');
         $cmd = 'git ls-remote ' . $this->getUri();
-//        $cmd = "git diff HEAD ".escapeshellarg($tagName)." --minimal | grep '^diff --git '";
+        $cmd = "git diff HEAD ".escapeshellarg($tagName)." --minimal | grep '^diff --git '";
         if ($this->isDryRun()) {
             echo ' = ' . $cmd . "\n";
         }
@@ -215,7 +215,6 @@ class Git extends Iface
      *
      * @param $path
      * @return array
-     * @todo: See why this command does not work.
      */
     public function makeChangelog($path = 'master')
     {
@@ -277,7 +276,7 @@ class Git extends Iface
                 $this->changelog .= " - " . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
             }
             $log = $this->getFileContents('changelog.md');
-            if ($log && $this->changelog) {
+            if ($log && $this->changelog && !preg_match('/Ver '.preg_quote($version).' [/', $this->$changelog)) {
                 $logTag = '#CHANGELOG#';
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
