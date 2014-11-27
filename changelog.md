@@ -1,5 +1,15 @@
 #CHANGELOG#
 
+
+Ver 1.2.0 [2014-11-27]:
+----------------
+ - Updated todo.md and preparing for historic release before updating for phar packaging
+ - Updated tag release system for git
+ - Updated CMD utilities to include new GIT repositories not just SVN
+ - Fixed composer.json alias from trunk to master
+ - Migration to git
+
+
 Ver 1.0.2 [2013-12-13]:
 ----------------
  - Updated Git tagging class and script
