@@ -25,6 +25,7 @@ $dryRun = false;
 $showJson = false;
 $staticVer = false;
 $forceTag = false;
+$tagDeps = false;
 $tmp = sys_get_temp_dir();
 if (!$tmp) {
     $tmp = '/tmp';
@@ -46,10 +47,11 @@ Available options that this command can receive:
                              updated to use specific versions of the libs
                              EG: ~1.0 becomes 1.0.6 for example.
     --force                  Forces a tag version even if there is no change from the previous version
-    --showJson               Output package release info as a json object.
-    --remotePkgUri           The remote server that contains the compiled package json files.
-    --dryRun                 If set the final svn command is dumped to stdout
-    --tmpPath                If set change the tmp path, Default `$tmp`
+    --tagdeps                Tag any ttek dependant libs including the main project.
+    --showjson               Output package release info as a json object.
+    --remotepkguri           The remote server that contains the compiled package json files.
+    --dryrun                 If set the final svn command is dumped to stdout
+    --tmppath                If set change the tmp path, Default `$tmp`
     --help                   Show this help text
 
 Copyright (c) 2002-2020
@@ -65,11 +67,17 @@ foreach ($argv as $param) {
     if (strtolower(substr($param, 0, 10)) == '--tmppath=') {
         $tmp = strtolower(substr($param, 10));
     }
-    if (strtolower(substr($param, 0, 10)) == '--forcetag') {
-        $forceTag = true;
+//    if (strtolower(substr($param, 0, 10)) == '--forcetag') {
+//        $forceTag = true;
+//    }
+//    if (strtolower(substr($param, 0, 7)) == '--force') {
+//        $forceTag = true;
+//    }
+    if (strtolower(substr($param, 0, 7)) == '--tagdeps') {
+        $tagDeps = true;
     }
-    if (strtolower(substr($param, 0, 7)) == '--force') {
-        $forceTag = true;
+    if (strtolower(substr($param, 0, 7)) == '--tag-deps') {
+        $tagDeps = true;
     }
     if (strtolower(substr($param, 0, 8)) == '--static') {
         $staticVer = true;
@@ -126,64 +134,68 @@ try {
     }
 
     $packages = array();
-    foreach (get_object_vars($trunkJson->require) as $name => $ver) {
-        $regex = implode('|', $packagePrefixList);
-        if (!preg_match('/^('.$regex.')\//i', $name)) continue;
-        $json = '';
-        if (isset($trunkJson->repositories)) {
-            foreach ($trunkJson->repositories as $repoObj) {
-                $json = fileGetContents($repoObj->url . 'p/' . $name . '.json');
-                $json = json_decode($json);
-                if ($json !== null)
-                    break;
+    if ($tagDeps) {
+        foreach (get_object_vars($trunkJson->require) as $name => $ver) {
+            $regex = implode('|', $packagePrefixList);
+            if (!preg_match('/^(' . $regex . ')\//i', $name))
+                continue;
+            $json = '';
+            if (isset($trunkJson->repositories)) {
+                foreach ($trunkJson->repositories as $repoObj) {
+                    $json = fileGetContents($repoObj->url . 'p/' . $name . '.json');
+                    $json = json_decode($json);
+                    if ($json !== null)
+                        break;
+                }
             }
-        }
-        if (!$json) {
-            $json = fileGetContents('https://packagist.org/p/' . $name . '.json');
-            $json = json_decode($json);
-        }
-        if (!$json) continue;
+            if (!$json) {
+                $json = fileGetContents('https://packagist.org/p/' . $name . '.json');
+                $json = json_decode($json);
+            }
+            if (!$json)
+                continue;
 
-        $packages[$name] = array(
-            'name' => $name
-        );
-        if (isset($json->packages->{$name}->{'dev-trunk'})) {
-            $packages[$name]['uri'] = $json->packages->{$name}->{'dev-trunk'}->source->url;
-            $packages[$name]['branch-alias'] = $json->packages->{$name}->{'dev-trunk'}->extra->{'branch-alias'}->{'dev-trunk'};
-        } else if (isset($json->packages->{$name}->{'dev-master'})) {
-            $packages[$name]['uri'] = $json->packages->{$name}->{'dev-master'}->source->url;
-            $packages[$name]['branch-alias'] = $json->packages->{$name}->{'dev-master'}->extra->{'branch-alias'}->{'dev-master'};
+            $packages[$name] = array('name' => $name);
+            if (isset($json->packages->{$name}->{'dev-trunk'})) {
+                $packages[$name]['uri'] = $json->packages->{$name}->{'dev-trunk'}->source->url;
+                $packages[$name]['branch-alias'] = $json->packages->{$name}->{'dev-trunk'}->extra->{'branch-alias'}->{'dev-trunk'};
+            } else if (isset($json->packages->{$name}->{'dev-master'})) {
+                $packages[$name]['uri'] = $json->packages->{$name}->{'dev-master'}->source->url;
+                $packages[$name]['branch-alias'] = $json->packages->{$name}->{'dev-master'}->extra->{'branch-alias'}->{'dev-master'};
+            }
+
+            $verList = array_keys(get_object_vars($json->packages->{$name}));
+            sortVersionArray($verList);
+            $currVer = array_pop($verList);
+            $packages[$name]['version'] = $currVer;
+
+            echo "=> Tagging: " . $packages[$name]['uri'] . "\n";
+            $cmd = sprintf('tkTag %s %s %s --noclean --tmpPath=%s', escapeshellarg($packages[$name]['uri']), $dr, $forceTagStr, escapeshellarg($tmp));
+            $line = exec($cmd, $out, $ret);
+
+            if ($ret != 0) {
+                throw new Exception('Error tagging package: ' . $name);
+            }
+
+            $out = implode("\n", $out);
+            echo $out;
+            if (preg_match('/- Version: (.+)/i', $out, $regs)) {
+                $newVersion = $regs[1];
+            }
+
+            $packages[$name]['newVersion'] = $newVersion;
+            $packages[$name]['released'] = false;
+            if ($packages[$name]['newVersion'] != $packages[$name]['version']) {
+                $packages[$name]['released'] = true;
+            }
+            if ($staticVer) {
+                $tagJson->require->{$name} = $packages[$name]['newVersion'];
+            }
+
         }
-
-        $verList = array_keys(get_object_vars($json->packages->{$name}));
-        sortVersionArray($verList);
-        $currVer = array_pop($verList);
-        $packages[$name]['version'] = $currVer;
-
-        echo "=> Tagging: " . $packages[$name]['uri'] . "\n";
-        $cmd = sprintf('tkTag %s %s %s --noclean --tmpPath=%s', escapeshellarg($packages[$name]['uri']), $dr, $forceTagStr, escapeshellarg($tmp));
-        $line = exec($cmd, $out, $ret);
-
-        if ($ret != 0) {
-            throw new Exception('Error tagging package: ' . $name);
-        }
-
-        $out = implode("\n", $out);
-        echo $out;
-        if (preg_match('/- Version: (.+)/i', $out, $regs)) {
-            $newVersion = $regs[1];
-        }
-
-        $packages[$name]['newVersion'] = $newVersion;
-        $packages[$name]['released'] = false;
-        if ($packages[$name]['newVersion'] != $packages[$name]['version']) {
-            $packages[$name]['released'] = true;
-        }
-        if ($staticVer) {
-            $tagJson->require->{$name} = $packages[$name]['newVersion'];
-        }
-
     }
+
+
     // Update composer file
     $tagJson->{'minimum-stability'} = 'stable';
     $vcs->setFileContents('/composer.json', jsonPrettyPrint(json_encode($tagJson)));

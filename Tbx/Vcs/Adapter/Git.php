@@ -32,6 +32,9 @@ class Git extends Iface
                 mkdir($this->tmp);
             }
             $cmd = sprintf('git clone %s %s', escapeshellarg($this->makeUri()), escapeshellarg($this->getTmpDir().'/master'));
+            if ($this->isDryRun()) {
+                echo ' = ' . $cmd . "\n";
+            }
             exec($cmd, $this->output);
             $this->output = implode("\n", $this->output);
         }
@@ -76,6 +79,9 @@ class Git extends Iface
     {
         if (!$this->tagList || $force) {
             $cmd = 'git ls-remote --tags ' . $this->getUri();
+            if ($this->isDryRun()) {
+                echo ' = ' . $cmd . "\n";
+            }
             exec($cmd, $out);
             $this->tagList = array();
             foreach($out as $line) {
@@ -218,7 +224,10 @@ class Git extends Iface
      */
     public function makeChangelog($path = 'master')
     {
-        $cmd = sprintf('git log -n 20 --format=oneline %s %s', escapeshellarg($path), escapeshellarg($this->getCurrentTag()));
+        $cmd = sprintf('git log -n 20 --format=oneline');
+        if ($this->isDryRun()) {
+            echo ' = ' . $cmd . "\n";
+        }
         exec($cmd, $list, $ret);
         if ($ret) {
             return false;
@@ -276,7 +285,7 @@ class Git extends Iface
                 $this->changelog .= " - " . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
             }
             $log = $this->getFileContents('changelog.md');
-            if ($log && $this->changelog && !preg_match('/Ver '.preg_quote($version).' [/', $this->$changelog)) {
+            if ($log && $this->changelog && !preg_match('/Ver '.preg_quote($version).' \[/', $this->changelog)) {
                 $logTag = '#CHANGELOG#';
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
@@ -285,6 +294,9 @@ class Git extends Iface
 
         // Tag trunk
         $cmd = sprintf("cd %s && git tag -a %s -m %s", $this->getTmpDir() . '/master', $version, escapeshellarg($message) );
+        if ($this->isDryRun()) {
+            echo ' = ' . $cmd . "\n";
+        }
         $this->output = $cmd;
         if (!$this->isDryRun()) {
 
@@ -308,22 +320,6 @@ class Git extends Iface
         }
         return $this->output;
     }
-//mifsudm@252s-dev:~/public_html/Unimelb$ git ls-remote https://github.com/tropotek/tk-installers.git
-//436f5dda4395b32fff81ee3b555be493e82f970c        HEAD
-//436f5dda4395b32fff81ee3b555be493e82f970c        refs/heads/master
-//1a171437273291ef8496c31cd8b98ad1b24b6212        refs/tags/1.2.0
-//9cc3722e58adaf7998f490f3ab2fa6a2d52d8360        refs/tags/1.2.0^{}
-
-
-//mifsudm@252s-dev:~/public_html/Unimelb$ git ls-remote https://github.com/tropotek/tk-installers.git
-//af964ca433e1bdf086464bbd4f1c470343d76f64        HEAD
-//af964ca433e1bdf086464bbd4f1c470343d76f64        refs/heads/master
-//1a171437273291ef8496c31cd8b98ad1b24b6212        refs/tags/1.2.0
-//9cc3722e58adaf7998f490f3ab2fa6a2d52d8360        refs/tags/1.2.0^{}
-//8fc036421fb7e7e29c088e7fb0d5167fdcf7423d        refs/tags/1.2.1
-//75d2d0ae625be6efb54666fe1feec581ae708884        refs/tags/1.2.1^{}
-
-
 
     /**
      * Returns true if the path is a file
