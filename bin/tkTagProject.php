@@ -73,10 +73,10 @@ foreach ($argv as $param) {
 //    if (strtolower(substr($param, 0, 7)) == '--force') {
 //        $forceTag = true;
 //    }
-    if (strtolower(substr($param, 0, 7)) == '--tagdeps') {
+    if (strtolower(substr($param, 0, 9)) == '--tagdeps') {
         $tagDeps = true;
     }
-    if (strtolower(substr($param, 0, 7)) == '--tag-deps') {
+    if (strtolower(substr($param, 0, 10)) == '--tag-deps') {
         $tagDeps = true;
     }
     if (strtolower(substr($param, 0, 8)) == '--static') {
