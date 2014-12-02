@@ -191,7 +191,7 @@ try {
             if ($staticVer) {
                 $tagJson->require->{$name} = $packages[$name]['newVersion'];
             }
-
+            echo "\n";
         }
     }
 
