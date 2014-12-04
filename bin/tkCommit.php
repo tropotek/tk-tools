@@ -66,7 +66,7 @@ try {
 
     if (is_dir($cwd . '/.git')) {   // GIT
         echo "COMMIT: " . $p . "\n";
-        echo '  - GIT: ' . `cd $p && git add -u && git commit -m $commitMsg && git push`;
+        echo '  - GIT: ' . `cd $p && git commit -am $commitMsg && git push`;
     } else if (is_dir($cwd . '/.svn')) {   // SVN
         echo "COMMIT: " . $p . "\n";
         echo '  - SVN: ' . `cd $p && svn ci -m $commitMsg`;

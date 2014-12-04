@@ -20,77 +20,122 @@ class Git extends Iface
 
 
     /**
-     * Checkout the master/trunk repository to a tmp folder
+     * Commit the current branch and push to remote repos
      *
-     * @return string
-     */
-    public function checkout()
-    {
-        $this->output = '';
-        if (!is_dir($this->getTmpDir().'/master')) {
-            if (!is_dir($this->tmp)) {
-                mkdir($this->tmp);
-            }
-            $cmd = sprintf('git clone %s %s', escapeshellarg($this->makeUri()), escapeshellarg($this->getTmpDir().'/master'));
-            if ($this->isDryRun()) {
-                echo ' = ' . $cmd . "\n";
-            }
-            exec($cmd, $this->output);
-            $this->output = implode("\n", $this->output);
-        }
-        return $this->output;
-    }
-
-    /**
-     * Commit the master/trunk repository to a tmp folder
-     *
-     * @param string $message Any commit message, if non supplied the version will be used
-     * @return string
+     * @param string $message
+     * @throws \Exception
+     * @return bool
      */
     public function commit($message = '')
     {
         $this->output = '';
-        if (!$this->isDryRun()) {
-            if ($message) {
-                $message = escapeshellarg($message);
-            } else {
-                $message = '\'Auto Commit\'';
-            }
-            $cmd = sprintf('cd %s && git commit -am %s ', escapeshellarg($this->getTmpDir().'/master'), $message);
-            exec($cmd, $this->output);
-            $this->output = implode("\n", $this->output);
-
-            // Test this, but I think its correct....
-            $cmd = sprintf('cd %s && git push ', escapeshellarg($this->getTmpDir().'/master') );
-            exec($cmd, $this->output);
-
-            $this->output = implode("\n", $this->output);
+        $ret = null;
+        if ($message) {
+            $message = '~Auto: ' . $message;
+        } else {
+            $message = '~Auto: Commit';
         }
-        return $this->output;
+        $cmd = sprintf('git commit -am %s ', escapeshellarg($message));
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
+        if (!$this->isDryRun()) {
+            exec($cmd, $this->output, $ret);
+        }
+        $this->log($this->output, self::LOG_VVV);
+        if ($ret) {
+            return false;
+            //throw new \Exception('Cannot commit branch');
+        }
+
+        $cmd = sprintf('git push');
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
+        if (!$this->isDryRun()) {
+            exec($cmd, $this->output, $ret);
+        }
+        $this->log($this->output, self::LOG_VVV);
+        if ($ret) {
+            return false;
+            //throw new \Exception('Cannot push branch');
+        }
+        return $this;
     }
+
+    /**
+     * Commit the current branch and push to remote repos
+     *
+     * @throws \Exception
+     * @return bool
+     */
+    public function update()
+    {
+        $cmd = sprintf('git pull ');
+        $this->log($cmd, self::LOG_CMD);
+        exec($cmd, $this->output, $ret);
+        if ($ret) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Commit the current branch and push to remote repos
+     *
+     * @param string $branch
+     * @throws \Exception
+     * @return bool
+     */
+    public function checkout($branch = 'master')
+    {
+        $cmd = sprintf('git checkout %s', escapeshellarg($branch));
+        $this->log($cmd, self::LOG_CMD);
+        exec($cmd, $this->output, $ret);
+        if ($ret) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Get the repository package base URI
+     *
+     * @return string
+     */
+    public function getUri()
+    {
+        if (!$this->uri) {
+            $this->output = '';
+            $cmd = 'git remote -v';
+            $this->log($cmd, self::LOG_CMD);
+            exec($cmd, $this->output);
+            if (preg_match('/^origin\s+(\S+)\s+\((fetch|push)\)/', trim($this->output[0]), $regs)) {
+                $this->uri = $regs[1];
+            }
+        }
+        return $this->uri;
+    }
+
 
     /**
      * Get an array of current tagged versions.
      *
-     * @param bool $force If true the tag list will be refreshed from the repository
      * @return array
      */
-    public function getTagList($force = false)
+    public function getTagList()
     {
-        if (!$this->tagList || $force) {
-            $cmd = 'git ls-remote --tags ' . $this->getUri();
-            if ($this->isDryRun()) {
-                echo ' = ' . $cmd . "\n";
-            }
-            exec($cmd, $out);
+        if (!$this->tagList) {
+            $this->output = '';
             $this->tagList = array();
-            foreach($out as $line) {
+
+            $cmd = 'git tag ';
+            $this->log($cmd, self::LOG_CMD);
+            exec($cmd, $this->output);
+
+            foreach($this->output as $line) {
+                $line = trim($line);
                 if (!$line) continue;
-                if (preg_match('/^([0-9a-f]{40})\s+(\S+)/i', $line, $regs)) {
-                    $line = basename($regs[2]);
-                    if (preg_match('/^[0-9]/', $line)) {
-                        $this->tagList[$regs[1]] = $line;
-                    }
+                if (preg_match('/^([0-9\.]+)/i', $line, $regs)) {
+                    $this->tagList[$line] = $line;
                 }
             }
             $this->sortVersionArray($this->tagList);
@@ -98,120 +143,34 @@ class Git extends Iface
         return $this->tagList;
     }
 
-    /**
-     * Get the file contents from a repository file.
-     *
-     * @param string $path This is a relative path from the base repository URI
-     * @return string
-     */
-    public function getFileContents($path)
-    {
-        if ($path[0] != '/') {
-            $path = '/'.$path;
-        }
-        if (is_file($this->getTmpDir().'/master'.$path))
-            return file_get_contents($this->getTmpDir().'/master'.$path);
-    }
 
     /**
-     * Set the file contents from a repository file.
-     *
-     * @param string $path This is a relative path from the trunk/master repository URI
-     * @param string $str The file contents to put
-     * @return string
-     */
-    public function setFileContents($path, $str)
-    {
-        if ($path[0] != '/') {
-            $path = '/'.$path;
-        }
-        if (!$this->isDryRun()) {
-            return file_put_contents($this->getTmpDir().'/master'.$path, $str);
-        }
-    }
-
-    /**
-     * Returns true if the $cmpPath and $srcPath are different
-     * IE: have modifications.
-     *
-     * This can be used to make decisions based on if the two tags
-     * have had any modifications, ie: like releasing a version if
-     * changes have been committed or not.
-     *
-     * @param string $tagName The tag/version name of the tag folder
-     * @param array $excludeFiles (GIT Unused) All files must have the initial / removed as it is assumed relative to the project.
-     * @throws \Exception
-     * @return boolean
-     */
-//     public function isDiff_old($tagName, $excludeFiles = array('composer.json'))
-//    {
-//
-//
-//        return false;
-//
-//
-//
-//
-//        $out = array();
-//        $cmd = 'git ls-remote ' . $this->getUri();
-//        exec($cmd, $out);
-//        $masterId = '';
-//        vd($out);
-//        foreach($out as $i => $line) {
-//            if (preg_match('/\^\{\}$/', $line)) continue;
-//            if (preg_match('/^([0-9a-f]{40})\s+(\S+)/i', $line, $regs)) {
-//                vd('1', $regs);
-//                if ($i == 0) {
-//                    $masterId = $regs[1];
-//                    continue;
-//                }
-//                $tag = basename($regs[2]);
-//                if (preg_match('/^[0-9]/', $tag) && $tagName == $tag) {
-//                    vd('2', $regs);
-//                    if ($masterId == $regs[1]) {
-//                        return false;
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//        vd('Release', $masterId);
-//        return true;
-//    }
-
-    /**
-     *
-     *
+     * return a list of changed files with out the excluded files.
      *
      * @param string $tagName
      * @param array  $excludeFiles
      * @return array
      */
-    public function diff($tagName, $excludeFiles = array('composer.json', 'changelog.md'))
+    public function diff($tagName, $excludeFiles = array())
     {
         $this->output = '';
         $tagName = trim($tagName, '/');
-        $cmd = 'git ls-remote ' . $this->getUri();
-        $cmd = "git diff HEAD ".escapeshellarg($tagName)." --minimal | grep '^diff --git '";
-        if ($this->isDryRun()) {
-            echo ' = ' . $cmd . "\n";
-        }
+        $cmd = 'git diff --name-status '.escapeshellarg($tagName).' HEAD';
+        $this->log($cmd, self::LOG_CMD);
         exec($cmd, $this->output);
+        $this->log($this->output, self::LOG_DEBUG);
 
-        // TODO: Cause git does not have a remote diff command, we have to just fake it.
-        // This means that tags will be created every time this command is run regardless of
-        // any changes in the trunk.
-
-        // We only want this to return a list of changed files so that tags are created only when the repo
-        // has updates and is not the same as an existing tag.
-        $changed = array('release.md');
+        $changed = array();
         foreach($this->output as $line) {
-            ;
+            if (!preg_match('/^[a-z]\s+(\S+)/i', $line, $regs)) {
+                continue;
+            }
+            if (in_array(trim($regs[1]), $excludeFiles)) {
+                continue;
+            }
+            $changed[] = trim($regs[1]);
         }
-
-
-        //TODO:
-
+        $this->log($changed, self::LOG_VVV);
         return $changed;
     }
 
@@ -219,32 +178,33 @@ class Git extends Iface
     /**
      * Get an array of changes to the tag since the last copy command was executed.
      *
-     * @param $path
+     * @param string $version
      * @return array
      */
-    public function makeChangelog($path = 'master')
+    public function makeChangelog($version)
     {
-        $cmd = sprintf('git log -n 20 --format=oneline');
-        if ($this->isDryRun()) {
-            echo ' = ' . $cmd . "\n";
-        }
-        exec($cmd, $list, $ret);
+        $cmd = sprintf('git log --oneline %s..HEAD', escapeshellarg($version));
+        $this->log($cmd, self::LOG_CMD);
+        exec($cmd, $this->output, $ret);
         if ($ret) {
             return false;
         }
         $exists = array();
         $logs = array();
-        foreach ($list as $i => $log) {
+        $this->log($this->output, self::LOG_DEBUG);
+        foreach ($this->output as $i => $log) {
             $msg = $log;
-            if (!preg_match('/^([0-9a-f]{40})\s+(.+)/i', $msg, $regs)) {
+            if (!preg_match('/^([0-9a-f]{7,10})\s+(.+)/i', $msg, $regs)) {
                 continue;
             }
             $msg = trim($regs[2]);
-            if (strlen($msg) <= 2 || preg_match('/^Auto /i', $msg)) {
+            if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {
+            // Use the below in next major version. Replace the above (1.2.1)
+            //if (strlen($msg) <= 2 || preg_match('/^~Auto:/', $msg)) {
                 continue;
             }
             if (!in_array(md5($msg), $exists)) {
-                $logs = array_merge($logs, explode("\n", $msg));        // << Not sure this is needed fro git, multi line logs won't exist.
+                $logs[] = $msg;
                 $exists[] = md5($msg);
             }
         }
@@ -263,89 +223,92 @@ class Git extends Iface
     public function tagRelease($version, $message = '')
     {
         if (!$message) {
-            $message = 'Tagging a new release: '.$version;
+            $message = 'Tagging new release: '.$version;
         }
 
-        $json = $this->getFileContents('/composer.json');
+        $json = file_get_contents('composer.json');
         if ($json) {
             $jsonTag = json_decode($json);
             $jsonTag->version = $version;
             $jsonTag->time = date('Y-m-d');
-            $this->setFileContents('/composer.json', jsonPrettyPrint(json_encode($jsonTag)));
+            file_put_contents('composer.json', jsonPrettyPrint(json_encode($jsonTag)));
             $this->commit();
         }
 
-        $logArr =  $this->makeChangelog();
+        $logArr =  $this->makeChangelog($this->getCurrentTag());
         $log = '';
         if (is_array($logArr)) {
-            $this->changelog = sprintf("Ver %s [%s]:\n----------------\n", $version, date('Y-m-d'));
+            $this->changelog = sprintf("Ver %s [%s]:\n-------------------------------\n", $version, date('Y-m-d'));
             foreach ($logArr as $line) {
                 if (str_word_count($line) <= 1)
                     continue;
                 $this->changelog .= " - " . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
             }
-            $log = $this->getFileContents('changelog.md');
-            if ($log && $this->changelog && !preg_match('/Ver '.preg_quote($version).' \[/', $this->changelog)) {
+            $log = file_get_contents('changelog.md');
+            if ($log && $this->changelog && !preg_match('/Ver\s+'.preg_quote($version).'\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
                 $logTag = '#CHANGELOG#';
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
             }
+            $this->log($log, self::LOG_DEBUG);
         }
 
         // Tag trunk
-        $cmd = sprintf("cd %s && git tag -a %s -m %s", $this->getTmpDir() . '/master', $version, escapeshellarg($message) );
-        if ($this->isDryRun()) {
-            echo ' = ' . $cmd . "\n";
-        }
+        $cmd = sprintf("git tag -a %s -m %s", $version, escapeshellarg($message) );
         $this->output = $cmd;
-        if (!$this->isDryRun()) {
 
-            // Copy log
-            if ($log && $this->changelog) {
-                $this->setFileContents('changelog.md', $log);
-                $this->commit();
+        // Copy log
+        if ($log && $this->changelog) {
+            $this->log('  Updating changelog.md.');
+            if (!$this->isDryRun()) {
+                file_put_contents('changelog.md', $log);
             }
-            exec($cmd, $this->output);
-            $this->output = implode("\n", $this->output);
-
-            $pushTag = sprintf("cd %s && git push --tags", $this->getTmpDir() . '/master');
-            exec($pushTag, $this->output);
-            $this->output = implode("\n", $this->output);
-
-            // Restore trunk composer.json
-            if ($json) {
-                $this->setFileContents('/composer.json', $json);
-                $this->commit();
-            }
+            $this->commit();
         }
+        $this->output = array();
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
+        if (!$this->isDryRun()) {
+            exec($cmd, $this->output);
+        }
+        $this->output = implode("\n", $this->output);
+
+        $this->output = array();
+        $pushTag = sprintf("git push --tags");
+        $this->log($this->getCmdPrepend().$pushTag, self::LOG_CMD);
+        if (!$this->isDryRun()) {
+            exec($pushTag, $this->output);
+        }
+        $this->output = implode("\n", $this->output);
+        // Restore trunk composer.json
+        if ($json) {
+            $this->log('  Updating composer.json');
+            if (!$this->isDryRun()) {
+                file_put_contents('composer.json', $json);
+            }
+            $this->commit();
+        }
+
         return $this->output;
     }
 
-    /**
-     * Returns true if the path is a file
-     *
-     * @param string $path This is a relative path from the base repository URI
-     * @return boolean
-     */
-    public function isFile($path)
-    {
-        if ($path[0] != '/') {
-            $path = '/'.$path;
-        }
-        return is_file($this->getTmpDir().'/master'.$path);
-    }
 
     /**
-     * Returns true if the path is a directory
      *
-     * @param string $path This is a relative path from the base repository URI
-     * @return boolean
+     *
      */
-    public function isDir($path)
+    public function getCurrentBranch()
     {
-        if ($path[0] != '/') {
-            $path = '/'.$path;
+        $cmd = sprintf('git branch');
+        $this->log($cmd, self::LOG_CMD);
+        exec($cmd, $this->output);
+
+        foreach($this->output as $line) {
+            if (preg_match('/^\* (b[0-9]+\.[0-9]+\.[0-9]+)/', $line, $regs)) {
+                return $regs[1];
+            }
         }
-        return is_dir($this->getTmpDir().'/master'.$path);
+        return 'master';
     }
+
+
 }

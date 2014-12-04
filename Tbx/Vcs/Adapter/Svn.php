@@ -12,8 +12,8 @@ namespace Tbx\Vcs\Adapter;
  * Class Svn
  * Use this to do operations on an SVN repository
  *
+ * NOTE: implement this SVN Adapter one-day if we can use it??????
  *
- * @package Tbx\Vcs\Adapter
  */
 class Svn extends Iface
 {
@@ -27,8 +27,8 @@ class Svn extends Iface
     {
         $this->output = '';
         if (!is_dir($this->getTmpDir().'/trunk')) {
-            if (!is_dir($this->tmp)) {
-                mkdir($this->tmp);
+            if (!is_dir($this->workingDirectory)) {
+                mkdir($this->workingDirectory);
             }
             $cmd = sprintf('svn co %s %s ', escapeshellarg($this->makeUri('/trunk')), escapeshellarg($this->getTmpDir().'/trunk'));
             exec($cmd, $this->output);

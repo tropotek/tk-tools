@@ -26,17 +26,22 @@ $showJson = false;
 $staticVer = false;
 $forceTag = false;
 $tagDeps = false;
-$tmp = sys_get_temp_dir();
-if (!$tmp) {
-    $tmp = '/tmp';
-}
-$tmp .= '/tk_'.md5(time());
-$packagePrefixList = array('ttek', 'ttek\-plugin', 'ttek\-theme', 'tropotek', 'tropotek\-plugin', 'tropotek\-theme', 'unimelb\-plg', 'ems');
+$verbose = 0;
+
+$packagePrefixList = array(
+    'ttek'          => 'vendor/ttek',
+    'ttek\-plugin'  => 'plugin',
+    'ttek\-theme'   => 'theme',
+    'ttek\-asset'   => 'assets',
+    'unimelb'       => 'vendor',
+    'unimelb-plg'   => 'plugin',
+    'unimelb-theme' => 'theme'
+);
 
 
 $help = "
-Usage: " . basename($argv[0]) . " [REPO-URL] [OPTIONS...]
-Tag a release from the repository. Works only on trunk projects.
+Usage: " . basename($argv[0]) . " [OPTIONS...]
+Tag a release from the repository. Works only on checked out projects.
 This command will search the search the project for all packages
 in use and tag and release them with new version along with the
 parent project.
@@ -48,10 +53,10 @@ Available options that this command can receive:
                              EG: ~1.0 becomes 1.0.6 for example.
     --force                  Forces a tag version even if there is no change from the previous version
     --tagdeps                Tag any ttek dependant libs including the main project.
-    --showjson               Output package release info as a json object.
-    --remotepkguri           The remote server that contains the compiled package json files.
+    --json                   Output package release info as a json object.
     --dryrun                 If set the final svn command is dumped to stdout
-    --tmppath                If set change the tmp path, Default `$tmp`
+    --verbose                [-v|vv|vvv] Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+    --quiet                  [-q] Turn off all messages, only errors will be displayed
     --help                   Show this help text
 
 Copyright (c) 2002-2020
@@ -61,18 +66,36 @@ Tropotek home page: <http://www.tropotek.com/>
 
 // Get var values from arguments
 foreach ($argv as $param) {
+
+    if (strtolower(substr($param, 0, 7)) == '--quiet') {
+        $verbose = 0;
+    }
+    if (strtolower(substr($param, 0, 2)) == '-q') {
+        $verbose = 0;
+    }
+
+    if (strtolower(substr($param, 0, 9)) == '--verbose') {
+        $verbose = 5;
+    }
+    if (strtolower(substr($param, 0, 2)) == '-v') {
+        $verbose = 1;
+    }
+    if (strtolower(substr($param, 0, 3)) == '-vv') {
+        $verbose = 3;
+    }
+    if (strtolower(substr($param, 0, 4)) == '-vvv') {
+        $verbose = 5;
+    }
+
     if (strtolower(substr($param, 0, 10)) == '--showjson') {
         $showJson = true;
     }
     if (strtolower(substr($param, 0, 10)) == '--tmppath=') {
         $tmp = strtolower(substr($param, 10));
     }
-//    if (strtolower(substr($param, 0, 10)) == '--forcetag') {
-//        $forceTag = true;
-//    }
-//    if (strtolower(substr($param, 0, 7)) == '--force') {
-//        $forceTag = true;
-//    }
+    if (strtolower(substr($param, 0, 10)) == '--forcetag') {
+        $forceTag = true;
+    }
     if (strtolower(substr($param, 0, 9)) == '--tagdeps') {
         $tagDeps = true;
     }
@@ -101,168 +124,100 @@ if ($forceTag) {
 }
 
 try {
+    $exclude = array('composer.json', 'changelog.md');
 
-    if (!preg_match('/^[a-z0-9]{2,8}:\/\/(www\.)?[\S]+$/i', $repo)) {
-        throw new Exception("ERROR: Please supply a valid repository URI: " . $repo);
-    }
+    $vcs = new \Tbx\Vcs\Adapter\Git($dryRun);
+    $vcs->setVerbose($verbose);
 
-    echo "TMP PATH: $tmp \n";
-    if (!is_dir($tmp)) {
-        mkdir($tmp, 0777, true);
-    }
+    $currentBranch = $vcs->getCurrentBranch();
 
-    if (preg_match('/git/', $repo)) {
-        $vcs = new \Tbx\Vcs\Adapter\Git($repo, $tmp, $dryRun, true);
-    } else {
-        $vcs = new \Tbx\Vcs\Adapter\Svn($repo, $tmp, $dryRun, true);
-    }
+    $vcs->commit('Finalising project ' . $currentBranch . ' for tagged release.');
 
-    echo "Retrieving project composer.json file.\n";
-    $vcs->checkout();
-    if (!$vcs->isFile('/composer.json')) {
-        throw new Exception('Only composer projects can be released.');
-    }
-
-    // get trunk composer.json file
-    $tagJson = $trunkJson = json_decode($vcs->getFileContents('/composer.json'));
-
-    if (!$trunkJson) {
+    $vcs->log('Retrieving project composer.json file.');
+    // get composer.json file
+    $tagJson = $headJson = json_decode(file_get_contents('composer.json'));
+    if (!$headJson) {
         throw new Exception('Error reading composer.json file in project root.');
     }
-    if ($trunkJson->type != 'project') {
-        throw new Exception('Only package types can be released.');
+    if ($headJson->type != 'project') {
+        throw new Exception('Only `project` package types can be released.');
     }
-
     $packages = array();
+
     if ($tagDeps) {
-        foreach (get_object_vars($trunkJson->require) as $name => $ver) {
-            $regex = implode('|', $packagePrefixList);
-            if (!preg_match('/^(' . $regex . ')\//i', $name))
-                continue;
-            $json = '';
-            if (isset($trunkJson->repositories)) {
-                foreach ($trunkJson->repositories as $repoObj) {
-                    $json = fileGetContents($repoObj->url . 'p/' . $name . '.json');
-                    $json = json_decode($json);
-                    if ($json !== null)
-                        break;
-                }
-            }
-            if (!$json) {
-                $json = fileGetContents('https://packagist.org/p/' . $name . '.json');
-                $json = json_decode($json);
-            }
-            if (!$json)
+        foreach (get_object_vars($headJson->require) as $name => $ver) {
+            $regex = implode('|', array_keys($packagePrefixList));
+            if (!preg_match('/^(' . $regex . ')\//i', $name, $regs))
                 continue;
 
-            $packages[$name] = array('name' => $name);
-            if (isset($json->packages->{$name}->{'dev-trunk'})) {
-                $packages[$name]['uri'] = $json->packages->{$name}->{'dev-trunk'}->source->url;
-                $packages[$name]['branch-alias'] = $json->packages->{$name}->{'dev-trunk'}->extra->{'branch-alias'}->{'dev-trunk'};
-            } else if (isset($json->packages->{$name}->{'dev-master'})) {
-                $packages[$name]['uri'] = $json->packages->{$name}->{'dev-master'}->source->url;
-                $packages[$name]['branch-alias'] = $json->packages->{$name}->{'dev-master'}->extra->{'branch-alias'}->{'dev-master'};
+            $newVersion = '';
+            $depPath = $packagePrefixList[$regs[1]] . '/' . basename($name);
+
+            if (!is_dir($depPath)) {
+                $vcs->log('Error: `' . $depPath . '` does not exist, try running `composer update` first.', 0);
+                continue;
             }
 
-            $verList = array_keys(get_object_vars($json->packages->{$name}));
-            sortVersionArray($verList);
-            $currVer = array_pop($verList);
-            $packages[$name]['version'] = $currVer;
-
-            echo "=> Tagging: " . $packages[$name]['uri'] . "\n";
-            $cmd = sprintf('tkTag %s %s %s --noclean --tmpPath=%s', escapeshellarg($packages[$name]['uri']), $dr, $forceTagStr, escapeshellarg($tmp));
+            $vcs->log('Tagging: ' . $name, \Tbx\Vcs\Adapter\Git::LOG_V);
+            $vcs->log('Tagging Path: ' . $depPath, \Tbx\Vcs\Adapter\Git::LOG_VVV);
+            $cmd = sprintf('cd %s && tkTag %s %s -v ', $depPath, $dr, $forceTagStr);
+            $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_CMD);
             $line = exec($cmd, $out, $ret);
-
-            if ($ret != 0) {
-                throw new Exception('Error tagging package: ' . $name);
+            if ($ret) {
+                $vcs->log('Error tagging: ' . $name, \Tbx\Vcs\Adapter\Git::LOG_VVV);
             }
-
             $out = implode("\n", $out);
-            echo $out;
-            if (preg_match('/- Version: (.+)/i', $out, $regs)) {
+            if (preg_match('/  Version: (.+)/i', $out, $regs)) {
                 $newVersion = $regs[1];
             }
-
-            $packages[$name]['newVersion'] = $newVersion;
-            $packages[$name]['released'] = false;
-            if ($packages[$name]['newVersion'] != $packages[$name]['version']) {
-                $packages[$name]['released'] = true;
-            }
+            $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_VVV);
+            $vcs->log('  Version: ' . $newVersion, \Tbx\Vcs\Adapter\Git::LOG_V);
             if ($staticVer) {
-                $tagJson->require->{$name} = $packages[$name]['newVersion'];
+                $tagJson->require->{$name} = $newVersion;
             }
-            echo "\n";
         }
     }
 
-
-    // Update composer file
-    $tagJson->{'minimum-stability'} = 'stable';
-    $vcs->setFileContents('/composer.json', jsonPrettyPrint(json_encode($tagJson)));
-    $vcs->commit();
-
-
-    $cmd = sprintf('tkTag %s %s %s --noclean --tmpPath=%s', escapeshellarg($repo), $dr, $forceTagStr, escapeshellarg($tmp));
-
-    // Use exec
-    $line = system($cmd);
-    $line = trim($line);
-    $newVersion = trim(substr($line, 1));
-    $released = trim(substr($line, 0, 1)) == '+' ? true : false;
-
-
-    // Add Root site to packages array for output
-    $name = $trunkJson->name;
-    $packages[$name]['name'] = $name;
-    $packages[$name]['uri'] = $repo;
-    if (isset($trunkJson->extra->{'ranch-alias'}->{'dev-trunk'})) {
-        $packages[$name]['branch-alias'] = $trunkJson->extra->{'ranch-alias'}->{'dev-trunk'};
-    } else if (isset($trunkJson->extra->{'ranch-alias'}->{'dev-master'})) {
-        $packages[$name]['branch-alias'] = $trunkJson->extra->{'ranch-alias'}->{'dev-master'};
+    $curVer = $vcs->getCurrentTag();
+    if (!$curVer) {
+        $curVer = '0.0.0';
     }
-    $packages[$name]['newVersion'] = $newVersion;
-    $packages[$name]['released'] = $released;
+    if ($vcs->isDiff($curVer, $exclude)) {
+        // Update composer file
+        $tagJson->{'minimum-stability'} = 'stable';
+        if (!$dryRun) {
+            file_put_contents('composer.json', jsonPrettyPrint(json_encode($tagJson)));
+        }
+        $vcs->commit();
+        $cmd = sprintf('tkTag %s %s -v', $dr, $forceTagStr);
+        // Use exec
+        $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_CMD);
+        $line = system($cmd);
+        $line = trim($line);
+        $newVersion = trim(substr($line, 1));
+        $released = trim(substr($line, 0, 1)) == '+' ? true : false;
 
-    // Reset the trunk for dev mode
-    $trunkJson->{'minimum-stability'} = 'dev';
-    $vcs->setFileContents('/composer.json', jsonPrettyPrint(json_encode($trunkJson)));
-    $vcs->commit();
+        // Reset the trunk for dev mode
+        $headJson->{'minimum-stability'} = 'dev';
+        file_put_contents('composer.json', jsonPrettyPrint(json_encode($headJson)));
+        $vcs->commit();
+    }
+
+
 
     echo "\n";
 } catch (Exception $e) {
-    echo $help."\n";
-    print('-'.$e->getMessage() . "\n");
-    exec('rm -rf ' . escapeshellarg($tmp));
+    echo ('ERROR: ' . $e->getMessage() . "\n");
     exit(-1);
 }
-
-
-exec('rm -rf ' . escapeshellarg($tmp));
 exit();
 
-
-
-
-function fileGetContents($url)
-{
-    //vd($_SERVER, parse_url($url));
-
-    $no_proxy = array();
-    if (isset($_SERVER['no_proxy'])) {
-      $no_proxy = explode(',', $_SERVER['no_proxy']);
-    }
-    $parseUrl = parse_url($url);
-
-    $ch = curl_init($url);
-    curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-    if (isset($_SERVER['http_proxy']) && !in_array($parseUrl['host'], $no_proxy)) {
-        curl_setopt($ch, CURLOPT_PROXY, $_SERVER['http_proxy']);
-    }
-    $output=curl_exec($ch);
-    curl_close($ch);
-    return $output;
-}
-
+/**
+ * sortVersionArray
+ *
+ * @param $array
+ * @return bool
+ */
 function sortVersionArray(&$array)
 {
     return usort($array, function ($a, $b) {

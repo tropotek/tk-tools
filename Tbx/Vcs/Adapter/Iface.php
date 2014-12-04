@@ -18,19 +18,28 @@ namespace Tbx\Vcs\Adapter;
  */
 abstract class Iface
 {
+    const LOG_CMD = 2;
+    const LOG_DEBUG = 5;
+
+    const LOG_V = 1;
+    const LOG_VV = 3;
+    const LOG_VVV = 5;
+
+
+
 
     /**
      * The repository base URI, all paths used should
      * be prepended with this base uri.
      * @var string
      */
-    private $uri = '';
+    protected $uri = '';
 
     /**
-     * The temp directory to co the trunk
+     * The directory to the working copy trunk/master
      * @var string
      */
-    protected $tmp = '';
+    protected $workingDirectory = '';
 
     /**
      * If true nothing is committed to the repository
@@ -39,7 +48,6 @@ abstract class Iface
     protected $dryRun = false;
 
     /**
-     * If true nothing is committed to the repository
      * @var boolean
      */
     protected $noClean = false;
@@ -60,30 +68,74 @@ abstract class Iface
      */
     protected $tagList = null;
 
+    /**
+     * The verbosity level of the system. (0-5)
+     * 0 = none, system msgs only
+     * ...
+     * 5 = all debug and system messages
+     *
+     * @var int
+     */
+    protected $verbose = 0;
+
 
     /**
      * Constructor
      *
-     * @param string $trunkUri
-     * @param string $tmpBaseDir
-     * @param bool $dryRun
-     * @param bool $noClean
+     * @param bool   $dryRun
      * @throws \Exception
      */
-    public function __construct($trunkUri, $tmpBaseDir = '/tmp', $dryRun = false, $noClean = false)
+    public function __construct($dryRun = false)
     {
-        rtrim($trunkUri, '/');
-        if (!preg_match('/^[a-z0-9]{2,8}:\/\/(www\.)?[\S]+$/i', $trunkUri)) {
-            throw new \Exception('Invalid base URI supplied for VCS repository');
-        }
-        if (preg_match('/\/trunk$/', $trunkUri)) {
-            $trunkUri = substr($trunkUri, 0, 6);
-        }
-        $this->uri      = $trunkUri;
-        $this->dryRun   = $dryRun;
-        $this->noClean  = $noClean;
-        $this->tmp      = $tmpBaseDir.'/tkTag_'.basename($trunkUri);
+        $this->dryRun = $dryRun;
+        $this->workingDirectory = getcwd();
+    }
 
+
+    /**
+     *
+     *
+     * @return string
+     */
+    public function getCmdPrepend()
+    {
+        if ($this->dryRun) {
+            return 'DR=> ';
+        }
+        return '';
+    }
+
+    /**
+     * Set the verbosity level of the system. (0-5)
+     * 0 = none, system msgs only
+     * ...
+     * 5 = all debug and system messages
+     *
+     * @param $i
+     * @return $this
+     */
+    public function setVerbose($i)
+    {
+        $this->verbose = $i;
+        if ($this->verbose > 5) $this->verbose = 5;
+        if ($this->verbose < 0) $this->verbose = 0;
+        return $this;
+    }
+
+    /**
+     *
+     * @param $workingDirectory
+     * @return $this
+     * @throws \Exception
+     */
+    public function setWorkingDirectory($workingDirectory)
+    {
+        $workingDirectory = rtrim($workingDirectory, '/');
+        if (!is_dir($workingDirectory.'/.git')) {
+            throw new \Exception('Not a GIT repository');
+        }
+        $this->workingDirectory = $workingDirectory;
+        return $this;
     }
 
     /**
@@ -97,35 +149,14 @@ abstract class Iface
     }
 
     /**
-     * cleanup folders
-     */
-    public function __destruct()
-    {
-        if (!$this->noClean) {
-            exec('rm -rf ' . escapeshellarg($this->tmp), $this->output);
-        }
-    }
-
-    /**
      * Get the repository checked out tmp folder
      *
      * @return string
      */
-    public function getTmpDir()
+    public function getWorkingDirectory()
     {
-        return $this->tmp;
+        return $this->workingDirectory;
     }
-
-    /**
-     * Get the repository package base URI
-     *
-     * @return string
-     */
-    public function getUri()
-    {
-        return $this->uri;
-    }
-
 
     /**
      * Is this a dry run.
@@ -136,23 +167,6 @@ abstract class Iface
     public function isDryRun()
     {
         return $this->dryRun;
-    }
-
-    /**
-     * Prepend the repository uri path to the supplied path.
-     *
-     * @param string $path The relative path from the base repository URI
-     * @throws \Exception
-     * @return string
-     */
-    protected function makeUri($path = '')
-    {
-        $path = str_replace($this->getUri(), '', $path);
-        if ($path && $path[0] != '/') {
-            throw new \Exception('Path must start with a /: ' . $path);
-        }
-        $path = rtrim($path, '/');
-        return $this->getUri() . $path;
     }
 
     /**
@@ -167,8 +181,8 @@ abstract class Iface
      *  o If a $maskVersion of 1.3.x is supplied with a $currentVersion
      *    of 1.3.9 then the result will be 1.3.10
      *
-     * @param string $currVersion The current version to increment
-     * @param string $maskVersion The proposed mask version. Default 0.0.x
+     * @param string  $currVersion The current version to increment
+     * @param string  $maskVersion The proposed mask version. Default 0.0.x
      * @param integer $step The number to increment the version by. Default 1
      * @return string
      */
@@ -228,68 +242,78 @@ abstract class Iface
         return $this->changelog;
     }
 
+    /**
+     * Echo a message based on set verbosity...
+     *
+     * @param string $msg
+     * @param int $verbose
+     * @return $this
+     */
+    public function log($msg, $verbose = 1)
+    {
+        if ($this->verbose >= $verbose) {
+            if (is_object($msg) || is_array($msg)) {
+                $msg = print_r($msg, true);
+            }
+            // style command messages
+            if ($verbose == self::LOG_CMD && !strstr($msg, "\n")) {
+                $msg = '  $ ' . $msg;
+            }
+            echo $msg . "\n";
+        }
+        return $this;
+    }
 
 
     /**
-     * Get an array of changes to the tag since the last copy command was executed.
+     * Get the repository package base URI
      *
-     * @param $path
+     * @return string
+     */
+    abstract public function getUri();
+
+    /**
+     * Get an array of changes to the tag since the last
+     * tagged release...
+     *
+     * @param string $version
      * @return array
      */
-    abstract public function makeChangelog($path = '/trunk');
-
-
-
-    /**
-     * Checkout the master/trunk repository to a tmp folder
-     *
-     * @return array
-     */
-    abstract public function checkout();
+    abstract public function makeChangelog($version);
 
 
     /**
-     * Commit the master/trunk repository to a tmp folder
+     * Commit the current checked out branch
      *
      * @param string $message
-     * @return mixed
+     * @return $this
      */
     abstract public function commit($message = '');
 
 
     /**
+     * Update the current checked out branch
+     *
+     * @return $this
+     */
+    abstract public function update();
+
+
+    /**
      * Get an array of current tagged versions.
      *
-     * @param bool $force If true the tag list will be refreshed from the repository
      * @return array
      */
-    abstract public function getTagList($force = false);
-
-    /**
-     * Get the file contents from a repository file.
-     *
-     * @param string $path This is a relative path from the base repository URI
-     * @return string
-     */
-    abstract public function getFileContents($path);
-
-    /**
-     * Set the file contents from a repository file.
-     *
-     * @param string $path This is a relative path from the trunk/master repository URI
-     * @param string $str The file contents to put
-     * @return string
-     */
-    abstract public function setFileContents($path, $str);
+    abstract public function getTagList();
 
     /**
      * Return a list of modified files from the head/master tag
      *
      * @param string $tagName The tag/version name of the tag folder
-     * @param array $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
+     * @param array  $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
      * @return array
      */
-    abstract public function diff($tagName, $excludeFiles);
+    abstract public function diff($tagName, $excludeFiles = array());
 
     /**
      * Returns true if the tag is different than the head
@@ -300,10 +324,10 @@ abstract class Iface
      * changes have been committed or not.
      *
      * @param string $tagName The tag/version name of the tag folder
-     * @param array $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
+     * @param array  $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
      * @return integer
      */
-    public function isDiff($tagName, $excludeFiles = array('composer.json', 'changelog.md'))
+    public function isDiff($tagName, $excludeFiles = array())
     {
         return count($this->diff($tagName, $excludeFiles));
     }
@@ -318,21 +342,6 @@ abstract class Iface
      */
     abstract public function tagRelease($version, $message = '');
 
-    /**
-     * Returns true if the path is a file
-     *
-     * @param string $path This is a relative path from the base repository URI
-     * @return boolean
-     */
-    abstract public function isFile($path);
-
-    /**
-     * Returns true if the path is a directory
-     *
-     * @param string $path This is a relative path from the base repository URI
-     * @return boolean
-     */
-    abstract public function isDir($path);
 
 
 } 
