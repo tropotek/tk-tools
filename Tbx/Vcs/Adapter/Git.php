@@ -153,6 +153,9 @@ class Git extends Iface
      */
     public function diff($tagName, $excludeFiles = array())
     {
+        if ($tagName == '0.0.0') {
+            return array('Created initial project tag');
+        }
         $this->output = '';
         $tagName = trim($tagName, '/');
         $cmd = 'git diff --name-status '.escapeshellarg($tagName).' HEAD';

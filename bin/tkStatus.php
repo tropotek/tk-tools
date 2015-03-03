@@ -58,6 +58,7 @@ try {
             }
         }
     }
+    echo "\n;";
 } catch(Exception $e) {
     print(basename($argv[0]) . ": \n" . $e->__toString());
     exit(-1);

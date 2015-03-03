@@ -18,7 +18,13 @@ NOTE: Some sites cannot be accessed with a generated password.
 
 ";
 
+$script_tz = date_default_timezone_get();
+date_default_timezone_set('Australia/Queensland');
+//date_default_timezone_set('Australia/Victoria');
 $key = date('=d-m-Y=', time());
+date_default_timezone_set($script_tz);
+
+
 
 
 if ($argc < 1 || $argc > 1){
