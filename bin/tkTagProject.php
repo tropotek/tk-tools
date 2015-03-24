@@ -96,6 +96,9 @@ foreach ($argv as $param) {
     if (strtolower(substr($param, 0, 10)) == '--forcetag') {
         $forceTag = true;
     }
+    if (strtolower(substr($param, 0, 2)) == '-t') {
+        $tagDeps = true;
+    }
     if (strtolower(substr($param, 0, 9)) == '--tagdeps') {
         $tagDeps = true;
     }
