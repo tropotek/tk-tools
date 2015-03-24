@@ -1,5 +1,15 @@
 #CHANGELOG#
 
+Ver 1.2.1 [2015-03-24]:
+-------------------------------
+ - Added -t to tkTagProject
+ - Fixed minoir issues
+ - Fixed minor output issues
+ - Updated git tools, package release system
+ - Fixed --tagdeps option in tkTagProject
+ - Updated the changelog for version 1.2.0, another thing to fix...
+
+
 
 Ver 1.2.0 [2014-11-27]:
 ----------------
