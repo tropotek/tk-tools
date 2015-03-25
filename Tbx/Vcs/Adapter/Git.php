@@ -216,7 +216,7 @@ class Git extends Iface
                 } else {
                     $this->log('  $msg(+) => ' . $msg);
                 }
-                if (!in_array(md5($msg), $exists)) {
+                if (!in_array(md5($msg.'SomeRandomLargeString'), $exists)) {
                     $logs[] = $msg;
                     $exists[] = md5($msg);
                 }
