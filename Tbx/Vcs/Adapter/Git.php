@@ -199,21 +199,24 @@ class Git extends Iface
         $logs = array();
         $this->log($this->output, self::LOG_DEBUG);
 
-        $logLines = explode(' - ', $this->output[0]);
+        $logLines = $this->output;
         foreach ($logLines as $i => $log) {
-            $msg = $log;
-            if (!preg_match('/^([0-9a-f]{7,10})\s+(.+)/i', $msg, $regs)) {
+            if (!preg_match('/^([0-9a-f]{7,10})\s+(.+)/i', $log, $regs)) {
                 continue;
             }
-            $msg = trim($regs[2]);
-            if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {
-            // Use the below in next major version. Replace the above (1.2.1)
-            //if (strlen($msg) <= 2 || preg_match('/^~Auto:/', $msg)) {
-                continue;
-            }
-            if (!in_array(md5($msg), $exists)) {
-                $logs[] = $msg;
-                $exists[] = md5($msg);
+            $msgLine = trim($regs[2]);
+
+            $msgLines = explode('- ', $msgLine);
+            foreach($msgLines as $msg) {
+                if (strlen($msg) <= 2 || preg_match('/^~?Auto:? ?/', $msg)) {
+                // Use the below in next major version. Replace the above (1.2.1)
+                //if (strlen($msg) <= 2 || preg_match('/^~Auto:/', $msg)) {
+                    continue;
+                }
+                if (!in_array(md5($msg), $exists)) {
+                    $logs[] = trim($msg);
+                    $exists[] = md5($msg);
+                }
             }
         }
         return $logs;
