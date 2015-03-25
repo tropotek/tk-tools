@@ -208,7 +208,7 @@ class Git extends Iface
 
             $msgLines = explode('- ', $msgLine);
             foreach($msgLines as $msg) {
-                $this->log('  $msg => ' + $msg);
+                $this->log('  $msg => ' . $msg);
                 $msg = trim($msg);
                 if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {
                     continue;
