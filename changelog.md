@@ -1,5 +1,16 @@
 #CHANGELOG#
 
+Ver 1.2.6 [2015-03-25]:
+-------------------------------
+ - Test Item 1
+ - Text Item 2
+ - Test Item 3
+ - Another longer test
+ - Tryin this with new lines
+ - Like this
+ - This is the last line
+
+
 Ver 1.2.5 [2015-03-25]:
 -------------------------------
  - Test Item 1
