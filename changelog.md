@@ -1,5 +1,10 @@
 #CHANGELOG#
 
+Ver 1.2.9 [2015-03-25]:
+-------------------------------
+ - Updated changelog auto update feature
+
+
 Ver 1.2.1 [2015-03-24]:
 -------------------------------
  - Added -t to tkTagProject
