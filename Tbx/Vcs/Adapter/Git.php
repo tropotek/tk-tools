@@ -178,6 +178,9 @@ class Git extends Iface
     }
 
 
+
+    
+
     /**
      * Get an array of changes to the tag since the last copy command was executed.
      *
@@ -215,7 +218,7 @@ class Git extends Iface
         }
         return $logs;
     }
- 
+
 
     /**
      * Tag a new release, basically copy the release to a tag folder
