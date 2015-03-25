@@ -208,13 +208,13 @@ class Git extends Iface
 
             $msgLines = explode('- ', $msgLine);
             foreach($msgLines as $msg) {
-                if (strlen($msg) <= 2 || preg_match('/^~?Auto:? ?/', $msg)) {
-                // Use the below in next major version. Replace the above (1.2.1)
-                //if (strlen($msg) <= 2 || preg_match('/^~Auto:/', $msg)) {
+                $this->log('  $msg => ' + $msg);
+                $msg = trim($msg);
+                if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {
                     continue;
                 }
                 if (!in_array(md5($msg), $exists)) {
-                    $logs[] = trim($msg);
+                    $logs[] = $msg;
                     $exists[] = md5($msg);
                 }
             }
