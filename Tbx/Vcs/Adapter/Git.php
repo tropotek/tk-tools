@@ -195,7 +195,9 @@ class Git extends Iface
         $exists = array();
         $logs = array();
         $this->log($this->output, self::LOG_DEBUG);
-        foreach ($this->output as $i => $log) {
+
+        $logLines = explode(' - ', $this->output[0]);
+        foreach ($logLines as $i => $log) {
             $msg = $log;
             if (!preg_match('/^([0-9a-f]{7,10})\s+(.+)/i', $msg, $regs)) {
                 continue;
@@ -213,7 +215,7 @@ class Git extends Iface
         }
         return $logs;
     }
-
+ 
 
     /**
      * Tag a new release, basically copy the release to a tag folder
