@@ -2,35 +2,32 @@
     "name": "ttek/tk-tools",
     "type": "library",
     "description": "The tropotek framework tools package. Useful scripts to help developing tropotek apps.",
-    "keywords":  [
-        "Tbx",
-        "tools",
-        "tropotek"
-    ],
-    "time": "2015-03-25",
+    "keywords": ["Tbx", "tools", "tropotek"],
+    "time":  "2010-12-09",
     "license": "MIT",
-    "version": "1.2.3",
-    "authors":  [
-         {
+    "version": "trunk",
+    "authors": [
+        {
             "name": "Michael Mifsud",
             "email": "info@tropotek.com.au",
             "homepage": "http://www.tropotek.com/"
         }
     ],
     "minimum-stability": "dev",
-    "autoload":  {
-        "psr-0":  {
+
+    "autoload": {
+        "psr-0": {
             "Tbx\\": ""
         },
-        "files":  [
+        "files": [
             "Tbx/functions.php"
         ]
     },
-    "require":  {
+    "require": {
         "php": ">=5.3.0"
     },
-    "extra":  {
-        "branch-alias":  {
+    "extra": {
+        "branch-alias": {
             "dev-master": "1.2.x-dev"
         }
     }
