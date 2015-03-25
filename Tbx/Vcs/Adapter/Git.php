@@ -208,7 +208,6 @@ class Git extends Iface
 
             $msgLines = explode('- ', $msgLine);
             foreach($msgLines as $msg) {
-
                 $msg = trim($msg);
                 if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {
                     $this->log('  $msg(-) => ' . $msg);
@@ -216,7 +215,8 @@ class Git extends Iface
                 } else {
                     $this->log('  $msg(+) => ' . $msg);
                 }
-                if (!in_array(md5($msg.'SomeRandomLargeString'), $exists)) {
+                // TODO: Sometimes log msgs seem to be the same hash, keep an eye on it....
+                if (!in_array(md5($msg), $exists)) {
                     $logs[] = $msg;
                     $exists[] = md5($msg);
                 }
