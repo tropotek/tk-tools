@@ -1,9 +1,4 @@
 <?php
-/*
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2005 Michael Mifsud
- */
 namespace Tbx;
 
 
@@ -12,9 +7,10 @@ namespace Tbx;
  * in the shell. Developed mainly for scripts to be run on
  * linux servers.
  *
- * 
- * @notes If using windows/ios this script may need to be modified.
- * @package Tbx
+ * @notes If using windows/ios this script may need to be modified. *
+ * @author Michael Mifsud <info@tropotek.com>
+ * @link http://www.tropotek.com/
+ * @license Copyright 2016 Michael Mifsud
  */
 class Console
 {
@@ -25,7 +21,8 @@ class Console
      *
      * @param string $src
      * @param string $dst
-     * @param string $type  one of zip of tgz
+     * @param string $type one of zip of tgz
+     * @return string
      */
     static function compress($src, $dst, $type = 'tgz')
     {
@@ -48,6 +45,7 @@ class Console
      * svnFile
      *
      * @param array $file
+     * @return string
      */
     static function svnExport($svnUri, $dst)
     {
@@ -61,6 +59,7 @@ class Console
      *
      * @param string $src
      * @param string $dst
+     * @return string
      */
     static function cpFile($src, $dst)
     {
@@ -76,6 +75,7 @@ class Console
      *
      * @param string $src
      * @param string $dst
+     * @return string
      */
     static function lnFile($src, $dst)
     {

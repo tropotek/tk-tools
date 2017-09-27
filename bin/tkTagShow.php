@@ -14,8 +14,8 @@ $argc = $_SERVER['argc'];
 $commitMsg = isset($argv[1]) ? $argv[1] : '';
 $help = "
 Usage: ".basename($argv[0])." [Message] {options}
-This command is used to commit projects and libraries to the remote repository.
-It will iterate through all nested Tk libs and commit any changes.
+This command is used to shaw the latest tag for the project and any
+  in-house vendor libs that it is dependent on.
 
 Available options that this command can receive:
 
@@ -23,7 +23,7 @@ Available options that this command can receive:
     --debug                 Start command in debug mode
     --help                  Show this help text.
 
-Copyright (c) 2002
+Copyright (c) 2017
 Report bugs to info@tropotek.com
 Tropotek home page: <http://www.tropotek.com/>
 ";
@@ -34,13 +34,10 @@ if ($argc < 1 || $argc > 4) {
 }
 $cwd = getcwd();
 $externFile = $cwd . '/externals';
-
-$project = basename(dirname($cwd));
-$commitMsg = @$argv[1];
+$project = basename($cwd);
+$projectPath = $cwd;
 $novendor = false;
 
-
-//define('DEBUG', true);
 
 foreach ($argv as $param) {
     if (strtolower(substr($param, 0, 10)) == '--novendor') {
@@ -56,23 +53,23 @@ foreach ($argv as $param) {
 }
 
 try {
-    if (!$commitMsg) {
-        $commitMsg = 'Minor Code Updates - ' . trim(`hostname`);
-        //throw new Exception('Please add a commit message.');
-
-    }
-
     $p = escapeshellarg($cwd);
-    $commitMsg = escapeshellarg($commitMsg);
+
+    $vpath = '';
+    if (!$novendor) {
+        foreach ($vendorPaths as $vp1) {
+          if (preg_match('|'.preg_quote($vp1).'|', $p, $regs)) {
+            $vpath = $vp1;
+            break;
+          }
+        }
+    }
 
     if (is_dir($cwd . '/.git')) {   // GIT
-        echo "COMMIT: " . $p . "\n";
-        echo '  - GIT: ' . `cd $p && git commit -am $commitMsg && git push`;
-        echo "\n";
-    }
-    else if (is_dir($cwd . '/.svn')) {   // SVN
-        echo "COMMIT: " . $p . "\n";
-        echo '  - SVN: ' . `cd $p && svn ci -m $commitMsg`;
+        $latestTag = exec('git describe --abbrev=0 --tags --always', $output, $return);
+        if ($return === 0 && $latestTag) {
+            echo sprintf('%-32s: %s',$vpath.'/'.$project, $latestTag);
+        }
         echo "\n";
     }
 
@@ -89,9 +86,9 @@ try {
                     if (!$res->isDir() && !is_dir($path.'/.svn') && !is_dir($path.'/.git')) {
                         continue;
                     }
-                    $p = escapeshellarg($path);
-                    $cmd = basename($argv[0]);
-                    echo `cd $p && $cmd  $commitMsg --novendor `;
+
+                    $cmd = sprintf('cd %s && %s', escapeshellarg($path), basename($argv[0]));
+                    system($cmd);
                 }
             }
         }

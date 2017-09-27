@@ -29,7 +29,7 @@ Example:
    
 NOTE: Does not follow symbolic link directories.
 
-Copyright (c) 2002-2020
+Copyright (c) 2002
 Report bugs to info@tropotek.com
 Tropotek home page: <http://www.tropotek.com/>
 ";

@@ -1,19 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mifsudm
- * Date: 1/30/14
- * Time: 8:58 AM
- */
-
 namespace Tbx\Vcs\Adapter;
 
 /**
- * Class Git
  * Use this to do operations on an Github repository
  *
- *
- * @package Tbx\Vcs\Adapter
+ * @author Michael Mifsud <info@tropotek.com>
+ * @link http://www.tropotek.com/
+ * @license Copyright 2016 Michael Mifsud
  */
 class Git extends Iface
 {
@@ -108,8 +101,12 @@ class Git extends Iface
             $cmd = 'git remote -v';
             $this->log($cmd, self::LOG_CMD);
             exec($cmd, $this->output);
-            if (preg_match('/^origin\s+(\S+)\s+\((fetch|push)\)/', trim($this->output[0]), $regs)) {
-                $this->uri = $regs[1];
+            $this->output = is_array($this->output) ? $this->output : array($this->output);
+            foreach ($this->output as $line) {
+                if (preg_match('/^origin\s+(\S+)\s+\((fetch|push)\)/', trim($line), $regs)) {
+                    $this->uri = $regs[1];
+                    break;
+                }
             }
         }
         return $this->uri;

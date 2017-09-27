@@ -1,5 +1,15 @@
 #CHANGELOG#
 
+Ver 1.2.10 [2017-09-27]:
+-------------------------------
+ - Minor Code Updates
+ - Added tkLdapFind
+ - Minor update
+ - Updated tkTag... commands output
+ - Fixed tklog command to not remove the log just clear the existing file to avoid permission removal
+ - Updated composer.json
+
+
 Ver 1.2.9 [2015-03-25]:
 -------------------------------
  - Updated changelog auto update feature

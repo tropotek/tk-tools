@@ -7,7 +7,8 @@
  * @link http://www.tropotek.com/
  * @license Copyright 2005 Michael Mifsud
  */
-include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
+//include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
+include dirname(__FILE__).'/prepend.php';
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
@@ -58,7 +59,7 @@ Available options that this command can receive:
     --quiet                  [-q] Turn off all messages, only errors will be displayed
     --help                   Show this help text
 
-Copyright (c) 2002-2020
+Copyright (c) 2002
 Report bugs to info@tropotek.com
 Tropotek home page: <http://www.tropotek.com/>
 ";
@@ -66,7 +67,7 @@ Tropotek home page: <http://www.tropotek.com/>
 // Get var values from arguments
 foreach ($argv as $k => $param) {
     if (strtolower(substr($param, 0, 10)) == '--version=') {
-        $version = strtolower(substr($param, 10));
+        $version = substr($param, 10);
     }
 
     if (strtolower(substr($param, 0, 7)) == '--quiet') {
@@ -114,20 +115,20 @@ try {
 
     // Check if executed within a GIT repository
     $vcs = new \Tbx\Vcs\Adapter\Git($dryRun);
-
-    $vcs->log('------------------------------------------------------');
-    $vcs->log('Repository: ' . $vcs->getUri());
-
-
     $vcs->setVerbose($verbose);
-
     $currentBranch = $vcs->getCurrentBranch();
+
+    //print_r($vcs);
+    $vcs->log('------------------------------------------------------', \Tbx\Vcs\Adapter\Git::LOG_VV);
+    $vcs->log('Repository: ' . $vcs->getUri(), \Tbx\Vcs\Adapter\Git::LOG_VV);
+    //print_r('----------' . $vcs->getUri());
+
+
 
     // TODO: refactor this if we decide to use branching per tag....
     //$vcs->checkout('master');
     //$vcs->update();
     $vcs->commit('Finalising branch ' . $currentBranch . ' for tagged release.');
-
 
     // Check version needs tagging
     $tagList = $vcs->getTagList();
@@ -175,12 +176,12 @@ try {
     $vcs->checkout($currentBranch);
 
     $pkg->version = $version;
-    $vcs->log('  Status: Released');
-    $vcs->log('  Version: ' . $version);
-    $vcs->log("  Changelog:\n\n" . $vcs->getChangelog());
+    $vcs->log('  Status: Released', \Tbx\Vcs\Adapter\Git::LOG_V);
+    $vcs->log('  Version: ' . $version, \Tbx\Vcs\Adapter\Git::LOG_V);
+    $vcs->log("  Changelog:\n\n" . $vcs->getChangelog(), \Tbx\Vcs\Adapter\Git::LOG_V);
 
     if ($json) {
-        $vcs->log(jsonPrettyPrint(json_encode($pkg)), 0);
+        $vcs->log(jsonPrettyPrint(json_encode($pkg)), \Tbx\Vcs\Adapter\Git::LOG_V);
     }
 
     echo "\n";

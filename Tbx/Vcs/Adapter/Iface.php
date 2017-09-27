@@ -14,13 +14,13 @@ namespace Tbx\Vcs\Adapter;
  * NOTE: Make sure the $tmp directory has been created or exists
  * before checking out a repository
  *
- * @package Tbx\Vcs\Adapter
  */
 abstract class Iface
 {
     const LOG_CMD = 2;
     const LOG_DEBUG = 5;
 
+    const LOG = 0;
     const LOG_V = 1;
     const LOG_VV = 3;
     const LOG_VVV = 5;

@@ -7,7 +7,8 @@
  * @link http://www.tropotek.com/
  * @license Copyright 2005 Michael Mifsud
  */
-include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
+//include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
+include dirname(__FILE__).'/prepend.php';
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
@@ -30,12 +31,21 @@ $verbose = 0;
 
 $packagePrefixList = array(
     'ttek'          => 'vendor/ttek',
-    'ttek\-plugin'  => 'plugin',
-    'ttek\-theme'   => 'theme',
-    'ttek\-asset'   => 'assets',
+    'ttek-plugin'  => 'plugin',
+    'ttek-theme'   => 'theme',
+    'ttek-asset'   => 'assets',
+    'ttek-plg'  => 'plugin',
+
+    'fvas'          => 'vendor/fvas',
+    'fvas-plugin'  => 'plugin',
+    'fvas-theme'   => 'theme',
+    'fvas-asset'   => 'assets',
+
     'unimelb'       => 'vendor',
     'unimelb-plg'   => 'plugin',
-    'unimelb-theme' => 'theme'
+    'unimelb-theme' => 'theme',
+    'ems-plg'   => 'plugin',
+    'ems-theme' => 'theme'
 );
 
 
@@ -52,14 +62,14 @@ Available options that this command can receive:
                              updated to use specific versions of the libs
                              EG: ~1.0 becomes 1.0.6 for example.
     --force                  Forces a tag version even if there is no change from the previous version
-    --tagdeps                Tag any ttek dependant libs including the main project.
+    --tagdeps                Tag any dependant libs including the main project.
     --json                   Output package release info as a json object.
     --dryrun                 If set the final svn command is dumped to stdout
     --verbose                [-v|vv|vvv] Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
     --quiet                  [-q] Turn off all messages, only errors will be displayed
     --help                   Show this help text
 
-Copyright (c) 2002-2020
+Copyright (c) 2002
 Report bugs to info@tropotek.com
 Tropotek home page: <http://www.tropotek.com/>
 ";
@@ -150,31 +160,39 @@ try {
     if ($tagDeps) {
         foreach (get_object_vars($headJson->require) as $name => $ver) {
             $regex = implode('|', array_keys($packagePrefixList));
-            if (!preg_match('/^(' . $regex . ')\//i', $name, $regs))
+            $regex = '';
+            foreach ($packagePrefixList as $k => $v) {
+              $regex .= preg_quote($k) . '|';
+            }
+            if ($regex) rtrim($regex, '|');
+
+            if (!preg_match('/^(' . $regex . ')\//i', $name, $regs)) {
                 continue;
+            }
 
             $newVersion = '';
             $depPath = $packagePrefixList[$regs[1]] . '/' . basename($name);
 
             if (!is_dir($depPath)) {
-                $vcs->log('Error: `' . $depPath . '` does not exist, try running `composer update` first.', 0);
+                $vcs->log('Error: `' . $depPath . '` does not exist, try running `composer update` first.', \Tbx\Vcs\Adapter\Git::LOG_VVV);
                 continue;
             }
 
             $vcs->log('Tagging: ' . $name, \Tbx\Vcs\Adapter\Git::LOG_V);
-            $vcs->log('Tagging Path: ' . $depPath, \Tbx\Vcs\Adapter\Git::LOG_VVV);
+            $vcs->log('  Tagging Path: ' . $depPath, \Tbx\Vcs\Adapter\Git::LOG_VV);
             $cmd = sprintf('cd %s && tkTag %s %s -v ', $depPath, $dr, $forceTagStr);
             $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_CMD);
             $line = exec($cmd, $out, $ret);
             if ($ret) {
-                $vcs->log('Error tagging: ' . $name, \Tbx\Vcs\Adapter\Git::LOG_VVV);
+                $vcs->log('  Error tagging: ' . $name, \Tbx\Vcs\Adapter\Git::LOG_VVV);
             }
             $out = implode("\n", $out);
             if (preg_match('/  Version: (.+)/i', $out, $regs)) {
                 $newVersion = $regs[1];
             }
-            $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_VVV);
-            $vcs->log('  Version: ' . $newVersion, \Tbx\Vcs\Adapter\Git::LOG_V);
+
+            $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_V);
+            //$vcs->log('  Version: ' . $newVersion, \Tbx\Vcs\Adapter\Git::LOG_V);
             if ($staticVer) {
                 $tagJson->require->{$name} = $newVersion;
             }

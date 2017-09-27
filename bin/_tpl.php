@@ -16,10 +16,11 @@ Short description of this command
 
 Available options that this command can receive:
 
-   --debug                  Start command in debug mode
-   --help                   Show this help text
+    --version=[version]         Test version option
+    --debug                     Start command in debug mode
+    --help                      Show this help text
 
-Copyright (c) 2002-2020
+Copyright (c) 2002
 Report bugs to info@tropotek.com
 Tropotek home page: <http://www.tropotek.com/>
 ";
@@ -31,6 +32,9 @@ if ($argc < 1 || $argc > 2){
 	exit;
 }
 foreach ($argv as $param) {
+    if (strtolower(substr($param, 0, 10)) == '--version=') {
+        $version = substr($param, 10);
+    }
     if (strtolower(substr($param, 0, 7)) == '--debug') {
         $debug = true;
     }

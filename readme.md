@@ -1,58 +1,59 @@
-Tropotek Toolbox
-================
+# Tropotek Toolbox
 
-Published: 01 Jan 2014
+__Project:__ Tropotek Toolbox  
+__Published:__ 01 Jan 2014  
+__Web:__ <https://github.com/tropotek/tk-tools>  
+__Authors:__ Michael Mifsud <http://www.tropotek.com/>  
 
-Authors:
 
-  * [Michael Mifsud][tropotek]
+This projects contains a number of tools that are handy when developing projects with 
+the tk-libs and using Tropoteks git tag and release system.
+
+
+## Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Commands](#commands)
 
 
 Requirements
 ============
 
- - PHP5+ (CLI)
+ - PHP5.3+ (CLI)
 
 
 
 Installation
 ============
 
- 1. Place the source files somewhere on your server `/usr/local/src` for example.
+ 1. Download the source files to somewhere accessable on your server .
  2. Run `composer.phar install`
- 3. cd into the bin directory and run `sudo ./install-cmd` to install for all users.
- 4. Optionally if you only want to install for a user do not use sudo and the commands will
-    be installed into the user bin directory.
+ 3. cd into the bin directory and run `sudo ./install-cmd` to install for all users.  
+    Optionally ignore the sudo and the commands will be installed into the user bin directory.
 
 
 
 Commands
 ========
 
- - **propset** Deprecated: kept for compatibility.
- - **phplog** Tail a log file in the users path: /home/{username}/log/error.log
- - **commit** A recursive `svn commit` command that searches for external packages within a project.
- - **update** A recursive `svn update` command that searches for external packages within a project.
- - **merge** A recursive `svn merge` command that searches for external packages within a project.
- - **tkPassGen** Used to create temporary authentication hash's for external sites.
+ - **install-cmd** The command to install all scripts to your server
+ - **tkCommit** A recursive `svn commit` command that searches for external packages within a project.
+ - **tkDbBackupMysql.sh** Script to backup all databases for a user as individual tarballs.
+ - **tkLdapFind** Use for quering LDAP services, probably needs a little work but good for basic queries
+ - **tklog** Tail a log file in the users path: /home/{username}/log/error.log
+ - **tkMd5** Generate an md5 hash of a string
+ - **tkStatus** A recursive git status command
  - **tkStrreplace** A simple string replace command.
  - **tkTag** Used to tag a repository, updates composer.json and changelog.md files.
  - **tkTagProject** Recursively tags a Project's repository and its dependant packages, updates composer.json and changelog.md files.
+ - **tkTagShow** Show the current tag (version) of the projects and vendow libs (tk libs only)
  - **tkToUtf8** Update files to the UTF-8 encoding.
  - **tkVidHtml5Cnv** Convert video file to a number of formats for web viewing using HTML5 standards.
-
-
-TODO
-====
-
- - Create a new db command to backup all DB's on a server to individual .sql files. (Have it somewhere already, find it and)
-   put it here.
+ - **tkUpdate** A recursive `svn update` command that searches for external packages within a project.
+ - **www_fix.sh** changes the permissions of a directory and files recursivly for a public_html/apache folder
+ 
 
 
 
 
-
-
-
-
-[tropotek]: http://www.tropotek.com.au/

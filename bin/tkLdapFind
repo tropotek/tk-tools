@@ -1,0 +1,304 @@
+#! /usr/bin/php
+<?php
+/*
+ * Tropotek Web Development Tools.
+ * This is an example of a script using the project framework.
+ *
+ * @author Michael Mifsud <info@tropotek.com>
+ * @link http://www.tropotek.com/
+ * @license Copyright 2005 Michael Mifsud
+ */
+
+include dirname(__FILE__).'/prepend.php';
+
+$sitePath = dirname(dirname(__FILE__));
+$config = array();
+$iniFile = getHomePath() . '/.tkLdapFind';
+
+// Default config options
+$config['host']    = 'ldap://ad1.domain.edu.au';
+$config['port']   = 389;
+$config['basedn'] = 'OU=people,DC=domain,DC=edu,DC=au';
+$config['username'] = '';
+$config['password'] = '';
+$config['tls'] = false;
+
+
+
+if (is_file($iniFile)) {
+    $config = array_merge($config, parse_ini_file($iniFile, true));
+}
+
+$argv = $_SERVER['argv'];
+$argc = $_SERVER['argc'];
+$help = <<<TEXT
+Usage: {$argv[0]} [options] [ldap_filter]
+
+  A description of the cli options and how to use the command.
+
+  Examples:
+      $ ldapFind  'mail=username@domain.edu.au'
+      $ ldapFind  -u=username -p='password' 'uid=username'
+      $ ldapFind  -u=username -p='password' 'mail=username@domain.edu.au'
+
+  -g                Generate a ~/.tkLdapFind config ini file
+  -host={string}    The LDAP URI/Host
+  -port={int}       The LDAP port number
+  -basedn={string}  The base DN string prepended to all queries
+  -u={string}       Username to bind to the LDAP server
+  -p={string}       Password to bind to the LDAP server
+                    Using authentication gives more detailed data.
+  --help            Display this help text.
+  
+  A file can be create in the user home folder called .tkLdapFind 
+ that can contain LDAP configuration details. Use  '$argv[0] -g'
+ to generate a default config file.
+
+TEXT;
+
+// Define any parameter variables here
+$args = array();
+$minArgs = 2;
+$maxArgs = 4;
+
+// Check max/min args
+if ($argc < $minArgs || $argc > $maxArgs) {
+    echo $help;
+    exit;
+}
+
+// Parse any arguments from the command line
+foreach ($argv as $param) {
+    if (strtolower(substr($param, 0, 2)) == '-g') {
+        genConfig($iniFile);
+        echo $iniFile . " config file generated.\n\n";
+        exit;
+    }
+    if (strtolower(substr($param, 0, 6)) == '-host=') {
+        $config['host'] = substr($param, 6);
+        continue;
+    }
+    if (strtolower(substr($param, 0, 6)) == '-port=') {
+        $config['port'] = substr($param, 6);
+        continue;
+    }
+    if (strtolower(substr($param, 0, 8)) == '-basedn=') {
+        $config['basedn'] = substr($param, 8);
+        continue;
+    }
+    if (strtolower(substr($param, 0, 3)) == '-u=') {
+        $config['username'] = substr($param, 3);
+        continue;
+    }
+    if (strtolower(substr($param, 0, 3)) == '-p=') {
+        $config['password'] = substr($param, 3);
+        continue;
+    }
+    if (strtolower(substr($param, 0, 6)) == '--help') {
+        echo $help;
+        exit;
+    }
+    $args[] = $param;
+}
+
+
+try {
+
+    $filter = $args[1];
+    $host = $config['host'];
+    $port = $config['port'];
+    $basednOrg = $config['basedn'];
+    $username = $config['username'];
+    $password = $config['password'];
+    $tls = $config['tls'];
+    $basedn = '';
+
+    if ($username) {
+        $basedn = str_replace('{username}', $username, $basednOrg);
+    }
+
+    $ldap = ldap_connect($host, $port);
+    iput("\n---------------------------------\n");
+
+    if (!$ldap) {
+        $e = new \Exception('Failed to connect to LDAP service: ' . $host);
+        iput('LDAP: ' . ldap_error($ldap) . "\n");
+        // echo "TODO: prompt for username and pass and reconnect????";
+        throw $e;
+    } else {
+        iput("Successfully connected to LDAP service\n");
+    }
+
+    ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+    ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+
+    if ($tls) {
+        if (!ldap_start_tls($ldap)) {
+            $e = new \Exception('Failed to secure LDAP service ' . $host);
+            iput('LDAP: '.ldap_error($ldap) . "\n");
+            throw $e;
+        } else {
+            iput("TLS Started\n");
+        }
+    }
+
+    if ($password && $username) { // Bind to get more data
+        //iput($basedn . ' - ' . $username . ' - ' . $password . "\n");
+        if (!ldap_bind($ldap, $basedn, $password)) {
+            $e = new \Exception('Failed to authenticate to LDAP service: ' . $host);
+            iput('LDAP: '.ldap_error($ldap) . "\n");
+            throw $e;
+        } else {
+            iput("Successfully bound to LDAP service\n");
+        }
+    }
+
+    iput($filter . ': ' . $basedn . "\n");
+    $results = ldap_search($ldap, $basedn, $filter);
+    if ($results) {
+        $entries = ldap_get_entries($ldap, $results);
+        iput("LDAP: " . ldap_error($ldap) . "\n");
+
+        iput("\nResults:\n");
+        iput("---------------------------------\n");
+        $entries = ldapProcessEntries($entries);
+    }
+    iput("---------------------------------\n");
+
+
+    iput("\n");
+} catch (\Exception $e) {
+    die ('ERROR: ' . $e->getMessage()."\n");
+}
+
+
+function iput($str) {
+  if (true) {
+    echo $str;
+  }
+}
+
+
+/**
+ * Return the user's home directory.
+ */
+function getHomePath() {
+    // $user = posix_getpwuid(posix_getuid());
+    // return $user['dir'];
+
+
+    // Cannot use $_SERVER superglobal since that's empty during UnitUnishTestCase
+    // getenv('HOME') isn't set on Windows and generates a Notice.
+    $home = getenv('HOME');
+    if (!empty($home)) {
+        // home should never end with a trailing slash.
+        $home = rtrim($home, '/');
+    }
+    elseif (!empty($_SERVER['HOMEDRIVE']) && !empty($_SERVER['HOMEPATH'])) {
+        // home on windows
+        $home = $_SERVER['HOMEDRIVE'] . $_SERVER['HOMEPATH'];
+        // If HOMEPATH is a root directory the path can end with a slash. Make sure
+        // that doesn't happen.
+        $home = rtrim($home, '\\/');
+    }
+    return empty($home) ? NULL : $home;
+}
+
+/**
+ * Flatten the ldap returned entries array
+ *
+ * @param $entries
+ * @return array
+ */
+function ldapProcessEntries($entries)
+{
+    $arr = array();
+    if (!$entries || count($entries) <= 0 || empty($entries['count'])) {
+        iput("  No Data Found! \n");
+        return $arr;
+    }
+    foreach ($entries as $i => $d) { // Foreach returned person
+        if (!is_array($d)) continue;
+        $person = array();
+        foreach ($d as $k => $v) {
+            if (preg_match('/^[0-9]+$/', $k) || $k == 'count' || $k == 'objectclass') {
+                continue;
+            }
+            if (is_array($v)) {
+                if (isset($v[1])) {
+                    array_shift($v);
+                    $person[$k] = $v;
+                } else {
+                    $person[$k] = $v[0];
+                }
+            } else {
+                $person[$k] = $v;
+            }
+        }
+        if (count($person)) {
+            ksort($person);
+            $arr[] = $person;
+        }
+    }
+
+
+    print_r($arr) . "\n";
+
+    // TODO: allow this to be saved to a file on its own???
+    //$json = json_encode($arr, JSON_PRETTY_PRINT);
+    //var_dump($json); // false  ???
+    //iput($json);    // nothing  ???
+
+    iput("\n\nEntries Found: " . $entries['count'] . "\n");
+    return $arr;
+}
+
+/**
+ * Generate a default .tkLdapFind config file
+ *
+ *
+ * @param $path
+ */
+function genConfig($path)
+{
+    $str = <<<INI
+;------------------------------------------------------
+; .tkLdapFind
+;
+; Use this file to config the tkLdapFind command
+; for this user. This file should reside in the
+; users home directory.
+;
+; Warning: The username and password details are stored
+;          unencrypted and should not be used on live 
+;          production servers, it is designed to be
+;          used on development servers only
+;
+;------------------------------------------------------
+
+; The ldap server URI/Host
+host = ldap://ldap.server.com
+
+; The LDAP server port (Default: 389)
+port = 389
+
+; Use tls
+tls = false
+
+; The basedn string is prepended to the filter string when
+; the LDAP server is queried. The string '{username}' within
+; basedn string will be replaces with the supplied username.
+; EG:
+;   UN={username},OU=people,DC=domain,DC=edu,DC=au
+;
+basedn = "UN={username},OU=people,DC=domain,DC=edu,DC=au"
+
+; The username to send with filter requests
+username = user
+
+; The password to send with filter requests
+password = pass
+
+INI;
+    file_put_contents($path, $str);
+}

@@ -6,5 +6,6 @@ $argc = $_SERVER['argc'];
 
 echo md5($argv[1]);
 echo "\n";
+
 ?>
 

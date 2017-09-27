@@ -1,19 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mifsudm
- * Date: 1/30/14
- * Time: 8:58 AM
- */
-
 namespace Tbx\Vcs\Adapter;
 
 /**
- * Class Svn
  * Use this to do operations on an SVN repository
  *
  * NOTE: implement this SVN Adapter one-day if we can use it??????
+ * @todo no longer in a working state, need to fix one day....???
  *
+ * @author Michael Mifsud <info@tropotek.com>
+ * @link http://www.tropotek.com/
+ * @license Copyright 2016 Michael Mifsud
  */
 class Svn extends Iface
 {
@@ -294,5 +290,25 @@ class Svn extends Iface
             $path = '/'.$path;
         }
         return is_dir($this->getTmpDir().'/trunk'.$path);
+    }
+
+    /**
+     * Get the repository package base URI
+     *
+     * @return string
+     */
+    public function getUri()
+    {
+        // TODO: Implement getUri() method.
+    }
+
+    /**
+     * Update the current checked out branch
+     *
+     * @return $this
+     */
+    public function update()
+    {
+        // TODO: Implement update() method.
     }
 }
