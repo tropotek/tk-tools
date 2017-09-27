@@ -7,9 +7,9 @@
         "tools",
         "tropotek"
     ],
-    "time": "2017-09-28",
+    "time": "2010-12-09",
     "license": "MIT",
-    "version": "1.2.11",
+    "version": "trunk",
     "authors":  [
          {
             "name": "Michael Mifsud",
