@@ -26,7 +26,7 @@ $dryRun = false;
 $showJson = false;
 $staticVer = false;
 $forceTag = false;
-$tagDeps = false;
+$tagDeps = true;
 $verbose = 0;
 
 $packagePrefixList = array(
