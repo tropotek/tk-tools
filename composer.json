@@ -1,6 +1,6 @@
 {
     "name": "ttek/tk-tools",
-    "type": "library",
+    "type": "project",
     "description": "The tropotek framework tools package. Useful scripts to help developing tropotek apps.",
     "keywords": ["Tbx", "tools", "tropotek"],
     "time":  "2010-12-09",
