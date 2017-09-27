@@ -17,7 +17,7 @@
             "homepage": "http://www.tropotek.com/"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "autoload":  {
         "psr-0":  {
             "Tbx\\": ""
