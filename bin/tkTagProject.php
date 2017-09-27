@@ -62,7 +62,7 @@ Available options that this command can receive:
                              updated to use specific versions of the libs
                              EG: ~1.0 becomes 1.0.6 for example.
     --force                  Forces a tag version even if there is no change from the previous version
-    --tagdeps                Tag any dependant libs including the main project.
+    --notagdeps [-nt]        Tag any dependant libs including the main project.
     --json                   Output package release info as a json object.
     --dryrun                 If set the final svn command is dumped to stdout
     --verbose                [-v|vv|vvv] Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
@@ -106,14 +106,14 @@ foreach ($argv as $param) {
     if (strtolower(substr($param, 0, 10)) == '--forcetag') {
         $forceTag = true;
     }
-    if (strtolower(substr($param, 0, 2)) == '-t') {
-        $tagDeps = true;
+    if (strtolower(substr($param, 0, 3)) == '-nt') {
+        $tagDeps = false;
     }
-    if (strtolower(substr($param, 0, 9)) == '--tagdeps') {
-        $tagDeps = true;
+    if (strtolower(substr($param, 0, 11)) == '--notagdeps') {
+        $tagDeps = false;
     }
-    if (strtolower(substr($param, 0, 10)) == '--tag-deps') {
-        $tagDeps = true;
+    if (strtolower(substr($param, 0, 13)) == '--no-tag-deps') {
+        $tagDeps = false;
     }
     if (strtolower(substr($param, 0, 8)) == '--static') {
         $staticVer = true;
