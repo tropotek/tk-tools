@@ -98,7 +98,7 @@ try {
     }
 
 
-    $vcs->log('------------------------------------------------' . $p, \Tbx\Vcs\Adapter\Git::LOG);
+    $vcs->log('------------------------------------------------', \Tbx\Vcs\Adapter\Git::LOG);
 
     $p = escapeshellarg($cwd);
     $commitMsg = escapeshellarg($commitMsg);
