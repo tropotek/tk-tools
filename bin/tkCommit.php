@@ -20,8 +20,8 @@ It will iterate through all nested Tk libs and commit any changes.
 Available options that this command can receive:
 
     --noVendor               Disable recurring into vendor folders.
-    --dryrun                 If set, the final svn command is dumped to stdout
     --debug                  Start command in debug mode
+    --dryrun                 If set, the final svn command is dumped to stdout
     --verbose                [-v|vv|vvv] Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
     --quiet                  [-q] Turn off all messages, only errors will be displayed
     --help                   Show this help text.
@@ -37,8 +37,6 @@ if ($argc < 1 || $argc > 4) {
 }
 $cwd = getcwd();
 $externFile = $cwd . '/externals';
-
-$project = basename(dirname($cwd));
 $commitMsg = @$argv[1];
 $novendor = false;
 $dryRun = false;
@@ -99,10 +97,7 @@ try {
 
     $vcs->log('------------------------------------------------', \Tbx\Vcs\Adapter\Git::LOG);
 
-    $p = escapeshellarg($cwd);
-    $commitMsg = escapeshellarg($commitMsg);
-
-    $vcs->log('COMMIT: ' . $p, \Tbx\Vcs\Adapter\Git::LOG);
+    $vcs->log('COMMIT: ' . $cwd, \Tbx\Vcs\Adapter\Git::LOG);
     $vcs->commit($commitMsg);
 
 
@@ -119,6 +114,10 @@ try {
                     if (!$res->isDir() && !is_dir($path.'/.git')) {
                         continue;
                     }
+                    $cmd = sprintf('cd %s && %s %s --novendor ', escapeshellarg($path), basename($argv[0]), escapeshellarg($commitMsg));
+                    $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
+                    exec($cmd, $out);
+
                     $p = escapeshellarg($path);
                     $cmd = basename($argv[0]);
                     echo `cd $p && $cmd  $commitMsg --novendor `;

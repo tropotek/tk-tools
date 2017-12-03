@@ -38,10 +38,10 @@ class Git extends Iface
         }
         if (count($this->output) && $lastLine) {
             if (preg_match('/^nothing to commit/', $lastLine)) {
-                $this->log('  Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG);
+                $this->log('  - Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG);
             }
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
-                $this->log('  Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
+                $this->log('  - Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
             }
         } else if ($ret) {
             throw new \Exception('Cannot commit branch: ' . $lastLine);
@@ -66,17 +66,19 @@ class Git extends Iface
      * Commit the current branch and push to remote repos
      *
      * @throws \Exception
-     * @return bool
      */
     public function update()
     {
-        $cmd = sprintf('git pull ');
+        $cmd = sprintf('git pull 2>&1 ');
         $this->log($cmd, self::LOG_CMD);
-        exec($cmd, $this->output, $ret);
-        if ($ret) {
-            return false;
+        $lastLine = exec($cmd, $this->output, $ret);
+        if (count($this->output) && $lastLine) {
+            if (preg_match('/Already up-to-date/', $lastLine)) {
+                $this->log('  - Already up-to-date', \Tbx\Vcs\Adapter\Git::LOG);
+            }
+        } else if ($ret) {
+            throw new \Exception('Cannot update branch: ' . $lastLine);
         }
-        return true;
     }
 
 
@@ -89,9 +91,9 @@ class Git extends Iface
      */
     public function checkout($branch = 'master')
     {
-        $cmd = sprintf('git checkout %s', escapeshellarg($branch));
+        $cmd = sprintf('git checkout %s 2>&1 ', escapeshellarg($branch));
         $this->log($cmd, self::LOG_CMD);
-        exec($cmd, $this->output, $ret);
+        $lastLine = exec($cmd, $this->output, $ret);
         if ($ret) {
             return false;
         }
