@@ -34,6 +34,7 @@ class Git extends Iface
             exec($cmd, $this->output, $ret);
         }
         $this->log($this->output, self::LOG_VVV);
+        vd($ret);
         if ($ret) {
             //return false;
             throw new \Exception('Cannot commit branch');
