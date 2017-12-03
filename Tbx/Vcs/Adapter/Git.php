@@ -30,15 +30,14 @@ class Git extends Iface
         } else {
             $message = '~Auto: Commit';
         }
-        $cmd = sprintf('git commit -am %s  > /dev/null ', escapeshellarg($message));
+        $cmd = sprintf('git commit -am %s ', escapeshellarg($message));
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
-            exec($cmd, $this->output, $ret);
+            $lastLine = exec($cmd, $this->output, $ret);
+            //$lastLine = $this->output[count($this->output)-1];
             $this->log($this->output, self::LOG_VVV);
-            $lastLine = $this->output[count($this->output)-1];
         }
 
-        $lastLine = $this->output[count($this->output)-1];
         if (count($this->output) && $lastLine) {
             if (preg_match('/^nothing to commit/', $lastLine)) {
                 $this->log('Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG_VV);
@@ -51,10 +50,11 @@ class Git extends Iface
         }
 
         $this->output = '';
-        $cmd = sprintf('git push  > /dev/null ');
+        $cmd = sprintf('git push');
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
-            exec($cmd, $this->output, $ret);
+            $lastLine = exec($cmd, $this->output, $ret);
+            //$lastLine = $this->output[count($this->output)-1];
             $this->log($this->output, self::LOG_VVV);
         }
 
