@@ -23,6 +23,7 @@ class Git extends Iface
     public function commit($message = '')
     {
         $this->output = '';
+        $lastLine = '';
         $ret = null;
         if ($message) {
             $message = '~Auto: ' . $message;
@@ -33,11 +34,12 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             exec($cmd, $this->output, $ret);
+            $this->log($this->output, self::LOG_VVV);
+            $lastLine = $this->output[count($this->output)-1];
         }
-        $this->log($this->output, self::LOG_VVV);
 
         $lastLine = $this->output[count($this->output)-1];
-        if (count($this->output)) {
+        if (count($this->output) && $lastLine) {
             if (preg_match('/^nothing to commit/', $lastLine)) {
                 $this->log('Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG_VV);
             }
@@ -48,12 +50,13 @@ class Git extends Iface
             throw new \Exception('Cannot commit branch');
         }
 
+        $this->output = '';
         $cmd = sprintf('git push');
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             exec($cmd, $this->output, $ret);
+            $this->log($this->output, self::LOG_VVV);
         }
-        $this->log($this->output, self::LOG_VVV);
 
         if ($ret) {
             //return false;
