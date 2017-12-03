@@ -44,8 +44,8 @@ class Git extends Iface
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
                 $this->log('Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG_VV);
             }
+            vd($lastLine);
         } else if ($ret) {
-            //return false;
             throw new \Exception('Cannot commit branch');
         }
 
