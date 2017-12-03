@@ -34,19 +34,17 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->output, $ret);
-            //$lastLine = $this->output[count($this->output)-1];
             $this->log($this->output, self::LOG_VVV);
         }
-
         if (count($this->output) && $lastLine) {
             if (preg_match('/^nothing to commit/', $lastLine)) {
-                $this->log('  Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG_VV);
+                $this->log('  Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG);
             }
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
                 $this->log('  Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
             }
         } else if ($ret) {
-            throw new \Exception('Cannot commit branch');
+            throw new \Exception('Cannot commit branch: ' . $lastLine);
         }
 
         $this->output = '';
@@ -54,13 +52,12 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->output, $ret);
-            //$lastLine = $this->output[count($this->output)-1];
             $this->log($this->output, self::LOG_VVV);
         }
 
         if ($ret) {
             //return false;
-            throw new \Exception('Cannot push branch');
+            throw new \Exception('Cannot push branch: ' . $lastLine);
         }
         return $this;
     }
