@@ -43,6 +43,7 @@ class Git extends Iface
             }
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
                 $this->log('Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG_VV);
+                vd($lastLine);
             }
             vd($lastLine);
         } else if ($ret) {
@@ -54,7 +55,7 @@ class Git extends Iface
         if (!$this->isDryRun()) {
             exec($cmd, $this->output, $ret);
         }
-        $this->log($this->output, self::LOG_VVV);
+        //$this->log($this->output, self::LOG_VVV);
         if ($ret) {
             //return false;
             throw new \Exception('Cannot push branch');
