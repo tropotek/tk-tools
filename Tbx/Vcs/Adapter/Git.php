@@ -30,7 +30,7 @@ class Git extends Iface
         } else {
             $message = '~Auto: Commit';
         }
-        $cmd = sprintf('git commit -am %s ', escapeshellarg($message));
+        $cmd = sprintf('git commit -am %s  > /dev/null ', escapeshellarg($message));
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             exec($cmd, $this->output, $ret);
@@ -51,7 +51,7 @@ class Git extends Iface
         }
 
         $this->output = '';
-        $cmd = sprintf('git push');
+        $cmd = sprintf('git push  > /dev/null ');
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             exec($cmd, $this->output, $ret);
