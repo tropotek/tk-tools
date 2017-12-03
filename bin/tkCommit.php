@@ -102,7 +102,7 @@ try {
     $p = escapeshellarg($cwd);
     $commitMsg = escapeshellarg($commitMsg);
 
-    $vcs->log('GIT: ' . $p, \Tbx\Vcs\Adapter\Git::LOG);
+    $vcs->log('COMMIT: ' . $p, \Tbx\Vcs\Adapter\Git::LOG);
     $vcs->commit($commitMsg);
 
 
