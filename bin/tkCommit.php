@@ -42,6 +42,7 @@ $project = basename(dirname($cwd));
 $commitMsg = @$argv[1];
 $novendor = false;
 $dryRun = false;
+$verbose = 0;
 
 
 foreach ($argv as $param) {
