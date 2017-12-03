@@ -70,7 +70,7 @@ class Git extends Iface
     public function update()
     {
         $cmd = sprintf('git pull 2>&1 ');
-        $this->log($cmd, self::LOG_CMD);
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         $lastLine = exec($cmd, $this->output, $ret);
         $this->log($this->output, self::LOG_VV);
         if (count($this->output) && $lastLine) {
@@ -92,7 +92,7 @@ class Git extends Iface
     public function checkout($branch = 'master')
     {
         $cmd = sprintf('git checkout %s 2>&1 ', escapeshellarg($branch));
-        $this->log($cmd, self::LOG_CMD);
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         $lastLine = exec($cmd, $this->output, $ret);
         $this->log($this->output, self::LOG_VV);
         if ($ret) {
@@ -111,7 +111,7 @@ class Git extends Iface
         if (!$this->uri) {
             $this->output = '';
             $cmd = 'git remote -v 2>&1 ';
-            $this->log($cmd, self::LOG_CMD);
+            $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
             $lastLine = exec($cmd, $this->output);
             $this->log($this->output, self::LOG_VV);
             $this->output = is_array($this->output) ? $this->output : array($this->output);
@@ -138,7 +138,7 @@ class Git extends Iface
             $this->tagList = array();
 
             $cmd = 'git tag 2>&1 ';
-            $this->log($cmd, self::LOG_CMD);
+            $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
             $lastLine = exec($cmd, $this->output);
             $this->log($this->output, self::LOG_VV);
 
@@ -170,7 +170,7 @@ class Git extends Iface
         $this->output = '';
         $tagName = trim($tagName, '/');
         $cmd = 'git diff --name-status 2>&1 '.escapeshellarg($tagName).' HEAD';
-        $this->log($cmd, self::LOG_CMD);
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         exec($cmd, $this->output);
         $this->log($this->output, self::LOG_VV);
 
@@ -204,7 +204,7 @@ class Git extends Iface
         $logs = array();
 
         $cmd = sprintf('git log --oneline %s..HEAD 2>&1 ', escapeshellarg($version));
-        $this->log($cmd, self::LOG_CMD);
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         $lastLine = exec($cmd, $this->output, $ret);
         $this->log($this->output, self::LOG_VV);
         if ($ret) {
@@ -326,7 +326,7 @@ class Git extends Iface
     public function getCurrentBranch()
     {
         $cmd = sprintf('git branch');
-        $this->log($cmd, self::LOG_CMD);
+        $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         exec($cmd, $this->output);
         $this->log($this->output, self::LOG_VV);
 
