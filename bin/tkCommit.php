@@ -135,7 +135,7 @@ try {
         }
     }
 } catch (Exception $e) {
-    $vcs->log('ERROR: ' . $e->getMessage() . ' [' . $e->getLine() . ']', \Tbx\Vcs\Adapter\Git::LOG_V);
+    $vcs->log('ERROR: ' . $e->getMessage() . ' [' . $e->getFile().' -> '.$e->getLine() . ']', \Tbx\Vcs\Adapter\Git::LOG_V);
     exit(-1);
 }
 
