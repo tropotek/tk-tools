@@ -54,6 +54,7 @@ FILES=(
   'tkTagProject.php'
   'tkTagShow.php'
   'tkToUtf8.php'
+  'tkTraceAnalyser.php'
   'tkUpdate.php'
   'tkVidHtml5Cnv'
   'www_fix.sh'
