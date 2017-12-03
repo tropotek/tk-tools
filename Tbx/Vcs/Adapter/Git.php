@@ -35,7 +35,7 @@ class Git extends Iface
         }
         $this->log($this->output, self::LOG_VVV);
         vd($ret, $this->output);
-        if (count($this->output) && preg_match('/$nothing to commit/', $this->output[count($this->output)-1])) {
+        if (count($this->output) && preg_match('/^nothing to commit/', $this->output[count($this->output)-1])) {
             // Nothingto coomit
         } else if ($ret) {
             //return false;
