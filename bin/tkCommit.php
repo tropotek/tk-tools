@@ -100,7 +100,7 @@ try {
     $p = escapeshellarg($cwd);
     $commitMsg = escapeshellarg($commitMsg);
 
-    $vcs->log('COMMITTING: ' . $p, \Tbx\Vcs\Adapter\Git::LOG);
+    $vcs->log('GIT: ' . $p, \Tbx\Vcs\Adapter\Git::LOG);
     $vcs->commit($commitMsg);
 
 //    if (is_dir($cwd . '/.git')) {   // GIT
