@@ -19,9 +19,12 @@ It will iterate through all nested Tk libs and commit any changes.
 
 Available options that this command can receive:
 
-    --noVendor              Disable recurring into vendor folders.
-    --debug                 Start command in debug mode
-    --help                  Show this help text.
+    --noVendor               Disable recurring into vendor folders.
+    --dryrun                 If set, the final svn command is dumped to stdout
+    --debug                  Start command in debug mode
+    --verbose                [-v|vv|vvv] Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+    --quiet                  [-q] Turn off all messages, only errors will be displayed
+    --help                   Show this help text.
 
 Copyright (c) 2002
 Report bugs to info@tropotek.com
@@ -38,16 +41,38 @@ $externFile = $cwd . '/externals';
 $project = basename(dirname($cwd));
 $commitMsg = @$argv[1];
 $novendor = false;
+$dryRun = false;
 
-
-//define('DEBUG', true);
 
 foreach ($argv as $param) {
     if (strtolower(substr($param, 0, 10)) == '--novendor') {
         $novendor = true;
     }
+    if (strtolower(substr($param, 0, 8)) == '--dryrun') {
+        $dryRun = true;
+    }
     if (strtolower(substr($param, 0, 7)) == '--debug') {
         $debug = true;
+    }
+
+    if (strtolower(substr($param, 0, 7)) == '--quiet') {
+        $verbose = 0;
+    }
+    if (strtolower(substr($param, 0, 2)) == '-q') {
+        $verbose = 0;
+    }
+
+    if (strtolower(substr($param, 0, 9)) == '--verbose') {
+        $verbose = 5;
+    }
+    if (strtolower(substr($param, 0, 2)) == '-v') {
+        $verbose = 1;
+    }
+    if (strtolower(substr($param, 0, 3)) == '-vv') {
+        $verbose = 3;
+    }
+    if (strtolower(substr($param, 0, 4)) == '-vvv') {
+        $verbose = 5;
     }
     if (strtolower(substr($param, 0, 6)) == '--help') {
         echo $help;
@@ -55,26 +80,38 @@ foreach ($argv as $param) {
     }
 }
 
+$vcs = null;
 try {
+
+    // Check if executed within a GIT repository
+    $vcs = new \Tbx\Vcs\Adapter\Git($dryRun);
+    $vcs->setVerbose($verbose);
+
+    if (!is_dir($cwd . '/.git')) {   // GIT
+        throw new Exception('This folder does not appear to be a GIT repository.');
+    }
+
+    $currentBranch = $vcs->getCurrentBranch();
     if (!$commitMsg) {
         $commitMsg = 'Minor Code Updates - ' . trim(`hostname`);
-        //throw new Exception('Please add a commit message.');
-
     }
 
     $p = escapeshellarg($cwd);
     $commitMsg = escapeshellarg($commitMsg);
 
-    if (is_dir($cwd . '/.git')) {   // GIT
-        echo "COMMIT: " . $p . "\n";
-        echo '  - GIT: ' . `cd $p && git commit -am $commitMsg && git push`;
-        echo "\n";
-    }
-    else if (is_dir($cwd . '/.svn')) {   // SVN
-        echo "COMMIT: " . $p . "\n";
-        echo '  - SVN: ' . `cd $p && svn ci -m $commitMsg`;
-        echo "\n";
-    }
+    $vcs->log('COMMIT: ' . $p, \Tbx\Vcs\Adapter\Git::LOG_VV);
+    $vcs->commit($commitMsg);
+
+//    if (is_dir($cwd . '/.git')) {   // GIT
+//        echo "COMMIT: " . $p . "\n";
+//        echo '  - GIT: ' . `cd $p && git commit -am $commitMsg && git push`;
+//        echo "\n";
+//    }
+//    else if (is_dir($cwd . '/.svn')) {   // SVN
+//        echo "COMMIT: " . $p . "\n";
+//        echo '  - SVN: ' . `cd $p && svn ci -m $commitMsg`;
+//        echo "\n";
+//    }
 
     // Commit child projects
     if (!$novendor) {
@@ -86,7 +123,7 @@ try {
                         continue;
                     }
                     $path = $res->getRealPath();
-                    if (!$res->isDir() && !is_dir($path.'/.svn') && !is_dir($path.'/.git')) {
+                    if (!$res->isDir() && !is_dir($path.'/.git')) {
                         continue;
                     }
                     $p = escapeshellarg($path);
@@ -97,8 +134,7 @@ try {
         }
     }
 } catch (Exception $e) {
-    print(basename("\nERROR: ".$e->getMessage().' [' . $e->getLine() ."]\n"));
-    echo $help;
+    $vcs->log('ERROR: ' . $e->getMessage() . ' [' . $e->getLine() . ']', \Tbx\Vcs\Adapter\Git::LOG_V);
     exit(-1);
 }
 
