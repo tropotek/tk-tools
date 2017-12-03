@@ -42,10 +42,9 @@ class Git extends Iface
                 $this->log('Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG_VV);
             }
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
-                $this->log('Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG_VV);
-                vd($lastLine);
+                $this->log('Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
+                vd($reg, $lastLine);
             }
-            vd($lastLine);
         } else if ($ret) {
             throw new \Exception('Cannot commit branch');
         }
@@ -55,8 +54,7 @@ class Git extends Iface
         if (!$this->isDryRun()) {
             exec($cmd, $this->output, $ret);
         }
-
-        //$this->log($this->output, self::LOG_VVV);
+        $this->log($this->output, self::LOG_VVV);
 
         if ($ret) {
             //return false;
