@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mifsudm
- * Date: 1/30/14
- * Time: 8:28 AM
- */
-
 namespace Tbx\Vcs\Adapter;
+
 
 /**
  * Interface VCS Iface
@@ -24,9 +18,6 @@ abstract class Iface
     const LOG_V = 1;
     const LOG_VV = 3;
     const LOG_VVV = 5;
-
-
-
 
     /**
      * The repository base URI, all paths used should
@@ -79,6 +70,7 @@ abstract class Iface
     protected $verbose = 0;
 
 
+
     /**
      * Constructor
      *
@@ -91,10 +83,7 @@ abstract class Iface
         $this->workingDirectory = getcwd();
     }
 
-
     /**
-     *
-     *
      * @return string
      */
     public function getCmdPrepend()
@@ -123,7 +112,6 @@ abstract class Iface
     }
 
     /**
-     *
      * @param $workingDirectory
      * @return $this
      * @throws \Exception
@@ -220,17 +208,15 @@ abstract class Iface
     /**
      * Get the path for the most recent tag version
      *
-     * @param bool $force If true the tag list will be refreshed from the repository
      * @return string
      */
-    public function getCurrentTag($force = false)
+    public function getCurrentTag()
     {
-        $tags = $this->getTagList($force);
+        $tags = $this->getTagList();
         if (is_array($tags))
             return end($tags);
         return '';
     }
-
 
     /**
      * getChangelog
@@ -245,7 +231,7 @@ abstract class Iface
     /**
      * Echo a message based on set verbosity...
      *
-     * @param string $msg
+     * @param mixed $msg
      * @param int $verbose
      * @return $this
      */
@@ -264,7 +250,6 @@ abstract class Iface
         return $this;
     }
 
-
     /**
      * Get the repository package base URI
      *
@@ -281,7 +266,6 @@ abstract class Iface
      */
     abstract public function makeChangelog($version);
 
-
     /**
      * Commit the current checked out branch
      *
@@ -290,14 +274,12 @@ abstract class Iface
      */
     abstract public function commit($message = '');
 
-
     /**
      * Update the current checked out branch
      *
      * @return $this
      */
     abstract public function update();
-
 
     /**
      * Get an array of current tagged versions.
@@ -341,7 +323,5 @@ abstract class Iface
      * @return boolean
      */
     abstract public function tagRelease($version, $message = '');
-
-
 
 } 

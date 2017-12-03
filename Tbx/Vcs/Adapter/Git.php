@@ -17,7 +17,7 @@ class Git extends Iface
      *
      * @param string $message
      * @throws \Exception
-     * @return bool
+     * @return static
      */
     public function commit($message = '')
     {
@@ -35,8 +35,8 @@ class Git extends Iface
         }
         $this->log($this->output, self::LOG_VVV);
         if ($ret) {
-            return false;
-            //throw new \Exception('Cannot commit branch');
+            //return false;
+            throw new \Exception('Cannot commit branch');
         }
 
         $cmd = sprintf('git push');
@@ -46,8 +46,8 @@ class Git extends Iface
         }
         $this->log($this->output, self::LOG_VVV);
         if ($ret) {
-            return false;
-            //throw new \Exception('Cannot push branch');
+            //return false;
+            throw new \Exception('Cannot push branch');
         }
         return $this;
     }
@@ -186,16 +186,17 @@ class Git extends Iface
      */
     public function makeChangelog($version)
     {
+        $exists = array();
+        $logs = array();
+
         $cmd = sprintf('git log --oneline %s..HEAD', escapeshellarg($version));
         $this->log($cmd, self::LOG_CMD);
         exec($cmd, $this->output, $ret);
         if ($ret) {
-            return false;
+            return $logs;
         }
-        $exists = array();
-        $logs = array();
-        $this->log($this->output, self::LOG_DEBUG);
 
+        $this->log($this->output, self::LOG_DEBUG);
         $logLines = $this->output;
         foreach ($logLines as $i => $log) {
             if (!preg_match('/^([0-9a-f]{7,10})\s+(.+)/i', $log, $regs)) {
@@ -230,6 +231,7 @@ class Git extends Iface
      * @param string $version A version string in the format of x.x.x
      * @param string $message Any commit message, if non supplied the version will be used
      * @return boolean
+     * @throws \Exception
      */
     public function tagRelease($version, $message = '')
     {
