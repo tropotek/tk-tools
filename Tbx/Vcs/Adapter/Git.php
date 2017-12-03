@@ -12,6 +12,7 @@ class Git extends Iface
 {
 
 
+
     /**
      * Commit the current branch and push to remote repos
      *
@@ -37,10 +38,12 @@ class Git extends Iface
 
         $lastLine = $this->output[count($this->output)-1];
         if (count($this->output)) {
+            vd($lastLine);
             if (preg_match('/^nothing to commit/', $lastLine)) {
                 $this->log('Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG_VV);
             }
-            if (preg_match('/([0-9]+) files? changed/', $lastLine)) {
+            if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
+                vd($reg);
                 $this->log('Committed Changed Files', \Tbx\Vcs\Adapter\Git::LOG_VV);
             }
         } else if ($ret) {
