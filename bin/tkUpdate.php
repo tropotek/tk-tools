@@ -97,7 +97,8 @@ try {
                 }
                 $cmd = sprintf('cd %s && %s', escapeshellarg($path), basename($argv[0]));
                 $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
-                exec($cmd, $out);
+                system($cmd, $out);
+                $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_DEBUG);
             }
         }
     }

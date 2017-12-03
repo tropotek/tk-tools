@@ -116,11 +116,8 @@ try {
                     }
                     $cmd = sprintf('cd %s && %s %s --novendor ', escapeshellarg($path), basename($argv[0]), escapeshellarg($commitMsg));
                     $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
-                    exec($cmd, $out);
-
-                    $p = escapeshellarg($path);
-                    $cmd = basename($argv[0]);
-                    echo `cd $p && $cmd  $commitMsg --novendor `;
+                    system($cmd, $out);
+                    $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_DEBUG);
                 }
             }
         }

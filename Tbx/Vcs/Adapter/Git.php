@@ -34,7 +34,7 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->output, $ret);
-            $this->log($this->output, self::LOG_VVV);
+            $this->log($this->output, self::LOG_VV);
         }
         if (count($this->output) && $lastLine) {
             if (preg_match('/^nothing to commit/', $lastLine)) {
@@ -52,7 +52,7 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->output, $ret);
-            $this->log($this->output, self::LOG_VVV);
+            $this->log($this->output, self::LOG_VV);
         }
 
         if ($ret) {
@@ -72,6 +72,7 @@ class Git extends Iface
         $cmd = sprintf('git pull 2>&1 ');
         $this->log($cmd, self::LOG_CMD);
         $lastLine = exec($cmd, $this->output, $ret);
+        $this->log($this->output, self::LOG_VV);
         if (count($this->output) && $lastLine) {
             if (preg_match('/Already up-to-date/', $lastLine)) {
                 $this->log('  - Already up-to-date', \Tbx\Vcs\Adapter\Git::LOG);
@@ -87,17 +88,16 @@ class Git extends Iface
      *
      * @param string $branch
      * @throws \Exception
-     * @return bool
      */
     public function checkout($branch = 'master')
     {
         $cmd = sprintf('git checkout %s 2>&1 ', escapeshellarg($branch));
         $this->log($cmd, self::LOG_CMD);
         $lastLine = exec($cmd, $this->output, $ret);
+        $this->log($this->output, self::LOG_VV);
         if ($ret) {
-            return false;
+            throw new \Exception('Cannot checkout branch: ' . $lastLine);
         }
-        return true;
     }
 
 
@@ -110,9 +110,10 @@ class Git extends Iface
     {
         if (!$this->uri) {
             $this->output = '';
-            $cmd = 'git remote -v';
+            $cmd = 'git remote -v 2>&1 ';
             $this->log($cmd, self::LOG_CMD);
-            exec($cmd, $this->output);
+            $lastLine = exec($cmd, $this->output);
+            $this->log($this->output, self::LOG_VV);
             $this->output = is_array($this->output) ? $this->output : array($this->output);
             foreach ($this->output as $line) {
                 if (preg_match('/^origin\s+(\S+)\s+\((fetch|push)\)/', trim($line), $regs)) {
@@ -136,9 +137,10 @@ class Git extends Iface
             $this->output = '';
             $this->tagList = array();
 
-            $cmd = 'git tag ';
+            $cmd = 'git tag 2>&1 ';
             $this->log($cmd, self::LOG_CMD);
-            exec($cmd, $this->output);
+            $lastLine = exec($cmd, $this->output);
+            $this->log($this->output, self::LOG_VV);
 
             foreach($this->output as $line) {
                 $line = trim($line);
@@ -167,10 +169,10 @@ class Git extends Iface
         }
         $this->output = '';
         $tagName = trim($tagName, '/');
-        $cmd = 'git diff --name-status '.escapeshellarg($tagName).' HEAD';
+        $cmd = 'git diff --name-status 2>&1 '.escapeshellarg($tagName).' HEAD';
         $this->log($cmd, self::LOG_CMD);
         exec($cmd, $this->output);
-        $this->log($this->output, self::LOG_DEBUG);
+        $this->log($this->output, self::LOG_VV);
 
         $changed = array();
         foreach($this->output as $line) {
@@ -182,7 +184,7 @@ class Git extends Iface
             }
             $changed[] = trim($regs[1]);
         }
-        $this->log($changed, self::LOG_VVV);
+        $this->log($changed, self::LOG_V);
         return $changed;
     }
 
@@ -201,21 +203,20 @@ class Git extends Iface
         $exists = array();
         $logs = array();
 
-        $cmd = sprintf('git log --oneline %s..HEAD', escapeshellarg($version));
+        $cmd = sprintf('git log --oneline %s..HEAD 2>&1 ', escapeshellarg($version));
         $this->log($cmd, self::LOG_CMD);
-        exec($cmd, $this->output, $ret);
+        $lastLine = exec($cmd, $this->output, $ret);
+        $this->log($this->output, self::LOG_VV);
         if ($ret) {
             return $logs;
         }
 
-        $this->log($this->output, self::LOG_DEBUG);
         $logLines = $this->output;
         foreach ($logLines as $i => $log) {
             if (!preg_match('/^([0-9a-f]{7,10})\s+(.+)/i', $log, $regs)) {
                 continue;
             }
             $msgLine = trim($regs[2]);
-
             $msgLines = explode('- ', $msgLine);
             foreach($msgLines as $msg) {
                 $msg = trim($msg);
@@ -225,7 +226,6 @@ class Git extends Iface
                 } else {
                     $this->log('  $msg(+) => ' . $msg);
                 }
-                // TODO: Sometimes log msgs seem to be the same hash, keep an eye on it....
                 if (!in_array(md5($msg), $exists)) {
                     $logs[] = $msg;
                     $exists[] = md5($msg);
@@ -279,7 +279,7 @@ class Git extends Iface
         }
 
         // Tag trunk
-        $cmd = sprintf("git tag -a %s -m %s", $version, escapeshellarg($message) );
+        $cmd = sprintf("git tag -a %s -m %s 2>&1 ", $version, escapeshellarg($message) );
         $this->output = $cmd;
 
         // Copy log
@@ -294,6 +294,7 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
             exec($cmd, $this->output);
+            $this->log($this->output, self::LOG_VV);
         }
         $this->output = implode("\n", $this->output);
 
@@ -302,6 +303,7 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$pushTag, self::LOG_CMD);
         if (!$this->isDryRun()) {
             exec($pushTag, $this->output);
+            $this->log($this->output, self::LOG_VV);
         }
         $this->output = implode("\n", $this->output);
         // Restore trunk composer.json
@@ -326,6 +328,7 @@ class Git extends Iface
         $cmd = sprintf('git branch');
         $this->log($cmd, self::LOG_CMD);
         exec($cmd, $this->output);
+        $this->log($this->output, self::LOG_VV);
 
         foreach($this->output as $line) {
             if (preg_match('/^\* (b[0-9]+\.[0-9]+\.[0-9]+)/', $line, $regs)) {
