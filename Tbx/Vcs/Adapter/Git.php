@@ -51,9 +51,7 @@ class Git extends Iface
         $cmd = sprintf('git push');
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
-            vd();
             exec($cmd, $this->output, $ret);
-            vd();
         }
         $this->log($this->output, self::LOG_VVV);
 
