@@ -81,7 +81,6 @@ foreach ($argv as $param) {
     }
 }
 
-$vcs = null;
 try {
 
     // Check if executed within a GIT repository
@@ -89,14 +88,14 @@ try {
     $vcs->setVerbose($verbose);
 
     if (!is_dir($cwd . '/.git')) {   // GIT
-        throw new Exception('This folder does not appear to be a GIT repository.');
+        $vcs->log('This folder does not appear to be a GIT repository.', \Tbx\Vcs\Adapter\Git::LOG);
+        exit;
     }
 
     $currentBranch = $vcs->getCurrentBranch();
     if (!$commitMsg) {
         $commitMsg = 'Minor Code Updates - ' . trim(`hostname`);
     }
-
 
     $vcs->log('------------------------------------------------', \Tbx\Vcs\Adapter\Git::LOG);
 
@@ -106,16 +105,6 @@ try {
     $vcs->log('GIT: ' . $p, \Tbx\Vcs\Adapter\Git::LOG);
     $vcs->commit($commitMsg);
 
-//    if (is_dir($cwd . '/.git')) {   // GIT
-//        echo "COMMIT: " . $p . "\n";
-//        echo '  - GIT: ' . `cd $p && git commit -am $commitMsg && git push`;
-//        echo "\n";
-//    }
-//    else if (is_dir($cwd . '/.svn')) {   // SVN
-//        echo "COMMIT: " . $p . "\n";
-//        echo '  - SVN: ' . `cd $p && svn ci -m $commitMsg`;
-//        echo "\n";
-//    }
 
     // Commit child projects
     if (!$novendor) {
