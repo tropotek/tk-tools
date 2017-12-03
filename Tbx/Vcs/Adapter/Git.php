@@ -55,7 +55,9 @@ class Git extends Iface
         if (!$this->isDryRun()) {
             exec($cmd, $this->output, $ret);
         }
+
         //$this->log($this->output, self::LOG_VVV);
+
         if ($ret) {
             //return false;
             throw new \Exception('Cannot push branch');
