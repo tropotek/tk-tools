@@ -43,7 +43,6 @@ class Git extends Iface
             }
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
                 $this->log('Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
-                vd($reg, $lastLine);
             }
         } else if ($ret) {
             throw new \Exception('Cannot commit branch');
@@ -52,7 +51,9 @@ class Git extends Iface
         $cmd = sprintf('git push');
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         if (!$this->isDryRun()) {
+            vd();
             exec($cmd, $this->output, $ret);
+            vd();
         }
         $this->log($this->output, self::LOG_VVV);
 
