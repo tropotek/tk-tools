@@ -34,9 +34,15 @@ class Git extends Iface
             exec($cmd, $this->output, $ret);
         }
         $this->log($this->output, self::LOG_VVV);
-        vd($ret, $this->output);
-        if (count($this->output) && preg_match('/^nothing to commit/', $this->output[count($this->output)-1])) {
-            // Nothingto coomit
+
+        $lastLine = $this->output[count($this->output)-1];
+        if (count($this->output)) {
+            if (preg_match('/^nothing to commit/', $lastLine)) {
+                $this->log('Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG_VV);
+            }
+            if (preg_match('/([0-9]+) files? changed/', $lastLine)) {
+                $this->log('Committed Changed Files', \Tbx\Vcs\Adapter\Git::LOG_VV);
+            }
         } else if ($ret) {
             //return false;
             throw new \Exception('Cannot commit branch');
