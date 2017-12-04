@@ -39,6 +39,7 @@ class Git extends Iface
         if (count($this->output) && $lastLine) {
             if (preg_match('/^nothing to commit/', $lastLine)) {
                 $this->log('  - Nothing To Commit', \Tbx\Vcs\Adapter\Git::LOG);
+                return $this;
             }
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
                 $this->log('  - Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
