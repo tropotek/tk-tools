@@ -83,6 +83,29 @@ class Git extends Iface
             } else if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
                 $this->log('  + ' . $reg[1] . ' files changed', \Tbx\Vcs\Adapter\Git::LOG);
             } else {
+
+/*  TODO:
+vd({array}): Array
+(
+    [0] => From https://github.com/tropotek/ems-ruleset
+    [1] =>    f76116e..d320579  master     -> origin/master
+    [2] => Updating f76116e..d320579
+    [3] => Fast-forward
+    [4] =>  Plugin.php                               | 10 +++++-
+    [5] =>  Rs/Calculator.php                        |  2 --
+    [6] =>  Rs/Db/Rule.php                           |  1 -
+    [7] =>  Rs/Db/RuleMap.php                        | 19 +++++-----
+    [8] =>  Rs/Listener/AssessmentUnitsHandler.php   | 61 ++++++++++++++++++++++++++++++++
+    [9] =>  Rs/Listener/CategoryClassHandler.php     |  3 +-
+    [10] =>  Rs/Listener/ProfileEditHandler.php       | 44 ++++++++++++++---------
+    [11] =>  Rs/Listener/SetupHandler.php             |  1 +
+    [12] =>  Rs/Listener/StudentAssessmentHandler.php | 12 +++----
+    [13] =>  9 files changed, 114 insertions(+), 39 deletions(-)
+    [14] =>  create mode 100644 Rs/Listener/AssessmentUnitsHandler.php
+)
+*/
+
+
                 vd($this->output);
             }
         } else if ($ret) {
