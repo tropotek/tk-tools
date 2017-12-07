@@ -42,7 +42,7 @@ class Git extends Iface
                 return $this;
             }
             if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
-                $this->log('  - Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
+                $this->log('  + Committed ' . $reg[1] . ' Changed Files', \Tbx\Vcs\Adapter\Git::LOG);
             }
         } else if ($ret) {
             throw new \Exception('Cannot commit branch: ' . $lastLine);
@@ -75,8 +75,15 @@ class Git extends Iface
         $lastLine = exec($cmd, $this->output, $ret);
         $this->log($this->output, self::LOG_VV);
         if (count($this->output) && $lastLine) {
-            if (preg_match('/Already up-to-date/', $lastLine)) {
+            $out = implode("\n", $this->output);
+            if (preg_match('/error:/', $out)) {
+                $this->log($out, \Tbx\Vcs\Adapter\Git::LOG);
+            } else if (preg_match('/Already up-to-date/', $lastLine)) {
                 $this->log('  - Already up-to-date', \Tbx\Vcs\Adapter\Git::LOG);
+            } else if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
+                $this->log('  + ' . $reg[1] . ' files changed', \Tbx\Vcs\Adapter\Git::LOG);
+            } else {
+                vd($this->output);
             }
         } else if ($ret) {
             throw new \Exception('Cannot update branch: ' . $lastLine);
