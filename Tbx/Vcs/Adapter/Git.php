@@ -74,6 +74,12 @@ class Git extends Iface
         $this->log($this->getCmdPrepend().$cmd, self::LOG_CMD);
         $lastLine = exec($cmd, $this->output, $ret);
         $this->log($this->output, self::LOG_VV);
+
+
+        // TODO: print th egit output when files changed...
+        // TODO: search all output for the line -> "18 files changed, 95 insertions(+), 58 deletions(-)"
+
+
         if (count($this->output) && $lastLine) {
             $out = implode("\n", $this->output);
             if (preg_match('/error:/', $out)) {
