@@ -26,7 +26,9 @@ $title = 'Tropotek Command Utilities';
 $ver = $composer->version;
 $app = new Application($title, $ver);
 
-$app->add(new \Tbx\Console\Test());
+$app->add(new \Tbx\Console\Commit());
+
+//$app->add(new \Tbx\Console\Test());
 
 
 try {

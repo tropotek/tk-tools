@@ -13,7 +13,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  * @see http://www.tropotek.com/
  * @license Copyright 2017 Michael Mifsud
  */
-class Test extends Command
+class Commit extends Command
 {
 
     /**
@@ -32,8 +32,9 @@ class Test extends Command
      */
     protected function configure()
     {
-        $this->setName('test')
-            ->setDescription('This is a test script only');
+        $this->setName('commit')
+            ->setAliases(array('ci'))
+            ->setDescription("Run from the root of r ttek project to commit code changes.\nIt will iterate through all nested Tk libs and commit any changes.");
     }
 
     /**
