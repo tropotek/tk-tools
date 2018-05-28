@@ -40,8 +40,6 @@ class Commit extends Iface
         $this->setInput($input);
         $this->setOutput($output);
 
-        $output->writeln(ucwords($this->getName()));
-
 
         $vcs = \Tbx\Git::create($input, $output);
         if ($input->getOption('dryRun')) {
@@ -51,8 +49,11 @@ class Commit extends Iface
             throw new \Exception('This folder does not appear to be a GIT repository.');
         }
 
+        $output->writeln(ucwords($this->getName()) . ': ' . basename($vcs->getProjectPath()));
+
         $message = $input->getOption('message');
         $vcs->commit($message);
+        $this->output->writeln('', OutputInterface::VERBOSITY_NORMAL);
 
         if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) {
             return;
@@ -69,10 +70,8 @@ class Commit extends Iface
                     if (!$res->isDir() && !is_dir($path.'/.git')) {
                         continue;
                     }
-                    $cmd = sprintf('cd %s && %s %s -N ', escapeshellarg($path), basename($_SERVER['argv'][0] . ' ' . $input->getFirstArgument()), escapeshellarg($message));
-                    //$vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
-                    system($cmd, $out);
-                    //$vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_DEBUG);
+                    $cmd = sprintf('cd %s && %s -N -m %s', escapeshellarg($path), basename($_SERVER['argv'][0] . ' ' . $input->getFirstArgument()), escapeshellarg($message));
+                    system($cmd);
                 }
             }
         }
