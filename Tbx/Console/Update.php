@@ -1,12 +1,9 @@
 <?php
 namespace Tbx\Console;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 /**
  * @author Michael Mifsud <info@tropotek.com>
@@ -67,10 +64,10 @@ class Update extends Iface
 
 
                     try {
-                        $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
-                        $v->setInputOutput($input, $output);
-                        $output->writeln(ucwords($this->getName()) . ': ' . basename($v->getPath()));
-                        $v->update();
+                        $vcs->setPath($path);
+                        $vcs->setInputOutput($input, $output);
+                        $output->writeln(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
+                        $vcs->update();
                     } catch (\Exception $e) {
                         $output->writeln('<error>'.$e->getMessage().'</error>');
                     }

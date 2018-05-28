@@ -117,7 +117,7 @@ class Git
     public function setDryRun($b = true)
     {
         $this->dryRun = $b;
-        $this->output->writeln($this->commentOut('Dry Run Enabled.'), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeComment('Dry Run Enabled.');
         return $this;
     }
 
@@ -219,18 +219,18 @@ class Git
         }
 
         $cmd = sprintf('git commit -am %s 2>&1 ', escapeshellarg($message));
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln(implode("\n", $this->cmdBuf));
         }
 
         $this->cmdBuf = array();
         $cmd = sprintf('git push 2>&1 ');
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln(implode("\n", $this->cmdBuf));
         }
 
         if ($ret) {     // TODO: check if this is the correct response here
@@ -248,19 +248,19 @@ class Git
     {
         $this->cmdBuf = array();
         $cmd = sprintf('git pull 2>&1 ');
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
 
         // TODO: Look for a nicer way to handle this
-        //$this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+        //$this->writeln(implode("\n", $this->cmdBuf));
         if (count($this->cmdBuf) && $lastLine) {
             $out = implode("\n", $this->cmdBuf);
             if (preg_match('/error:/', $out)) {
-                $this->output->writeln($out, OutputInterface::VERBOSITY_NORMAL);
+                $this->writeError($out);
             } else if (preg_match('/Already up-to-date/', $lastLine)) {
-                $this->output->writeln('Already up-to-date', OutputInterface::VERBOSITY_NORMAL);
+                $this->writeComment('Already up-to-date');
             } else if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
-                $this->output->writeln('  + ' . $reg[1] . ' files changed', OutputInterface::VERBOSITY_NORMAL);
+                $this->writeln('  + ' . $reg[1] . ' files changed');
             } else {
 
 /*  TODO:
@@ -283,7 +283,7 @@ vd({array}): Array
     [14] =>  create mode 100644 Rs/Listener/AssessmentUnitsHandler.php
 )
 */
-                $this->output->writeln($out, OutputInterface::VERBOSITY_NORMAL);
+                $this->writeln($out);
             }
         }
 
@@ -303,9 +303,9 @@ vd({array}): Array
     {
         $this->cmdBuf = array();
         $cmd = sprintf('git checkout %s 2>&1 ', escapeshellarg($branch));
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
-        $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeln(implode("\n", $this->cmdBuf));
 
         if ($ret) {
             throw new \Exception('Cannot checkout branch: ' . $lastLine);
@@ -323,9 +323,9 @@ vd({array}): Array
         if (!$this->uri) {
             $this->cmdBuf = array();
             $cmd = 'git remote -v 2>&1 ';
-            $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeInfo($cmd);
             exec($cmd, $this->cmdBuf);
-            $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln(implode("\n", $this->cmdBuf));
 
             foreach ($this->cmdBuf as $line) {
                 if (preg_match('/^origin\s+(\S+)\s+\((fetch|push)\)/', trim($line), $regs)) {
@@ -350,9 +350,9 @@ vd({array}): Array
             $this->tagList = array();
 
             $cmd = 'git tag 2>&1 ';
-            $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeInfo($cmd);
             exec($cmd, $this->cmdBuf);
-            $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln(implode("\n", $this->cmdBuf));
 
             foreach($this->cmdBuf as $line) {
                 $line = trim($line);
@@ -382,9 +382,9 @@ vd({array}): Array
         $this->cmdBuf = array();
         $tagName = trim($tagName, '/');
         $cmd = 'git diff --name-status 2>&1 '.escapeshellarg($tagName).' HEAD';
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         exec($cmd, $this->cmdBuf);
-        $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeln(implode("\n", $this->cmdBuf));
 
         $changed = array();
         foreach($this->cmdBuf as $line) {
@@ -396,7 +396,7 @@ vd({array}): Array
             }
             $changed[] = trim($regs[1]);
         }
-        $this->output->writeln($this->commentOut($changed), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeComment($changed);
         return $changed;
     }
 
@@ -416,9 +416,9 @@ vd({array}): Array
         $logs = array();
 
         $cmd = sprintf('git log --oneline %s..HEAD 2>&1 ', escapeshellarg($version));
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         exec($cmd, $this->cmdBuf, $ret);
-        $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeln(implode("\n", $this->cmdBuf));
         if ($ret) {
             return $logs;
         }
@@ -432,10 +432,10 @@ vd({array}): Array
             foreach($msgLines as $msg) {
                 $msg = trim($msg);
                 if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {
-                    $this->output->writeln($this->commentOut('  $msg(-) => ' . $msg), OutputInterface::VERBOSITY_VERBOSE);
+                    $this->writeComment('  $msg(-) => ' . $msg, OutputInterface::VERBOSITY_VERBOSE);
                     continue;
                 } else {
-                    $this->output->writeln($this->commentOut('  $msg(+) => ' . $msg), OutputInterface::VERBOSITY_VERBOSE);
+                    $this->writeComment('  $msg(+) => ' . $msg, OutputInterface::VERBOSITY_VERBOSE);
                 }
                 if (!in_array(md5($msg), $exists)) {
                     $logs[] = $msg;
@@ -486,13 +486,13 @@ vd({array}): Array
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
             }
-            $this->output->writeln($log, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $this->writeln($log, OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
 
 
         // Copy log
         if ($log && $this->changelog) {
-            $this->output->writeln('  Updating changelog.md.', OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln('  Updating changelog.md.');
             if (!$this->isDryRun()) {
                 file_put_contents('changelog.md', $log);
             }
@@ -502,22 +502,22 @@ vd({array}): Array
 
         // Tag trunk
         $cmd = sprintf("git tag -a %s -m %s 2>&1 ", $version, escapeshellarg($message) );
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         if (!$this->isDryRun()) {
             exec($cmd, $this->cmdBuf);
-            $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln(implode("\n", $this->cmdBuf));
         }
         $this->cmdBuf = array();
         $cmd = sprintf("git push --tags");
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         if (!$this->isDryRun()) {
             exec($cmd, $this->cmdBuf);
-            $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln(implode("\n", $this->cmdBuf));
         }
 
         // Restore trunk composer.json
         if ($json) {
-            $this->output->writeln('  Updating composer.json', OutputInterface::VERBOSITY_NORMAL);
+            $this->writeln('  Updating composer.json');
             if (!$this->isDryRun()) {
                 file_put_contents('composer.json', $json);
             }
@@ -534,9 +534,9 @@ vd({array}): Array
     public function getCurrentBranch()
     {
         $cmd = sprintf('git branch');
-        $this->output->writeln($this->infoOut($cmd), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeInfo($cmd);
         exec($cmd, $this->cmdBuf);
-        $this->output->writeln(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+        $this->writeln(implode("\n"));
         foreach($this->cmdBuf as $line) {
             if (preg_match('/^\* (b[0-9]+\.[0-9]+\.[0-9]+)/', $line, $regs)) {
                 return $regs[1];
@@ -549,24 +549,30 @@ vd({array}): Array
 
 
 
-    protected function infoOut($str)
+    protected function writeInfo($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return sprintf('<info>%s</info>', $str);
+        return $this->writeln(sprintf('<info>%s</info>', $str), $options);
     }
 
-    protected function commentOut($str)
+    protected function writeComment($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return sprintf('<comment>%s</comment>', $str);
+        return $this->writeln(sprintf('<comment>%s</comment>', $str), $options);
     }
 
-    protected function questionOut($str)
+    protected function writeQuestion($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return sprintf('<question>%s</question>', $str);
+        return $this->writeln(sprintf('<question>%s</question>', $str), $options);
     }
 
-    protected function errorOut($str)
+    protected function writeError($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return sprintf('<error>%s</error>', $str);
+        return $this->writeln(sprintf('<error>%s</error>', $str), $options);
+    }
+
+    protected function writeln($str, $options = OutputInterface::VERBOSITY_NORMAL)
+    {
+        if ($this->output)
+            return $this->output->writeln($str, $options);
     }
 
 }
