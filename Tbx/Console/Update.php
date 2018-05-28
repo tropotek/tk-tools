@@ -40,16 +40,10 @@ class Update extends Iface
         $this->setInput($input);
         $this->setOutput($output);
 
+        $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
+        $vcs->setInputOutput($input, $output);
 
-        $vcs = \Tbx\Git::create($input, $output);
-        if ($input->getOption('dryRun')) {
-            $vcs->setDryRun();
-        }
-        if (!is_dir($vcs->getProjectPath() . '/.git')) {   // GIT
-            throw new \Exception('This folder does not appear to be a GIT repository.');
-        }
-
-        $output->writeln(ucwords($this->getName()) . ': ' . basename($vcs->getProjectPath()));
+        $output->writeln(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
 
         $vcs->update();
@@ -60,9 +54,9 @@ class Update extends Iface
         }
 
         foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
-            $vendorPath = rtrim($vcs->getProjectPath(), '/') . $vPath;
-            if (is_dir($vendorPath)) {      // If vendor path exists
-                foreach (new \DirectoryIterator($vendorPath) as $res) {
+            $libPath = rtrim($vcs->getPath(), '/') . $vPath;
+            if (is_dir($libPath)) {      // If vendor path exists
+                foreach (new \DirectoryIterator($libPath) as $res) {
                     if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
                         continue;
                     }
@@ -70,8 +64,20 @@ class Update extends Iface
                     if (!$res->isDir() && !is_dir($path.'/.git')) {
                         continue;
                     }
-                    $cmd = sprintf('cd %s && %s', escapeshellarg($path), $_SERVER['argv'][0] . ' ' . $input->getFirstArgument());
-                    system($cmd);
+
+
+                    try {
+                        $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
+                        $v->setInputOutput($input, $output);
+                        $output->writeln(ucwords($this->getName()) . ': ' . basename($v->getPath()));
+                        $v->update();
+                    } catch (\Exception $e) {
+                        $output->writeln('<error>'.$e->getMessage().'</error>');
+                    }
+                    $this->output->writeln('', OutputInterface::VERBOSITY_NORMAL);
+//                    // TODO: Do not call the CLI command iterate using PHP
+//                    $cmd = sprintf('cd %s && %s', escapeshellarg($path), $_SERVER['argv'][0] . ' ' . $input->getFirstArgument());
+//                    system($cmd);
                 }
             }
         }

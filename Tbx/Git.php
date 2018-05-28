@@ -33,7 +33,7 @@ class Git
      * The root directory of the project
      * @var string
      */
-    protected $projectPath = '';
+    protected $path = '';
 
     /**
      * If true nothing is committed to the repository
@@ -74,28 +74,40 @@ class Git
 
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param string $path
+     * @param bool $dryRun
      * @throws \Exception
      */
-    public function __construct(InputInterface $input, OutputInterface $output)
+    public function __construct($path, $dryRun = false)
     {
-        $this->input = $input;
-        $this->output = $output;
-        $this->setProjectPath(getcwd());
+        $this->setDefaultMessage('~Auto: Commit');
+        $this->setPath($path);
+        $this->dryRun = $dryRun;
+    }
+
+    /**
+     * @param string $path
+     * @param bool $dryRun
+     * @return static
+     * @throws \Exception
+     */
+    public static function create($path, $dryRun = false)
+    {
+        $obj = new static($path, $dryRun);
+        return $obj;
     }
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return static
-     * @throws \Exception
+     * @return $this
+     * @todo: make individual methods and implement writeLn() to check if output exists
      */
-    public static function create(InputInterface $input, OutputInterface $output)
+    public function setInputOutput(InputInterface $input, OutputInterface $output)
     {
-        $obj = new static($input, $output);
-        $obj->setDefaultMessage('~Auto: Commit');
-        return $obj;
+        $this->input = $input;
+        $this->output = $output;
+        return $this;
     }
 
     /**
@@ -128,26 +140,26 @@ class Git
     }
 
     /**
-     * @param $projectPath
+     * @param $path
      * @return $this
      * @throws \Exception
      */
-    public function setProjectPath($projectPath)
+    public function setPath($path)
     {
-        $projectPath = rtrim($projectPath, '/');
-        if (!is_dir($projectPath.'/.git')) {
-            throw new \Exception('Not a GIT repository');
+        $path = rtrim($path, '/');
+        if (!is_dir($path.'/.git')) {
+            throw new \Exception('This folder does not appear to be a GIT repository.');
         }
-        $this->projectPath = $projectPath;
+        $this->path = $path;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getProjectPath()
+    public function getPath()
     {
-        return $this->projectPath;
+        return $this->path;
     }
 
     /**
