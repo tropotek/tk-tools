@@ -27,6 +27,7 @@ $ver = $composer->version;
 $app = new Application($title, $ver);
 
 
+$app->add(new \Tbx\Console\Update());
 $app->add(new \Tbx\Console\Commit());
 $app->add(new \Tbx\Console\Test());
 

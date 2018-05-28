@@ -13,7 +13,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  * @see http://www.tropotek.com/
  * @license Copyright 2017 Michael Mifsud
  */
-class Commit extends Iface
+class Update extends Iface
 {
 
     /**
@@ -21,8 +21,8 @@ class Commit extends Iface
      */
     protected function configure()
     {
-        $this->setName('commit')
-            ->setAliases(array('ci'))
+        $this->setName('update')
+            ->setAliases(array('up'))
             ->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', 'Minor Code Updates - ' . trim(`hostname`))
             ->addOption('noLibs', 'N', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
             ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
@@ -51,8 +51,8 @@ class Commit extends Iface
 
         $output->writeln(ucwords($this->getName()) . ': ' . basename($vcs->getProjectPath()));
 
-        $message = $input->getOption('message');
-        $vcs->commit($message);
+
+        $vcs->update();
         $this->output->writeln('', OutputInterface::VERBOSITY_NORMAL);
 
         if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) {
@@ -70,7 +70,7 @@ class Commit extends Iface
                     if (!$res->isDir() && !is_dir($path.'/.git')) {
                         continue;
                     }
-                    $cmd = sprintf('cd %s && %s -N -m %s', escapeshellarg($path), $_SERVER['argv'][0] . ' ' . $input->getFirstArgument(), escapeshellarg($message));
+                    $cmd = sprintf('cd %s && %s', escapeshellarg($path), $_SERVER['argv'][0] . ' ' . $input->getFirstArgument());
                     system($cmd);
                 }
             }
