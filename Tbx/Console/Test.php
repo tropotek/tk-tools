@@ -13,20 +13,9 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  * @see http://www.tropotek.com/
  * @license Copyright 2017 Michael Mifsud
  */
-class Test extends Command
+class Test extends Iface
 {
-
-    /**
-     * @var OutputInterface
-     */
-    public $output = null;
-
-    /**
-     * @var InputInterface
-     */
-    public $input = null;
-
-
+    
     /**
      *
      */
@@ -44,15 +33,31 @@ class Test extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->input = $input;
-        $this->output = $output;
+        $this->setInput($input);
+        $this->setOutput($output);
 
-        // required vars
-        $output->writeln('<fg=green>Hello World!!!</>');
+        $output->writeln('' . $this->getName());
+        $output->writeln('');
 
-        throw new\Exception('testin');
+//        OutputInterface::VERBOSITY_QUIET        = 16;
+//        OutputInterface::VERBOSITY_NORMAL       = 32;       // Same as 0;
+//        OutputInterface::VERBOSITY_VERBOSE      = 64;
+//        OutputInterface::VERBOSITY_VERY_VERBOSE = 128;
+//        OutputInterface::VERBOSITY_DEBUG        = 256;
 
-        $output->writeln('Complete!!!');
+
+        // green text
+        $output->writeln('<info>foo</info>', OutputInterface::VERBOSITY_NORMAL);
+        // yellow text
+        $output->writeln('<comment>foo</comment>', OutputInterface::VERBOSITY_NORMAL);
+        // black text on a cyan background
+        $output->writeln('<question>foo</question>', OutputInterface::VERBOSITY_NORMAL);
+        // white text on a red background
+        $output->writeln('<error>foo</error>', OutputInterface::VERBOSITY_NORMAL);
+
+
+
+
 
     }
 

@@ -13,19 +13,8 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  * @see http://www.tropotek.com/
  * @license Copyright 2017 Michael Mifsud
  */
-class Commit extends Command
+class Commit extends Iface
 {
-
-    /**
-     * @var OutputInterface
-     */
-    public $output = null;
-
-    /**
-     * @var InputInterface
-     */
-    public $input = null;
-
 
     /**
      *
@@ -34,7 +23,10 @@ class Commit extends Command
     {
         $this->setName('commit')
             ->setAliases(array('ci'))
-            ->setDescription("Run from the root of r ttek project to commit code changes.\nIt will iterate through all nested Tk libs and commit any changes.");
+            ->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', 'Minor Code Updates - ' . trim(`hostname`))
+            ->addOption('noLibs', 'N', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
+            ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
+            ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");
     }
 
     /**
@@ -45,13 +37,46 @@ class Commit extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->input = $input;
-        $this->output = $output;
-        
-        // required vars
-        $output->writeln('<fg=green>Hello World!!!</>');
+        $this->setInput($input);
+        $this->setOutput($output);
 
-        $output->writeln('Complete!!!');
+        $output->writeln(ucwords($this->getName()));
+
+
+        $vcs = \Tbx\Git::create($input, $output);
+        if ($input->getOption('dryRun')) {
+            $vcs->setDryRun();
+        }
+        if (!is_dir($vcs->getProjectPath() . '/.git')) {   // GIT
+            throw new \Exception('This folder does not appear to be a GIT repository.');
+        }
+
+        $message = $input->getOption('message');
+        $vcs->commit($message);
+
+        if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) {
+            return;
+        }
+
+        foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
+            $vendorPath = rtrim($vcs->getProjectPath(), '/') . $vPath;
+            if (is_dir($vendorPath)) {      // If vendor path exists
+                foreach (new \DirectoryIterator($vendorPath) as $res) {
+                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
+                        continue;
+                    }
+                    $path = $res->getRealPath();
+                    if (!$res->isDir() && !is_dir($path.'/.git')) {
+                        continue;
+                    }
+                    $cmd = sprintf('cd %s && %s %s -N ', escapeshellarg($path), basename($_SERVER['argv'][0] . ' ' . $input->getFirstArgument()), escapeshellarg($message));
+                    //$vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
+                    system($cmd, $out);
+                    //$vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_DEBUG);
+                }
+            }
+        }
+
 
     }
 

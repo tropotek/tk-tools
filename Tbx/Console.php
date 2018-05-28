@@ -24,7 +24,7 @@ class Console
      * @param string $type one of zip of tgz
      * @return string
      */
-    static function compress($src, $dst, $type = 'tgz')
+    public static function compress($src, $dst, $type = 'tgz')
     {
         try {
             if (!$type || $type == 'tgz') {
@@ -47,7 +47,7 @@ class Console
      * @param array $file
      * @return string
      */
-    static function svnExport($svnUri, $dst)
+    public static function svnExport($svnUri, $dst)
     {
         $svnUri = escapeshellarg($svnUri);
         $dst = escapeshellarg($dst);
@@ -61,13 +61,14 @@ class Console
      * @param string $dst
      * @return string
      */
-    static function cpFile($src, $dst)
+    public static function cpFile($src, $dst)
     {
         if (file_exists($src)) {
             $src = escapeshellarg($src);
             $dst = escapeshellarg($dst);
             return self::exec(sprintf("cp -R %s %s", $src, $dst));
         }
+        return '';
     }
 
     /**
@@ -77,7 +78,7 @@ class Console
      * @param string $dst
      * @return string
      */
-    static function lnFile($src, $dst)
+    public static function lnFile($src, $dst)
     {
         $src = escapeshellarg($src);
         $dst = escapeshellarg($dst);
@@ -90,7 +91,7 @@ class Console
      * @param string $file
      * @return string
      */
-    static function rm($file)
+    public static function rm($file)
     {
         $file = escapeshellarg($file);
         return  self::exec(sprintf("rm -rf %s", $file));
@@ -102,7 +103,7 @@ class Console
      * @param string $dir
      * @return string
      */
-    static function mkDir($dir)
+    public static function mkDir($dir)
     {
         $dir = escapeshellarg($dir);
         return self::exec(sprintf("mkdir -p %s", $dir));
@@ -114,15 +115,15 @@ class Console
      * @param string $cmd
      * @return string
      */
-    static function exec($cmd)
+    public static function exec($cmd)
     {
         $error = 0;
         $return = '';
         exec($cmd . ' 2>&1', $return, $error);
         $return = implode("\n", $return);
-        if ($error) {
-            //throw new RuntimeException($return);
-        }
+//        if ($error) {
+//            throw new RuntimeException($return);
+//        }
         return $return;
     }
 

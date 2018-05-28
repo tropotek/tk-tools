@@ -6,7 +6,10 @@
  * Time: 12:19 PM
  */
 
-
+/**
+ * @return string
+ * @deprecated Remove when all commands are moved to the tk console command
+ */
 function vd()
 {
     $output = '';
@@ -36,7 +39,14 @@ function vd()
     return $output;
 }
 
-
+/**
+ * Format JSON to text or HTML
+ *
+ * @param $json
+ * @param bool $html
+ * @return string
+ * @deprecated use \Tbx\Utils::jsonPrettyPrint()
+ */
 function jsonPrettyPrint($json, $html = false)
 {
     $tabcount = 0;
