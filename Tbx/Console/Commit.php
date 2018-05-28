@@ -22,7 +22,7 @@ class Commit extends Iface
             ->setAliases(array('ci'))
             ->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', 'Minor Code Updates - ' . trim(`hostname`))
             ->addOption('noLibs', 'N', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
-            ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
+            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
             ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");
     }
 

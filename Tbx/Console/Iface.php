@@ -85,4 +85,64 @@ abstract class Iface extends Command
     }
 
 
+    /**
+     * @param $str
+     * @param int $options
+     * @return mixed
+     */
+    protected function writeStrong($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
+    {
+        return $this->write(sprintf('<options=bold>%s</>', $str), $options);
+    }
+
+    /**
+     * @param $str
+     * @param int $options
+     * @return mixed
+     */
+    protected function writeInfo($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
+    {
+        return $this->write(sprintf('<info>%s</info>', $str), $options);
+    }
+
+    /**
+     * @param $str
+     * @param int $options
+     * @return mixed
+     */
+    protected function writeComment($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
+    {
+        return $this->write(sprintf('<comment>%s</comment>', $str), $options);
+    }
+
+    /**
+     * @param $str
+     * @param int $options
+     * @return mixed
+     */
+    protected function writeQuestion($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
+    {
+        return $this->write(sprintf('<question>%s</question>', $str), $options);
+    }
+
+    /**
+     * @param $str
+     * @param int $options
+     * @return mixed
+     */
+    protected function writeError($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
+    {
+        return $this->write(sprintf('<error>%s</error>', $str), $options);
+    }
+
+    /**
+     * @param $str
+     * @param int $options
+     * @return mixed
+     */
+    protected function write($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
+    {
+        if ($this->output)
+            return $this->output->writeln($str, $options);
+    }
 }
