@@ -42,6 +42,7 @@ fi
 
 
 FILES=(
+  'tk.php'
   'tkCommit.php'
   'tkDbBackupMysql.sh'
   'tkLdapFind'
