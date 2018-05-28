@@ -9,7 +9,7 @@
     ],
     "time": "2010-12-09",
     "license": "MIT",
-    "version": "trunk",
+    "version": "master",
     "authors":  [
          {
             "name": "Michael Mifsud",
@@ -27,7 +27,10 @@
         ]
     },
     "require":  {
-        "php": ">=5.3.0"
+        "php": ">=5.3.0",
+        "symfony/event-dispatcher": "~3.4",
+        "symfony/console": "~3.4",
+        "symfony/translation": "~3.4"
     },
     "extra":  {
         "branch-alias":  {
