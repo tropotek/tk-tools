@@ -374,7 +374,7 @@ class Git
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
 
         // TODO: Look for a nicer way to handle this
-        //$this->writeln(implode("\n", $this->cmdBuf));
+        //$this->writeComment(implode("\n", $this->cmdBuf));
         if (count($this->cmdBuf) && $lastLine) {
             $out = implode("\n", $this->cmdBuf);
             if (preg_match('/error:/', $out)) {
