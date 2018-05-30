@@ -31,21 +31,21 @@ $verbose = 0;
 
 $packagePrefixList = array(
     'ttek'          => 'vendor/ttek',
-    'ttek-plugin'  => 'plugin',
-    'ttek-theme'   => 'theme',
-    'ttek-asset'   => 'assets',
-    'ttek-plg'  => 'plugin',
+    'ttek-plugin'   => 'plugin',
+    'ttek-theme'    => 'theme',
+    'ttek-asset'    => 'assets',
+    'ttek-plg'      => 'plugin',
 
     'fvas'          => 'vendor/fvas',
-    'fvas-plugin'  => 'plugin',
-    'fvas-theme'   => 'theme',
-    'fvas-asset'   => 'assets',
+    'fvas-plugin'   => 'plugin',
+    'fvas-theme'    => 'theme',
+    'fvas-asset'    => 'assets',
 
     'unimelb'       => 'vendor',
     'unimelb-plg'   => 'plugin',
     'unimelb-theme' => 'theme',
-    'ems-plg'   => 'plugin',
-    'ems-theme' => 'theme'
+    'ems-plg'       => 'plugin',
+    'ems-theme'     => 'theme'
 );
 
 
@@ -180,7 +180,9 @@ try {
 
             $vcs->log('Tagging: ' . $name, \Tbx\Vcs\Adapter\Git::LOG_V);
             $vcs->log('  Tagging Path: ' . $depPath, \Tbx\Vcs\Adapter\Git::LOG_VV);
-            $cmd = sprintf('cd %s && tkTag %s %s -v ', $depPath, $dr, $forceTagStr);
+
+            $cmd = sprintf('cd %s && tkTag %s %s -v ', $depPath, $dr, $forceTagStr);        // TagRelease
+
             $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_CMD);
             $line = exec($cmd, $out, $ret);
             if ($ret) {
@@ -210,7 +212,8 @@ try {
             file_put_contents('composer.json', jsonPrettyPrint(json_encode($tagJson)));
         }
         $vcs->commit();
-        $cmd = sprintf('tkTag %s %s -v', $dr, $forceTagStr);
+
+        $cmd = sprintf('tkTag %s %s -v', $dr, $forceTagStr);        // TagRelease
         // Use exec
         $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_CMD);
         $line = system($cmd);

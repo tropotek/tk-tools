@@ -21,7 +21,7 @@ class Commit extends Iface
         $this->setName('commit')
             ->setAliases(array('ci'))
             ->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', 'Minor Code Updates - ' . trim(`hostname`))
-            ->addOption('noLibs', 'N', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
+            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
             ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");
     }
@@ -41,11 +41,10 @@ class Commit extends Iface
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
 
-        $output->writeln(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
+        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
         $message = $input->getOption('message');
         $vcs->commit($message);
-        $this->output->writeln('', OutputInterface::VERBOSITY_NORMAL);
 
         if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) {
             return;
@@ -55,27 +54,17 @@ class Commit extends Iface
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
                 foreach (new \DirectoryIterator($libPath) as $res) {
-                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
-                        continue;
-                    }
+                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
                     $path = $res->getRealPath();
-                    if (!$res->isDir() && !is_dir($path.'/.git')) {
-                        continue;
-                    }
-
+                    if (!$res->isDir() && !is_dir($path.'/.git')) continue;
                     try {
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
-                        $output->writeln(ucwords($this->getName()) . ': ' . basename($v->getPath()));
+                        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
                         $vcs->commit($message);
                     } catch (\Exception $e) {
-                        $output->writeln('<error>'.$e->getMessage().'</error>');
+                        $this->writeError($e->getMessage());
                     }
-                    $this->output->writeln('', OutputInterface::VERBOSITY_NORMAL);
-
-//                    // TODO: Do not call the CLI command iterate using PHP
-//                    $cmd = sprintf('cd %s && %s -N -m %s', escapeshellarg($path), $_SERVER['argv'][0] . ' ' . $input->getFirstArgument(), escapeshellarg($message));
-//                    system($cmd);
                 }
             }
         }

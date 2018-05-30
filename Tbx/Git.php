@@ -23,7 +23,7 @@ class Git
      * @var array
      * @todo: we need to find a way to make these configarable or added as a cmd arg
      */
-    public static $EXCLUDED = array('composer.json', 'changelog.md');
+    public static $DIFF_EXCLUDED = array('composer.json', 'changelog.md');
 
     /**
      * The libs in the project folder to iterate through
@@ -163,6 +163,7 @@ class Git
             throw new \Exception('This folder does not appear to be a GIT repository.');
         }
         $this->path = $path;
+        chdir($this->path);
         return $this;
     }
 
@@ -203,9 +204,9 @@ class Git
     public function getCurrentBranch()
     {
         $cmd = sprintf('git branch');
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf);
-        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         foreach($this->cmdBuf as $line) {
             if (preg_match('/^\* (b[0-9]+\.[0-9]+\.[0-9]+)/', $line, $regs)) {
                 return $regs[1];
@@ -224,9 +225,9 @@ class Git
         if (!$this->uri) {
             $this->cmdBuf = array();
             $cmd = 'git remote -v 2>&1 ';
-            $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
+            $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
             exec($cmd, $this->cmdBuf);
-            $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
 
             foreach ($this->cmdBuf as $line) {
                 if (preg_match('/^origin\s+(\S+)\s+\((fetch|push)\)/', trim($line), $regs)) {
@@ -250,9 +251,9 @@ class Git
             $this->tagList = array();
 
             $cmd = 'git tag 2>&1 ';
-            $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
             exec($cmd, $this->cmdBuf);
-            $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
 
             foreach($this->cmdBuf as $line) {
                 $line = trim($line);
@@ -273,7 +274,7 @@ class Git
      * @param array  $excludeFiles
      * @return array
      */
-    public function diff($tagName, $excludeFiles = array())
+    public function diff($tagName)
     {
         if ($tagName == '0.0.0') {
             return array('Tagged initial project');
@@ -281,15 +282,15 @@ class Git
         $this->cmdBuf = array();
         $tagName = trim($tagName, '/');
         $cmd = 'git diff --name-status 2>&1 '.escapeshellarg($tagName).' HEAD';
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_DEBUG);
+        $this->write($cmd, OutputInterface::VERBOSITY_DEBUG);
         exec($cmd, $this->cmdBuf);
-        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
         $changed = array();
         foreach($this->cmdBuf as $line) {
             if (!preg_match('/^[a-z]\s+(\S+)/i', $line, $regs)) {
                 continue;
             }
-            if (in_array(trim($regs[1]), $excludeFiles)) {
+            if (in_array(trim($regs[1]), self::$DIFF_EXCLUDED)) {
                 continue;
             }
             $changed[] = trim($regs[1]);
@@ -309,9 +310,9 @@ class Git
      * @param array  $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
      * @return integer
      */
-    public function isDiff($tagName, $excludeFiles = array())
+    public function isDiff($tagName)
     {
-        return count($this->diff($tagName, $excludeFiles));
+        return count($this->diff($tagName));
     }
 
 
@@ -335,18 +336,24 @@ class Git
         }
 
         $cmd = sprintf('git commit -am %s 2>&1 ', escapeshellarg($message));
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
+        }
+        if (count($this->cmdBuf) && $lastLine) {
+            if (preg_match('/^(nothing to commit)|(nothing added)|(Everything up-to-date)/', $lastLine)) {
+                $this->writeComment('Nothing to commit');
+                return $this;
+            }
         }
 
         $this->cmdBuf = array();
         $cmd = sprintf('git push 2>&1 ');
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeComment(implode("\n", $this->cmdBuf));
         }
 
         if ($ret) {     // TODO: check if this is the correct response here
@@ -364,7 +371,7 @@ class Git
     {
         $this->cmdBuf = array();
         $cmd = sprintf('git pull 2>&1 ');
-        $this->writeInfo($cmd);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
 
         // TODO: Look for a nicer way to handle this
@@ -376,9 +383,9 @@ class Git
             } else if (preg_match('/Already up-to-date/', $lastLine)) {
                 $this->writeComment('Already up-to-date');
             } else if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
-                $this->write('  + ' . $reg[1] . ' files changed');
+                $this->writeComment('  + ' . $reg[1] . ' files changed');
             } else {
-                $this->write($out);
+                $this->writeComment($out);
             }
         }
 
@@ -397,9 +404,9 @@ class Git
     {
         $this->cmdBuf = array();
         $cmd = sprintf('git checkout %s 2>&1 ', escapeshellarg($branch));
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
-        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
         if ($ret) {
             throw new \Exception('Cannot checkout branch: ' . $lastLine);
         }
@@ -409,80 +416,6 @@ class Git
 
 
 
-
-    /**
-     * Tag a repository, basically copy the release to a tag and update the changelog
-     *
-     * @param string $version A version string in the format of x.x.x
-     * @throws \Exception
-     */
-    protected function tag($version)
-    {
-
-        $json = file_get_contents('composer.json');
-        if ($json) {
-            $jsonTag = json_decode($json);
-            $jsonTag->version = $version;
-            $jsonTag->time = date('Y-m-d');
-            file_put_contents('composer.json', \Tbx\Util::jsonPrettyPrint(json_encode($jsonTag)));
-        }
-
-        $logArr =  $this->makeChangelog($this->getCurrentTag());
-        $log = '';
-        if (is_array($logArr)) {
-            $this->changelog = sprintf("Ver %s [%s]:\n-------------------------------\n", $version, date('Y-m-d'));
-            foreach ($logArr as $line) {
-                if (str_word_count($line) <= 1)
-                    continue;
-                $this->changelog .= '' . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
-            }
-            $log = file_get_contents('changelog.md');
-            if ($log && $this->changelog && !preg_match('/Ver\s+'.preg_quote($version).'\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
-                $logTag = '#CHANGELOG#';
-                $changelog = $logTag . "\n\n" . $this->changelog;
-                $log = str_replace($logTag, $changelog, $log);
-            }
-            $this->write($log, OutputInterface::VERBOSITY_VERBOSE);
-        }
-
-        // Copy log
-        if ($log && $this->changelog) {
-            $this->writeComment('Updating changelog.md.');
-            if (!$this->isDryRun()) {
-                file_put_contents('changelog.md', $log);
-            }
-        }
-
-        $currentBranch = $this->getCurrentBranch();
-        $this->commit('Preparing branch ' . $currentBranch . ' for new release');
-
-        $this->cmdBuf = array();
-        // Tag trunk
-        $message = 'Tagging release: ' . $version;
-        $this->writeStrong($log, OutputInterface::VERBOSITY_VERBOSE);
-        $cmd = sprintf("git tag -a %s -m %s 2>&1 ", $version, escapeshellarg($message) );
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
-        if (!$this->isDryRun()) {
-            exec($cmd, $this->cmdBuf);
-            $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-        }
-        $this->cmdBuf = array();
-        $cmd = sprintf("git push --tags");
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
-        if (!$this->isDryRun()) {
-            exec($cmd, $this->cmdBuf);
-            $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-        }
-
-        // Update composer.json
-        if ($json) {
-            $this->writeComment('Updating composer.json');
-            if (!$this->isDryRun()) {
-                file_put_contents('composer.json', $json);
-            }
-            $this->commit();
-        }
-    }
 
     /**
      * Get an array of changes to the tag since the last copy command was executed.
@@ -496,9 +429,9 @@ class Git
         $logs = array();
 
         $cmd = sprintf('git log --oneline %s..HEAD 2>&1 ', escapeshellarg($version));
-        $this->writeInfo($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf, $ret);
-        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
         if ($ret) {
             return $logs;
         }
@@ -526,6 +459,80 @@ class Git
         return $logs;
     }
 
+    /**
+     * Tag a repository, basically copy the release to a tag and update the changelog
+     *
+     * @param string $version A version string in the format of x.x.x
+     * @throws \Exception
+     */
+    protected function tag($version)
+    {
+
+        $json = file_get_contents($this->getPath() . '/composer.json');
+        if ($json) {
+            $jsonTag = json_decode($json);
+            $jsonTag->version = $version;
+            $jsonTag->time = date('Y-m-d');
+            file_put_contents($this->getPath() . '/composer.json', \Tbx\Util::jsonPrettyPrint(json_encode($jsonTag)));
+        }
+
+        $logArr =  $this->makeChangelog($this->getCurrentTag());
+        $log = '';
+        if (is_array($logArr)) {
+            $this->changelog = sprintf("Ver %s [%s]:\n-------------------------------\n", $version, date('Y-m-d'));
+            foreach ($logArr as $line) {
+                if (str_word_count($line) <= 1)
+                    continue;
+                $this->changelog .= '' . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
+            }
+            $log = file_get_contents($this->getPath() . '/changelog.md');
+            if ($log && $this->changelog && !preg_match('/Ver\s+'.preg_quote($version).'\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
+                $logTag = '#CHANGELOG#';
+                $changelog = $logTag . "\n\n" . $this->changelog;
+                $log = str_replace($logTag, $changelog, $log);
+            }
+            $this->write($log, OutputInterface::VERBOSITY_VERBOSE);
+        }
+
+        // Copy log
+        if ($log && $this->changelog) {
+            $this->writeInfo('Updating changelog.md.');
+            if (!$this->isDryRun()) {
+                file_put_contents($this->getPath() . '/changelog.md', $log);
+            }
+        }
+
+        $currentBranch = $this->getCurrentBranch();
+        $this->commit('Preparing branch ' . $currentBranch . ' for new release');
+
+        $this->cmdBuf = array();
+        // Tag trunk
+        $message = 'Tagging release: ' . $version;
+        $this->writeStrong($log, OutputInterface::VERBOSITY_VERBOSE);
+        $cmd = sprintf("git tag -a %s -m %s 2>&1 ", $version, escapeshellarg($message) );
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        if (!$this->isDryRun()) {
+            exec($cmd, $this->cmdBuf);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+        }
+        $this->cmdBuf = array();
+        $cmd = sprintf("git push --tags");
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        if (!$this->isDryRun()) {
+            exec($cmd, $this->cmdBuf);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+        }
+
+        // Update composer.json
+        if ($json) {
+            $this->writeInfo('Updating composer.json');
+            if (!$this->isDryRun()) {
+                file_put_contents($this->getPath() . 'composer.json', $json);
+            }
+            $this->commit();
+        }
+    }
+
 
     /**
      * @param string $version
@@ -543,13 +550,13 @@ class Git
         }
         $tagList = $this->getTagList();
         // Check if repo has changed since last tag
-        if (!$options['forceTag'] && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$this->isDiff($curVer, self::$EXCLUDED)) {
+        if (empty($options['forceTag']) && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$this->isDiff($curVer)) {
             return $curVer;
         }
 
         $pkg = null;
         $aliasVer = '';
-        $composerFile = 'composer.json';
+        $composerFile = $this->getPath() . '/composer.json';
         if (is_file($composerFile)) {
             $pkg = json_decode(file_get_contents($composerFile));
             if ($pkg) {
@@ -565,16 +572,15 @@ class Git
         }
         if (!$version || version_compare($version, $curVer, '<')) {
             $version = \Tbx\Util::incrementVersion($curVer, $aliasVer);
-            if (!$options['notStable'] && ((int)substr($version, strrpos($version, '.')) % 2) != 0) {
+            if (empty($options['notStable']) && ((int)substr($version, strrpos($version, '.')+1) % 2) > 0) {
                 $version = \Tbx\Util::incrementVersion($version, $aliasVer);
             }
         }
 
         $this->tag($version);
-        // Return the the branch we where at
+        // Return the the branch we where at   ???? Is this needed
         $this->checkout($currentBranch);
-
-        if ($pkg && $options['json']) {
+        if ($pkg && !empty($options['json'])) {
             $pkg->version = $version;
             return \Tbx\Util::jsonPrettyPrint(json_encode($pkg));
         }

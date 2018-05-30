@@ -31,12 +31,6 @@ will be created. NOTE: This gives you no control over the major version
 unless supplied as a param with --version=x.x.x
      */
 
-    /**
-     * These files are ignored when looking to see if a project has any changes and should be tagged
-     * @var array
-     * @todo: we need to find a way to make these configarable or added as a cmd arg
-     */
-    public static $EXCLUDED = array('composer.json', 'changelog.md');
 
     /**
      *
@@ -44,14 +38,14 @@ unless supplied as a param with --version=x.x.x
     protected function configure()
     {
         $this->setName('tag')
-            ->addOption('newVer', 'nv', InputOption::VALUE_OPTIONAL, 'Specify a new version number.', '')
-            ->addOption('notStable', 'ns', InputOption::VALUE_NONE, 'Default stable(even) version numbers (1.0.2, 1.0.4, etc). Set to enable odd version increments (1.0.1, 1.0.3, etc).')
+            ->addOption('name', 't', InputOption::VALUE_OPTIONAL, 'Specify a tag version name.', '')
+            ->addOption('notStable', 's', InputOption::VALUE_NONE, 'Default stable(even) version tag (1.0.2, 1.0.4, etc). Set to enable odd version increments (1.0.1, 1.0.3, etc).')
             ->addOption('json', 'j', InputOption::VALUE_NONE, 'Show the composer.json to stdout on completion.')
             ->addOption('forceTag', 'f', InputOption::VALUE_NONE, 'Forces a tag version even if there is no change from the previous version.')
 
-            //->addOption('noLibs', 'N', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
+            //->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
-            ->setDescription('Tag and release a repository project.');
+            ->setDescription('Tag and release a repository.');
     }
 
     /**
@@ -69,8 +63,7 @@ unless supplied as a param with --version=x.x.x
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         }
 
-        $vcs = \Tbx\Git::create(getcwd(), true);
-        //$vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) {
@@ -81,7 +74,7 @@ unless supplied as a param with --version=x.x.x
         $this->write('Curr Ver: ' . $curVer);
         $this->write('Remote Origin: ' . $vcs->getUri());
 
-        $version = $vcs->tagRelease($input->getOptions());
+        $version = $vcs->tagRelease($input->getOptions(), $input->getOption('name'));
         if ($input->getOption('json')) {
             $output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
             $this->write($version);
@@ -95,9 +88,8 @@ unless supplied as a param with --version=x.x.x
         } else {
             $this->write('Nothing To Tag');
             $this->write('Version: ' . $version);
-            return;
         }
-        
+
     }
 
 

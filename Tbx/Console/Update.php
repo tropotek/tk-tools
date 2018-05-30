@@ -20,10 +20,10 @@ class Update extends Iface
     {
         $this->setName('update')
             ->setAliases(array('up'))
-            ->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', 'Minor Code Updates - ' . trim(`hostname`))
-            ->addOption('noLibs', 'N', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
-            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
-            ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");
+            //->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', 'Minor Code Updates - ' . trim(`hostname`))
+            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
+            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
+            ->setDescription("Run from the root of a ttek project to update the repository.");
     }
 
     /**
@@ -54,19 +54,14 @@ class Update extends Iface
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
                 foreach (new \DirectoryIterator($libPath) as $res) {
-                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
-                        continue;
-                    }
+                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
                     $path = $res->getRealPath();
-                    if (!$res->isDir() && !is_dir($path.'/.git')) {
-                        continue;
-                    }
-
+                    if (!$res->isDir() && !is_dir($path.'/.git')) continue;
 
                     try {
                         $vcs->setPath($path);
                         $vcs->setInputOutput($input, $output);
-                        $this->write(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
+                        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
                         $vcs->update();
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());

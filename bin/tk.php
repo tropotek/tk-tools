@@ -27,10 +27,13 @@ $ver = $composer->version;
 $app = new Application($title, $ver);
 
 
-$app->add(new \Tbx\Console\Tag());
 $app->add(new \Tbx\Console\Update());
 $app->add(new \Tbx\Console\Commit());
-$app->add(new \Tbx\Console\Test());
+$app->add(new \Tbx\Console\Tag());
+$app->add(new \Tbx\Console\TagProject());
+
+
+//$app->add(new \Tbx\Console\Test());
 
 
 try {
