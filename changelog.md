@@ -1,5 +1,12 @@
 #CHANGELOG#
 
+Ver 1.2.12 [2018-05-31]:
+-------------------------------
+Minor Code Updates
+Merge branch 'master' of github.com:tropotek/tk-tools
+Dev.ttek.org
+
+
 Ver 1.2.11 [2017-09-28]:
 -------------------------------
  - Minor Code Updates
