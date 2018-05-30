@@ -363,6 +363,13 @@ class Git
             $message = $this->defaultMessage;
         }
 
+        // Check for any changes in this repository
+        $cmd = sprintf('git status -s --untracked-files=no');
+        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $lastLine = exec($cmd, $this->cmdBuf, $ret);
+        if (!$lastLine) return $this;
+
+        // Try commiting any changes if any
         $cmd = sprintf('git commit -am %s 2>&1 ', escapeshellarg($message));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -395,10 +402,18 @@ class Git
      * Commit the current branch and push to remote repos
      *
      * @throws \Exception
+     * @return static
      */
     public function update()
     {
         $this->cmdBuf = array();
+
+        // Does not seem to speed things up any
+//        $cmd = sprintf('git fetch --dry-run');
+//        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
+//        $lastLine = exec($cmd, $this->cmdBuf, $ret);
+//        if (!$lastLine) return $this;
+
         $cmd = sprintf('git pull 2>&1 ');
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
@@ -417,10 +432,7 @@ class Git
                 $this->writeComment($out);
             }
         }
-
-        if ($ret) {
-            throw new \Exception('Cannot update branch: ' . $lastLine);
-        }
+        return $this;
     }
 
     /**
