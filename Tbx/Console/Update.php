@@ -39,17 +39,11 @@ class Update extends Iface
 
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
-
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
-
         $vcs->update();
-        $this->write('', OutputInterface::VERBOSITY_NORMAL);
 
-        if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) {
-            return;
-        }
-
+        if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
         foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
@@ -61,8 +55,6 @@ class Update extends Iface
                     try {
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
-//                        $vcs->setPath($path);
-//                        $vcs->setInputOutput($input, $output);
                         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
                         $v->update();
                     } catch (\Exception $e) {
@@ -73,9 +65,6 @@ class Update extends Iface
             }
         }
 
-
     }
-
-
 
 }

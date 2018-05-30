@@ -52,9 +52,7 @@ class TagProject extends Iface
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $curVer = $vcs->getCurrentTag();
-        if (!$curVer) {
-            $curVer = '0.0.0';
-        }
+        if (!$curVer) $curVer = '0.0.0';
 
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
         $this->write('Curr Ver: ' . $curVer);
@@ -92,7 +90,7 @@ class TagProject extends Iface
             }
         }
 
-        if ($input->getOption('noLibs')) return;
+        if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
         foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
             $vendorPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (!is_dir($vendorPath)) continue;
@@ -103,20 +101,16 @@ class TagProject extends Iface
                 try {
                     $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                     $v->setInputOutput($input, $output);
-
                     $curVer = $v->getCurrentTag();
-                    if (!$curVer) {
-                        $curVer = '0.0.0';
-                    }
+                    if (!$curVer) $curVer = '0.0.0';
                     $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
                     $this->write('Curr Ver: ' . $curVer);
                     $version = $v->tagRelease($input->getOptions());
-
                     if (version_compare($version, $curVer, '>')) {
                         $this->write('New Version: ' . $version);
                         $this->write('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
-                        $this->write('Version: ' . $version);
+                        $this->write('Nothing To Tag');
                     }
                 } catch (\Exception $e) {
                     $this->writeError($e->getMessage());

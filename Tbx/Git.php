@@ -215,6 +215,21 @@ class Git
         return 'master';
     }
 
+
+    /**
+     * Get the repository status
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        $cmd = sprintf('git status');
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        exec($cmd, $this->cmdBuf);
+        //$this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+        return implode("\n", $this->cmdBuf);
+    }
+
     /**
      * Get the repository package base URI
      *

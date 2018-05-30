@@ -29,6 +29,7 @@ $app = new Application($title, $ver);
 
 $app->add(new \Tbx\Console\Update());
 $app->add(new \Tbx\Console\Commit());
+$app->add(new \Tbx\Console\Status());
 $app->add(new \Tbx\Console\Tag());
 $app->add(new \Tbx\Console\TagProject());
 

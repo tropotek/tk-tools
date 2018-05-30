@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
  * @see http://www.tropotek.com/
  * @license Copyright 2017 Michael Mifsud
  */
-class Commit extends Iface
+class Status extends Iface
 {
 
     /**
@@ -18,12 +18,11 @@ class Commit extends Iface
      */
     protected function configure()
     {
-        $this->setName('commit')
-            ->setAliases(array('ci'))
-            ->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', 'Minor Code Updates - ' . trim(`hostname`))
-            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
-            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
-            ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");
+        $this->setName('status')
+            ->setAliases(array('st'))
+            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
+            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
+            ->setDescription("Run from the root of a ttek project to get the status of the lib and it vendor libs.");
     }
 
     /**
@@ -41,8 +40,9 @@ class Commit extends Iface
         $vcs->setInputOutput($input, $output);
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
-        $message = $input->getOption('message');
-        $vcs->commit($message);
+        $status = $vcs->getStatus();
+        $this->writeComment($status);
+
 
         if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
         foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
@@ -52,21 +52,21 @@ class Commit extends Iface
                     if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
                     $path = $res->getRealPath();
                     if (!$res->isDir() && !is_dir($path.'/.git')) continue;
+
                     try {
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
                         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
-                        $vcs->commit($message);
+                        $stat = $v->getStatus();
+
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }
+                    $this->write();
                 }
             }
         }
 
-
     }
-
-
 
 }

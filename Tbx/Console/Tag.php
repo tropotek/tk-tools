@@ -87,7 +87,6 @@ unless supplied as a param with --version=x.x.x
             $this->write('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
         } else {
             $this->write('Nothing To Tag');
-            $this->write('Version: ' . $version);
         }
 
     }
