@@ -40,9 +40,7 @@ class Status extends Iface
         $vcs->setInputOutput($input, $output);
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
-        $status = $vcs->getStatus();
-        $this->writeComment($status);
-
+        $this->writeComment($vcs->getStatus());
 
         if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
         foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
@@ -57,7 +55,7 @@ class Status extends Iface
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
                         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
-                        $stat = $v->getStatus();
+                        $this->writeComment($v->getStatus());
 
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
