@@ -59,10 +59,12 @@ class Update extends Iface
                     if (!$res->isDir() && !is_dir($path.'/.git')) continue;
 
                     try {
-                        $vcs->setPath($path);
-                        $vcs->setInputOutput($input, $output);
-                        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
-                        $vcs->update();
+                        $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
+                        $v->setInputOutput($input, $output);
+//                        $vcs->setPath($path);
+//                        $vcs->setInputOutput($input, $output);
+                        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
+                        $v->update();
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }

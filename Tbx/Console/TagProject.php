@@ -76,7 +76,6 @@ class TagProject extends Iface
             }
 
             $version = $vcs->tagRelease($input->getOptions());
-
             if (version_compare($version, $curVer, '>')) {
                 $this->write('New Version: ' . $version);
                 $this->write('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -91,12 +90,9 @@ class TagProject extends Iface
                     $vcs->commit();
                 }
             }
-
         }
 
-
         if ($input->getOption('noLibs')) return;
-
         foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
             $vendorPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (!is_dir($vendorPath)) continue;
@@ -104,7 +100,6 @@ class TagProject extends Iface
                 if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
                 $path = $res->getRealPath();
                 if (!$res->isDir() && !is_dir($path.'/.git')) continue;
-
                 try {
                     $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                     $v->setInputOutput($input, $output);
@@ -123,47 +118,14 @@ class TagProject extends Iface
                     } else {
                         $this->write('Version: ' . $version);
                     }
-
                 } catch (\Exception $e) {
                     $this->writeError($e->getMessage());
                 }
-
-//                $cmd = sprintf('cd %s && %s %s --novendor ', escapeshellarg($path), basename($argv[0]), escapeshellarg($commitMsg));
-//                $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
-//                system($cmd, $out);
-//                $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_DEBUG);
             }
-
-
-
         }
 
 
 
-
-
-
-        // Tag ttek vendor libs
-
-        /*
-        $version = $vcs->tagRelease($input->getOptions());
-        if ($input->getOption('json')) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
-            $this->write($version);
-            return;
-        }
-
-        if (version_compare($version, $curVer, '>')) {
-            $this->write('New Tag Released');
-            $this->write('Version: ' . $version);
-            $this->write('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
-        } else {
-            $this->write('Nothing To Tag');
-            $this->write('Version: ' . $version);
-            return;
-        }
-        */
     }
-
 
 }

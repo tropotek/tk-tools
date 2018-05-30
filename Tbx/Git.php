@@ -268,10 +268,12 @@ class Git
     }
 
     /**
-     * return a list of changed files with out the excluded files.
+     * Check to see if the given tag name has changes to the HEAD of the repository
+     * returns a list of changed files
+     *
+     * Edit the self:$DIFF_EXCLUDED parameter to set the ignored files
      *
      * @param string $tagName
-     * @param array  $excludeFiles
      * @return array
      */
     public function diff($tagName)
@@ -314,10 +316,6 @@ class Git
     {
         return count($this->diff($tagName));
     }
-
-
-
-
 
     /**
      * Commit the current branch and push to remote repos
@@ -412,11 +410,6 @@ class Git
         }
     }
 
-
-
-
-
-
     /**
      * Get an array of changes to the tag since the last copy command was executed.
      *
@@ -467,13 +460,15 @@ class Git
      */
     protected function tag($version)
     {
+        $composerFile = $this->getPath() . '/composer.json';
+        $changelogFile = $this->getPath() . '/changelog.md';
 
-        $json = file_get_contents($this->getPath() . '/composer.json');
+        $json = file_get_contents($composerFile);
         if ($json) {
             $jsonTag = json_decode($json);
             $jsonTag->version = $version;
             $jsonTag->time = date('Y-m-d');
-            file_put_contents($this->getPath() . '/composer.json', \Tbx\Util::jsonPrettyPrint(json_encode($jsonTag)));
+            file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($jsonTag)));
         }
 
         $logArr =  $this->makeChangelog($this->getCurrentTag());
@@ -485,7 +480,7 @@ class Git
                     continue;
                 $this->changelog .= '' . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
             }
-            $log = file_get_contents($this->getPath() . '/changelog.md');
+            $log = file_get_contents($changelogFile);
             if ($log && $this->changelog && !preg_match('/Ver\s+'.preg_quote($version).'\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
                 $logTag = '#CHANGELOG#';
                 $changelog = $logTag . "\n\n" . $this->changelog;
@@ -498,7 +493,7 @@ class Git
         if ($log && $this->changelog) {
             $this->writeInfo('Updating changelog.md.');
             if (!$this->isDryRun()) {
-                file_put_contents($this->getPath() . '/changelog.md', $log);
+                file_put_contents($changelogFile, $log);
             }
         }
 
@@ -527,7 +522,7 @@ class Git
         if ($json) {
             $this->writeInfo('Updating composer.json');
             if (!$this->isDryRun()) {
-                file_put_contents($this->getPath() . 'composer.json', $json);
+                file_put_contents($composerFile, $json);
             }
             $this->commit();
         }
