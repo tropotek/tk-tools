@@ -67,7 +67,7 @@ class Update extends Iface
                         $v->update();
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
-                    }
+                    } 
                     $this->write();
                 }
             }
