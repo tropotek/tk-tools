@@ -190,7 +190,7 @@ class Git
      */
     public function getCurrentBranch()
     {
-        $cmd = sprintf('git branch');
+        $cmd = sprintf('git branch 2>&1 ');
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -221,7 +221,7 @@ class Git
      */
     public function getCurrentTag()
     {
-        $cmd = sprintf('git describe --abbrev=0 --tags --always');
+        $cmd = sprintf('git describe --abbrev=0 --tags --always 2>&1 ');
         $lastLine = exec($cmd, $this->cmdBuf);
         return $lastLine;
     }
@@ -262,7 +262,7 @@ class Git
      */
     public function getStatus()
     {
-        $cmd = sprintf('git status');
+        $cmd = sprintf('git status 2>&1 ');
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf);
         $buff = '';
@@ -364,7 +364,7 @@ class Git
         }
 
         // Check for any changes in this repository
-        $cmd = sprintf('git status -s --untracked-files=no');
+        $cmd = sprintf('git status -s --untracked-files=no 2>&1 ');
         $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
         if (!$lastLine) return $this;
@@ -377,10 +377,10 @@ class Git
         }
         if (count($this->cmdBuf) && $lastLine) {
             if (preg_match('/^(nothing to commit)|(nothing added)|(Everything up-to-date)/', $lastLine)) {
-                $this->writeComment('Nothing to commit');
+                $this->writeComment('Nothing to commit', OutputInterface::VERBOSITY_NORMAL);
                 return $this;
             } else {
-                $this->writeComment(implode("\n", $this->cmdBuf));
+                $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
             }
         }
 
@@ -399,7 +399,7 @@ class Git
     }
 
     /**
-     * Commit the current branch and push to remote repos
+     * update the repository from the remote
      *
      * @throws \Exception
      * @return static
@@ -436,7 +436,7 @@ class Git
     }
 
     /**
-     * Commit the current branch and push to remote repos
+     * Checkout a branch
      *
      * @param string $branch
      * @throws \Exception
@@ -505,6 +505,7 @@ class Git
     {
         $composerFile = $this->getPath() . '/composer.json';
         $changelogFile = $this->getPath() . '/changelog.md';
+        $vb = $this->output->getVerbosity();
 
         $json = file_get_contents($composerFile);
         if ($json) {
@@ -529,24 +530,29 @@ class Git
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
             }
-            $this->write($log, OutputInterface::VERBOSITY_VERBOSE);
+            $this->write($log, OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
 
         // Copy log
         if ($log && $this->changelog) {
-            $this->writeInfo('Updating changelog.md.');
+            $this->writeComment('Updating changelog.md.', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
                 file_put_contents($changelogFile, $log);
             }
         }
 
         $currentBranch = $this->getCurrentBranch();
-        $this->commit('Preparing branch ' . $currentBranch . ' for new release');
+        $message= 'Preparing branch ' . $currentBranch . ' for new release';
+        $this->writeComment($message);
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+        $this->commit($message);
+        $this->output->setVerbosity($vb);
 
         $this->cmdBuf = array();
         // Tag trunk
-        $message = 'Tagging release: ' . $version;
-        $this->writeStrong($log, OutputInterface::VERBOSITY_VERBOSE);
+        $message = 'Tagging new release: ' . $version;
+        $this->writeComment($message);
+
         $cmd = sprintf("git tag -a %s -m %s 2>&1 ", $version, escapeshellarg($message) );
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -554,7 +560,7 @@ class Git
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
         $this->cmdBuf = array();
-        $cmd = sprintf("git push --tags");
+        $cmd = sprintf("git push --tags 2>&1 ");
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             exec($cmd, $this->cmdBuf);
@@ -563,14 +569,15 @@ class Git
 
         // Update composer.json
         if ($json) {
-            $this->writeInfo('Updating composer.json');
+            $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, $json);
             }
+            $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $this->commit();
+            $this->output->setVerbosity($vb);
         }
     }
-
 
     /**
      * @param string $version
@@ -583,9 +590,7 @@ class Git
         // Get tag/version information
         $currentBranch = $this->getCurrentBranch();
         $curVer = $this->getCurrentTag();
-        if (!$curVer) {
-            $curVer = '0.0.0';
-        }
+        if (!$curVer) $curVer = '0.0.0';
         $tagList = $this->getTagList();
         // Check if repo has changed since last tag
         if (empty($options['forceTag']) && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$this->isDiff($curVer)) {

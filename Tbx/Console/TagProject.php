@@ -47,6 +47,7 @@ class TagProject extends Iface
     {
         $this->setInput($input);
         $this->setOutput($output);
+        $vb = $output->getVerbosity();
 
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
@@ -84,7 +85,9 @@ class TagProject extends Iface
                 $composerJson->{'minimum-stability'} = 'dev';
                 if (!$input->getOption('dryRun')) {
                     file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerJson)));
+                    $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
                     $vcs->commit();
+                    $output->setVerbosity($vb);
                 }
             }
         }
