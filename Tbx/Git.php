@@ -337,7 +337,7 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeComment(implode("\n", $this->cmdBuf));
         }
         if (count($this->cmdBuf) && $lastLine) {
             if (preg_match('/^(nothing to commit)|(nothing added)|(Everything up-to-date)/', $lastLine)) {
@@ -351,7 +351,7 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            $this->writeComment(implode("\n", $this->cmdBuf));
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
         }
 
         if ($ret) {     // TODO: check if this is the correct response here
