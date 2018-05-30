@@ -186,19 +186,6 @@ class Git
     }
 
     /**
-     * Get the path for the most recent tag version
-     *
-     * @return string
-     */
-    public function getCurrentTag()
-    {
-        $tags = $this->getTagList();
-        if (is_array($tags))
-            return end($tags);
-        return '';
-    }
-
-    /**
      * Get the current branch
      */
     public function getCurrentBranch()
@@ -213,6 +200,58 @@ class Git
             }
         }
         return 'master';
+    }
+
+    /**
+     * Get the path for the most recent tag version
+     *
+     * @return string
+     * @deprecated use getCurrentTag()
+     */
+    public function getCurrentTagFromList()
+    {
+        $tags = $this->getTagList();
+        if (is_array($tags))
+            return end($tags);
+        return '';
+    }
+
+    /**
+     * Return the current tag based on the largest version number
+     */
+    public function getCurrentTag()
+    {
+        $cmd = sprintf('git describe --abbrev=0 --tags --always');
+        $lastLine = exec($cmd, $this->cmdBuf);
+        return $lastLine;
+    }
+
+    /**
+     * Get an array of current tagged versions.
+     *
+     * @return array
+     */
+    public function getTagList()
+    {
+        if (!$this->tagList) {
+            $this->cmdBuf = array();
+            $this->tagList = array();
+
+            $cmd = 'git tag 2>&1 ';
+            $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            exec($cmd, $this->cmdBuf);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+
+            foreach($this->cmdBuf as $line) {
+                $line = trim($line);
+                if (!$line) continue;
+                if (preg_match('/^([0-9\.]+)/i', $line, $regs)) {
+                    $this->tagList[$line] = $line;
+                }
+            }
+            \Tbx\Util::sortVersionArray($this->tagList);
+        }
+        return $this->tagList;
     }
 
 
@@ -256,34 +295,6 @@ class Git
             }
         }
         return $this->uri;
-    }
-
-    /**
-     * Get an array of current tagged versions.
-     *
-     * @return array
-     */
-    public function getTagList()
-    {
-        if (!$this->tagList) {
-            $this->cmdBuf = array();
-            $this->tagList = array();
-
-            $cmd = 'git tag 2>&1 ';
-            $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
-            exec($cmd, $this->cmdBuf);
-            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-
-            foreach($this->cmdBuf as $line) {
-                $line = trim($line);
-                if (!$line) continue;
-                if (preg_match('/^([0-9\.]+)/i', $line, $regs)) {
-                    $this->tagList[$line] = $line;
-                }
-            }
-            \Tbx\Util::sortVersionArray($this->tagList);
-        }
-        return $this->tagList;
     }
 
     /**

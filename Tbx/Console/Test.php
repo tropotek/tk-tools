@@ -1,12 +1,10 @@
 <?php
 namespace Tbx\Console;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 /**
  * @author Michael Mifsud <info@tropotek.com>
@@ -26,7 +24,7 @@ class Test extends Iface
     }
 
     /**
-     * @param InputInterface $input
+     * @param \Tbx\Console\ArgvInput $input
      * @param OutputInterface $output
      * @return int|null|void
      * @throws \Exception
@@ -36,15 +34,13 @@ class Test extends Iface
         $this->setInput($input);
         $this->setOutput($output);
 
-        $output->writeln('' . $this->getName());
-        $output->writeln('');
+        $this->writeInfo(ucwords($this->getName()));
 
-//        OutputInterface::VERBOSITY_QUIET        = 16;
-//        OutputInterface::VERBOSITY_NORMAL       = 32;       // Same as 0;
-//        OutputInterface::VERBOSITY_VERBOSE      = 64;
-//        OutputInterface::VERBOSITY_VERY_VERBOSE = 128;
-//        OutputInterface::VERBOSITY_DEBUG        = 256;
 
+
+        $options = $input->getOptions();
+        $arguments = $input->getArguments();
+        $iniOptions = $input->getIniOptions();
 
         // green text
         $output->writeln('<info>foo</info>', OutputInterface::VERBOSITY_NORMAL);
