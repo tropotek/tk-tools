@@ -226,9 +226,9 @@ class Git
         $cmd = sprintf('git status');
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf);
-        $buff = implode("\n", $this->cmdBuf);
-        if (preg_match('/^(nothing to commit)/', $lastLine)) {
-            $buff = '';
+        $buff = '';
+        if (!preg_match('/^(nothing to commit)|(nothing added to commit)/', $lastLine)) {
+            $buff = trim(implode("\n", $this->cmdBuf));
         }
         //$this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
         return $buff;
