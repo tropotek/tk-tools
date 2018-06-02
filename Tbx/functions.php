@@ -10,34 +10,34 @@
  * @return string
  * @deprecated Remove when all commands are moved to the tk console command
  */
-function vd()
-{
-    $output = '';
-    $args = func_get_args();
-
-    foreach ($args as $var) {
-        $objStr = $var;
-        if ($var === null) {
-            $objStr = 'NULL';
-        } else if (is_bool($var)) {
-            $objStr = $var == true ? 'true' : 'false';
-        } else if (is_string($var)) {
-            $objStr = str_replace("\0", '|', $var);
-        } else if (is_object($var) || is_array($var)) {
-            $objStr = str_replace("\0", '|', print_r($var, true));
-        }
-        $type = gettype($var);
-        if ($type == 'object') {
-            $type = get_class($var);
-        }
-        $output .= "\nvd({" . $type . "}): " . $objStr . "";
-    }
-    echo "---------------------------------------------------------";
-    echo $output . "\n";
-    debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-    echo "---------------------------------------------------------\n";
-    return $output;
-}
+//function vd()
+//{
+//    $output = '';
+//    $args = func_get_args();
+//
+//    foreach ($args as $var) {
+//        $objStr = $var;
+//        if ($var === null) {
+//            $objStr = 'NULL';
+//        } else if (is_bool($var)) {
+//            $objStr = $var == true ? 'true' : 'false';
+//        } else if (is_string($var)) {
+//            $objStr = str_replace("\0", '|', $var);
+//        } else if (is_object($var) || is_array($var)) {
+//            $objStr = str_replace("\0", '|', print_r($var, true));
+//        }
+//        $type = gettype($var);
+//        if ($type == 'object') {
+//            $type = get_class($var);
+//        }
+//        $output .= "\nvd({" . $type . "}): " . $objStr . "";
+//    }
+//    echo "---------------------------------------------------------";
+//    echo $output . "\n";
+//    debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+//    echo "---------------------------------------------------------\n";
+//    return $output;
+//}
 
 /**
  * Format JSON to text or HTML
