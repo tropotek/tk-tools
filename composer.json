@@ -30,6 +30,7 @@
         "php": ">=5.3.0",
         "ttek/tk-framework": "~2.0",
         "ttek/tk-database": "~2.0",
+        "ttek/tk-mvc": "~2.0",
         "symfony/event-dispatcher": "~3.4",
         "symfony/console": "~3.4",
         "symfony/translation": "~3.4"
