@@ -14,16 +14,6 @@ abstract class Iface extends \Tk\Console\Console
 {
 
     /**
-     * @var OutputInterface
-     */
-    protected $output = null;
-
-    /**
-     * @var InputInterface
-     */
-    protected $input = null;
-
-    /**
      * @var array
      */
     protected $vendorPaths = array();
@@ -31,39 +21,14 @@ abstract class Iface extends \Tk\Console\Console
 
 
     /**
-     * @return OutputInterface
-     */
-    public function getOutput()
-    {
-        return $this->output;
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @return Iface
-     */
-    public function setOutput($output)
-    {
-        $this->output = $output;
-        return $this;
-    }
-
-    /**
-     * @return InputInterface
-     */
-    public function getInput()
-    {
-        return $this->input;
-    }
-
-    /**
      * @param InputInterface $input
-     * @return Iface
+     * @param OutputInterface $output
+     * @return int|null|void
      */
-    public function setInput($input)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->input = $input;
-        return $this;
+        $this->setInput($input);
+        $this->setOutput($output);
     }
 
     /**
@@ -84,65 +49,4 @@ abstract class Iface extends \Tk\Console\Console
         return $this;
     }
 
-
-    /**
-     * @param $str
-     * @param int $options
-     * @return mixed
-     */
-    protected function writeStrong($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
-    {
-        return $this->write(sprintf('<options=bold>%s</>', $str), $options);
-    }
-
-    /**
-     * @param $str
-     * @param int $options
-     * @return mixed
-     */
-    protected function writeInfo($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
-    {
-        return $this->write(sprintf('<info>%s</info>', $str), $options);
-    }
-
-    /**
-     * @param $str
-     * @param int $options
-     * @return mixed
-     */
-    protected function writeComment($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
-    {
-        return $this->write(sprintf('<comment>%s</comment>', $str), $options);
-    }
-
-    /**
-     * @param $str
-     * @param int $options
-     * @return mixed
-     */
-    protected function writeQuestion($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
-    {
-        return $this->write(sprintf('<question>%s</question>', $str), $options);
-    }
-
-    /**
-     * @param $str
-     * @param int $options
-     * @return mixed
-     */
-    protected function writeError($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
-    {
-        return $this->write(sprintf('<error>%s</error>', $str), $options);
-    }
-
-    /**
-     * @param $str
-     * @param int $options
-     * @return mixed
-     */
-    protected function write($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
-    {
-        if ($this->output)
-            return $this->output->writeln($str, $options);
-    }
 }

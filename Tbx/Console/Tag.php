@@ -56,8 +56,7 @@ unless supplied as a param with --version=x.x.x
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setInput($input);
-        $this->setOutput($output);
+        parent::execute($input, $output);
 
         if ($input->getOption('json')) {
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);

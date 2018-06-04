@@ -34,8 +34,7 @@ class Hash extends Iface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setInput($input);
-        $this->setOutput($output);
+        parent::execute($input, $output);
 
         if (!$input->getOption('algoList')) {
             $this->writeInfo(ucwords($this->getName()));

@@ -31,8 +31,7 @@ class Test extends Iface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setInput($input);
-        $this->setOutput($output);
+        parent::execute($input, $output);
 
         $this->writeInfo(ucwords($this->getName()));
 

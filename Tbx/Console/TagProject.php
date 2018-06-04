@@ -45,8 +45,7 @@ class TagProject extends Iface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setInput($input);
-        $this->setOutput($output);
+        parent::execute($input, $output);
         $vb = $output->getVerbosity();
 
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));

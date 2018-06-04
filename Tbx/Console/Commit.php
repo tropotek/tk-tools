@@ -34,8 +34,7 @@ class Commit extends Iface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setInput($input);
-        $this->setOutput($output);
+        parent::execute($input, $output);
 
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
