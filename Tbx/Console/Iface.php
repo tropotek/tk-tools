@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @see http://www.tropotek.com/
  * @license Copyright 2017 Michael Mifsud
  */
-abstract class Iface extends Command
+abstract class Iface extends \Tk\Console\Console
 {
 
     /**

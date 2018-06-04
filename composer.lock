@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "00d0b76e4cdbae0632f674935be2f790",
+    "content-hash": "58760d5c8d02a974c367e05954d18185",
     "packages": [
         {
             "name": "monolog/monolog",
@@ -452,12 +452,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-database.git",
-                "reference": "7557e92748d050e220427acdc725fdc5bbe9ccc9"
+                "reference": "99ccb3509af1c0d1cc7e8f78532d3d20f674acb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/7557e92748d050e220427acdc725fdc5bbe9ccc9",
-                "reference": "7557e92748d050e220427acdc725fdc5bbe9ccc9",
+                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/99ccb3509af1c0d1cc7e8f78532d3d20f674acb0",
+                "reference": "99ccb3509af1c0d1cc7e8f78532d3d20f674acb0",
                 "shasum": ""
             },
             "require": {
@@ -491,7 +491,7 @@
                 "database",
                 "tropotek"
             ],
-            "time": "2018-05-27T23:14:13+00:00"
+            "time": "2018-06-04T22:27:43+00:00"
         },
         {
             "name": "ttek/tk-framework",
@@ -499,12 +499,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "f943ce296ed8f8c745ed2b6d3c67d97dfb9c4f96"
+                "reference": "20a10cbad7e6fe5c6b38bd886e1893c648489293"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/f943ce296ed8f8c745ed2b6d3c67d97dfb9c4f96",
-                "reference": "f943ce296ed8f8c745ed2b6d3c67d97dfb9c4f96",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/20a10cbad7e6fe5c6b38bd886e1893c648489293",
+                "reference": "20a10cbad7e6fe5c6b38bd886e1893c648489293",
                 "shasum": ""
             },
             "require": {
@@ -545,7 +545,57 @@
                 "framework",
                 "tropotek"
             ],
-            "time": "2018-05-30T22:23:05+00:00"
+            "time": "2018-06-04T22:25:28+00:00"
+        },
+        {
+            "name": "ttek/tk-mvc",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tropotek/tk-mvc.git",
+                "reference": "c1175ffd280a03096d9f58eda42343f508b15424"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tropotek/tk-mvc/zipball/c1175ffd280a03096d9f58eda42343f508b15424",
+                "reference": "c1175ffd280a03096d9f58eda42343f508b15424",
+                "shasum": ""
+            },
+            "require": {
+                "symfony/console": "~3.4",
+                "symfony/event-dispatcher": "~3.4",
+                "symfony/translation": "~3.4",
+                "ttek/tk-framework": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Tk\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Mifsud",
+                    "email": "info@tropotek.com.au",
+                    "homepage": "http://www.tropotek.com/"
+                }
+            ],
+            "description": "Model-View-Controller library for the Tk lib",
+            "keywords": [
+                "Tk",
+                "mvc",
+                "tropotek"
+            ],
+            "time": "2018-06-04T22:28:50+00:00"
         }
     ],
     "packages-dev": [],
