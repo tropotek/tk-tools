@@ -1,5 +1,11 @@
 #CHANGELOG#
 
+Ver 1.2.14 [2018-06-06]:
+-------------------------------
+Minor Code Updates
+Dev.ttek.org
+
+
 Ver 1.2.12 [2018-05-31]:
 -------------------------------
 Minor Code Updates
