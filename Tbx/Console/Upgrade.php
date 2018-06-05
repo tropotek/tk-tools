@@ -34,7 +34,7 @@ class Upgrade extends Iface
     {
         $this->setName('upgrade')
             ->setAliases(array('ug'))
-            ->setDescription('Call this to upgrade s ttek project its newest tagged release.');
+            ->setDescription('Call this to upgrade a ttek project its newest tagged release.');
     }
 
     /**
