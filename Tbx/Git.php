@@ -160,7 +160,7 @@ class Git
     {
         $path = rtrim($path, '/');
         if (!is_dir($path.'/.git')) {
-            throw new \Exception('This folder does not appear to be a GIT repository.');
+            throw new \Exception('This folder does not appear to be a GIT repository: ' . $path);
         }
         $this->path = $path;
         chdir($this->path);
