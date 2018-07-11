@@ -83,10 +83,6 @@ class Util
         return empty($home) ? NULL : $home;
     }
 
-
-
-
-
     /**
      * Format JSON to text or HTML
      *
