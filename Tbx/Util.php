@@ -51,10 +51,13 @@ class Util
     {
         preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $currVersion, $currParts);
         preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $maskVersion, $maskParts);
+        $ver = '1.0.0';
         if (count($maskParts) && version_compare($currParts[1] . '.' . $currParts[2], $maskParts[1] . '.' . $maskParts[2], '<')) {
             return $maskParts[1] . '.' . $maskParts[2] . '.0';
         }
-        $ver = $currParts[1] . '.' . $currParts[2] . '.' . ($currParts[3] + $step);
+        if (!empty($currParts[1])) {
+            $ver = $currParts[1] . '.' . $currParts[2] . '.' . ($currParts[3] + $step);
+        }
         return $ver;
     }
 
