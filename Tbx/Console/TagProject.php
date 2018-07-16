@@ -54,8 +54,8 @@ class TagProject extends Iface
 
         //$this->writeGrey('Remote Origin: ' . $vcs->getUri());
         $title = sprintf('%-20s %s', basename($vcs->getPath()), '['.$curVer.']');
-        $title = sprintf('%-10s %s', '['.$curVer.']', basename($vcs->getPath()));
-        $this->writeInfo($title);
+        $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
+        $this->writeStrongInfo($title);
 
 
         // Tag Project
@@ -78,7 +78,7 @@ class TagProject extends Iface
                 $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
             } else {
-                $this->writeGrey('Nothing To Tag');
+                $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
             }
 
             if ($composerJson) {
@@ -107,7 +107,7 @@ class TagProject extends Iface
                     if (!$curVer) $curVer = '0.0.0';
 
                     $title = sprintf('%-30s %s', basename($v->getPath()), '['.$curVer.']');
-                    $title = sprintf('%-10s %s', '['.$curVer.']', basename($v->getPath()));
+                    $title = sprintf('%-11s %s', '['.$curVer.']', basename($v->getPath()));
                     $this->writeInfo($title);
 
                     $version = $v->tagRelease($input->getOptions());
@@ -115,7 +115,7 @@ class TagProject extends Iface
                         $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
                         $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
-                        $this->writeGrey('Nothing To Tag');
+                        $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
                     }
                 } catch (\Exception $e) {
                     $this->writeError($e->getMessage());

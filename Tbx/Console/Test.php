@@ -42,8 +42,10 @@ class Test extends Iface
         $this->writeRed('writeRed');
         $this->writeGrey('writeGrey');
         $this->writeBlue('writeBlue');
+        $this->writeStrongBlue('writeStrongBlue');
         $this->writeStrong('writeStrong');
         $this->writeInfo('writeInfo');
+        $this->writeStrongInfo('writeStrongInfo');
         $this->writeComment('writeComment');
         $this->writeQuestion('writeQuestion');
         $this->writeError('writeError');
