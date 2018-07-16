@@ -54,7 +54,7 @@ class TagProject extends Iface
 
         //$this->writeGrey('Remote Origin: ' . $vcs->getUri());
         //$title = sprintf('%s [%30s]', basename($vcs->getPath()), $curVer);
-        $title = sprintf('%s %40s', basename($vcs->getPath()), '['.$curVer.']');
+        $title = sprintf('%s %25s', basename($vcs->getPath()), '['.$curVer.']');
         $this->writeInfo($title);
 
 
@@ -106,7 +106,8 @@ class TagProject extends Iface
                     $curVer = $v->getCurrentTag();
                     if (!$curVer) $curVer = '0.0.0';
 
-                    $title = sprintf('[%s] %s', $curVer, basename($v->getPath()));
+                    $title = sprintf('%s %25s', basename($v->getPath()), '['.$curVer.']');
+                    //$title = sprintf('[%s] %s', $curVer, basename($v->getPath()));
                     $this->writeInfo($title);
 
                     $version = $v->tagRelease($input->getOptions());
