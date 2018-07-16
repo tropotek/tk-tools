@@ -20,7 +20,6 @@ class TagProject extends Iface
       parent project.
     */
 
-
     /**
      *
      */
@@ -53,9 +52,9 @@ class TagProject extends Iface
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
 
-        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
-        $this->write('Curr Ver: ' . $curVer);
-        $this->write('Remote Origin: ' . $vcs->getUri());
+        $this->writeInfo(basename($vcs->getPath()));
+        $this->writeGrey('Curr Ver: ' . $curVer);
+        $this->writeGrey('Remote Origin: ' . $vcs->getUri());
 
         // Tag Project
         if ($vcs->isDiff($curVer)) {
@@ -75,9 +74,9 @@ class TagProject extends Iface
             $version = $vcs->tagRelease($input->getOptions());
             if (version_compare($version, $curVer, '>')) {
                 $this->write('New Version: ' . $version);
-                $this->write('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
             } else {
-                $this->write('Nothing To Tag');
+                $this->writeGrey('Nothing To Tag');
             }
 
             if ($composerJson) {
@@ -104,14 +103,14 @@ class TagProject extends Iface
                     $v->setInputOutput($input, $output);
                     $curVer = $v->getCurrentTag();
                     if (!$curVer) $curVer = '0.0.0';
-                    $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
-                    $this->write('Curr Ver: ' . $curVer);
+                    $this->writeInfo(basename($v->getPath()));
+                    $this->writeGrey('Curr Ver: ' . $curVer);
                     $version = $v->tagRelease($input->getOptions());
                     if (version_compare($version, $curVer, '>')) {
                         $this->write('New Version: ' . $version);
-                        $this->write('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                        $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
-                        $this->write('Nothing To Tag');
+                        $this->writeGrey('Nothing To Tag');
                     }
                 } catch (\Exception $e) {
                     $this->writeError($e->getMessage());
