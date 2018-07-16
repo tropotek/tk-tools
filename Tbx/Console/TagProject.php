@@ -47,7 +47,7 @@ class TagProject extends Iface
         parent::execute($input, $output);
         $vb = $output->getVerbosity();
 
-        $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';

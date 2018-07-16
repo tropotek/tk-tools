@@ -36,7 +36,7 @@ class Status extends Iface
     {
         parent::execute($input, $output);
 
-        $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 

@@ -62,7 +62,7 @@ unless supplied as a param with --version=x.x.x
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         }
 
-        $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) {

@@ -49,4 +49,13 @@ abstract class Iface extends \Tk\Console\Console
         return $this;
     }
 
+    /**
+     * return the current working directory
+     * @return array|false|string
+     */
+    public function getCwd()
+    {
+        //return getcwd();
+        return getenv('PWD');   // Seems more reliable
+    }
 }

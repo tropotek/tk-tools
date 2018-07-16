@@ -45,7 +45,7 @@ class Upgrade extends Iface
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-        $this->writeInfo(ucwords($this->getName()) . ': ' . basename(getcwd()));
+        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($this->getCwd()));
 
 
         $config = \Tk\Config::getInstance();
