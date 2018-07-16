@@ -36,6 +36,7 @@ class Commit extends Iface
     {
         parent::execute($input, $output);
 
+        $this->writeStrongInfo(getcwd());
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
