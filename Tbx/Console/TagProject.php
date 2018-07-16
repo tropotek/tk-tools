@@ -107,6 +107,7 @@ class TagProject extends Iface
                     if (!$curVer) $curVer = '0.0.0';
 
                     $title = sprintf('%-30s %s', basename($v->getPath()), '['.$curVer.']');
+                    $title = sprintf('%-10s %s', '['.$curVer.']', basename($v->getPath()));
                     $this->writeInfo($title);
 
                     $version = $v->tagRelease($input->getOptions());
