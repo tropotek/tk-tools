@@ -52,14 +52,15 @@ class TagProject extends Iface
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
 
-        //$this->writeGrey('Remote Origin: ' . $vcs->getUri());
-        $title = sprintf('%-20s %s', basename($vcs->getPath()), '['.$curVer.']');
-        $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
-        $this->writeStrongInfo($title);
-
 
         // Tag Project
         if ($vcs->isDiff($curVer)) {
+            //$this->writeGrey('Remote Origin: ' . $vcs->getUri());
+            $title = sprintf('%-20s %s', basename($vcs->getPath()), '['.$curVer.']');
+            $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
+            $this->writeStrongInfo($title);
+
+
             $composerFile = $vcs->getPath() . '/composer.json';
             $composerJson = '';
             if (is_file($vcs->getPath() . '/composer.json')) {
@@ -106,16 +107,18 @@ class TagProject extends Iface
                     $curVer = $v->getCurrentTag();
                     if (!$curVer) $curVer = '0.0.0';
 
-                    $title = sprintf('%-30s %s', basename($v->getPath()), '['.$curVer.']');
-                    $title = sprintf('%-11s %s', '['.$curVer.']', basename($v->getPath()));
-                    $this->writeInfo($title);
+                    if ($v->isDiff($curVer)) {
+                        $title = sprintf('%-30s %s', basename($v->getPath()), '[' . $curVer . ']');
+                        $title = sprintf('%-11s %s', '[' . $curVer . ']', basename($v->getPath()));
+                        $this->writeInfo($title);
 
-                    $version = $v->tagRelease($input->getOptions());
-                    if (version_compare($version, $curVer, '>')) {
-                        $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
-                        $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
-                    } else {
-                        $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
+                        $version = $v->tagRelease($input->getOptions());
+                        if (version_compare($version, $curVer, '>')) {
+                            $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
+                            $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                        } else {
+                            $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
+                        }
                     }
                 } catch (\Exception $e) {
                     $this->writeError($e->getMessage());
