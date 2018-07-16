@@ -52,8 +52,11 @@ class TagProject extends Iface
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
 
-        $this->writeInfo(basename($vcs->getPath()));
-        $this->writeGrey('Remote Origin: ' . $vcs->getUri());
+        //$this->writeGrey('Remote Origin: ' . $vcs->getUri());
+        //$title = sprintf('%s [%30s]', basename($vcs->getPath()), $curVer);
+        $title = sprintf('%s %40s', basename($vcs->getPath()), '['.$curVer.']');
+        $this->writeInfo($title);
+
 
         // Tag Project
         if ($vcs->isDiff($curVer)) {
@@ -72,7 +75,6 @@ class TagProject extends Iface
 
             $version = $vcs->tagRelease($input->getOptions());
             if (version_compare($version, $curVer, '>')) {
-                $this->writeGrey('Curr Ver: ' . $curVer);
                 $this->write('New Version: ' . $version);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
             } else {
@@ -103,10 +105,12 @@ class TagProject extends Iface
                     $v->setInputOutput($input, $output);
                     $curVer = $v->getCurrentTag();
                     if (!$curVer) $curVer = '0.0.0';
-                    $this->writeInfo(basename($v->getPath()));
+
+                    $title = sprintf('[%s] %s', $curVer, basename($v->getPath()));
+                    $this->writeInfo($title);
+
                     $version = $v->tagRelease($input->getOptions());
                     if (version_compare($version, $curVer, '>')) {
-                    $this->writeGrey('Curr Ver: ' . $curVer);
                         $this->write('New Version: ' . $version);
                         $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
