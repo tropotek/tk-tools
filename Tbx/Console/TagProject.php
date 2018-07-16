@@ -54,7 +54,8 @@ class TagProject extends Iface
 
         //$this->writeGrey('Remote Origin: ' . $vcs->getUri());
         //$title = sprintf('%s [%30s]', basename($vcs->getPath()), $curVer);
-        $title = sprintf('%s %25s', basename($vcs->getPath()), '['.$curVer.']');
+        //$title = sprintf('%s %25s', basename($vcs->getPath()), '['.$curVer.']');
+        $title = sprintf('%-20s %s', basename($vcs->getPath()), '['.$curVer.']');
         $this->writeInfo($title);
 
 
@@ -75,7 +76,7 @@ class TagProject extends Iface
 
             $version = $vcs->tagRelease($input->getOptions());
             if (version_compare($version, $curVer, '>')) {
-                $this->write('New Version: ' . $version);
+                $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
             } else {
                 $this->writeGrey('Nothing To Tag');
@@ -106,13 +107,14 @@ class TagProject extends Iface
                     $curVer = $v->getCurrentTag();
                     if (!$curVer) $curVer = '0.0.0';
 
-                    $title = sprintf('%s %25s', basename($v->getPath()), '['.$curVer.']');
+                    $title = sprintf('%-20s %s', basename($v->getPath()), '['.$curVer.']');
+                    //$title = sprintf('%s %25s', basename($v->getPath()), '['.$curVer.']');
                     //$title = sprintf('[%s] %s', $curVer, basename($v->getPath()));
                     $this->writeInfo($title);
 
                     $version = $v->tagRelease($input->getOptions());
                     if (version_compare($version, $curVer, '>')) {
-                        $this->write('New Version: ' . $version);
+                        $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
                         $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
                         $this->writeGrey('Nothing To Tag');
