@@ -37,7 +37,7 @@ class Update extends Iface
 
         $vcs = \Tbx\Git::create(getcwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
-        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
+        $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
         $vcs->update();
 
