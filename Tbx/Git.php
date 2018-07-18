@@ -14,6 +14,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Git
 {
     /**
+     * The default commit message
+     */
+    const DEFAULT_MESSAGE = '~Auto: Commit';
+
+    /**
      * This is used when updating the composer file
      */
     const MAX_VER = 99999999999;
@@ -92,7 +97,6 @@ class Git
      */
     public function __construct($path, $dryRun = false)
     {
-        $this->setDefaultMessage('~Auto: Commit');
         $this->setPath($path);
         $this->dryRun = $dryRun;
     }
@@ -139,16 +143,6 @@ class Git
     public function isDryRun()
     {
         return $this->dryRun;
-    }
-
-    /**
-     * @param $message
-     * @return $this
-     */
-    public function setDefaultMessage($message)
-    {
-        $this->defaultMessage = $message;
-        return $this;
     }
 
     /**
@@ -360,7 +354,7 @@ class Git
         $lastLine = '';
         $ret = null;
         if (!$message) {
-            $message = $this->defaultMessage;
+            $message = self::DEFAULT_MESSAGE;
         }
 
         // Check for any changes in this repository
@@ -480,7 +474,7 @@ class Git
             $msgLines = explode('- ', $msgLine);
             foreach($msgLines as $msg) {
                 $msg = trim($msg);
-                if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {
+                if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {   // Remove any system messages
                     $this->writeComment('$msg(-) => ' . $msg, OutputInterface::VERBOSITY_VERY_VERBOSE);
                     continue;
                 } else {
@@ -629,20 +623,6 @@ class Git
         }
         return $version;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
