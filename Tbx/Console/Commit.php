@@ -1,6 +1,7 @@
 <?php
 namespace Tbx\Console;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,7 +21,8 @@ class Commit extends Iface
     {
         $this->setName('commit')
             ->setAliases(array('ci'))
-            ->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', '')
+            ->addArgument('message', InputArgument::OPTIONAL, 'Repository Commit Message', '')
+            //->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', '')
             ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
             ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");
@@ -40,7 +42,7 @@ class Commit extends Iface
         $vcs->setInputOutput($input, $output);
         $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
-        $message = $input->getOption('message');
+        $message = $input->getArgument('message');
         $vcs->commit($message);
 
         if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
