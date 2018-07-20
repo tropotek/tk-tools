@@ -21,6 +21,16 @@ abstract class Iface extends \Tk\Console\Console
 
 
     /**
+     * @param null|string $name
+     */
+    public function __construct($name = null)
+    {
+        parent::__construct($name);
+        $this->locFile = $this->getConfig()->getTempPath().'/'.md5($this->getCwd().$this->getName()).'.lock';
+    }
+
+
+    /**
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|null|void
