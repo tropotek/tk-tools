@@ -22,6 +22,7 @@ class Commit extends Iface
         $this->setName('commit')
             ->setAliases(array('ci'))
             ->addArgument('message', InputArgument::OPTIONAL, 'Repository Commit Message', '')
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not changes, just commit. Slower.')
             //->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', '')
             ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
@@ -43,7 +44,7 @@ class Commit extends Iface
         $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
         $message = $input->getArgument('message');
-        $vcs->commit($message);
+        $vcs->commit($message, $input->getOption('force'));
 
         if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
         foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
@@ -57,7 +58,7 @@ class Commit extends Iface
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
                         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
-                        $vcs->commit($message);
+                        $vcs->commit($message, $input->getOption('force'));
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }

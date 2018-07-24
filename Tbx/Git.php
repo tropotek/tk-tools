@@ -345,36 +345,44 @@ class Git
      * Commit the current branch and push to remote repos
      *
      * @param string $message
-     * @throws \Exception
+     * @param bool $force
      * @return static
+     * @throws \Exception
      */
-    public function commit($message = '')
+    public function commit($message = '', $force = false)
     {
         $this->cmdBuf = array();
-        $lastLine = '';
+
         $ret = null;
-        if (!$message) {
-            $message = self::DEFAULT_MESSAGE;
+
+        if (!$force) {
+            if (!$message) {
+                $message = self::DEFAULT_MESSAGE;
+            }
+            // Check for any changes in this repository
+            $cmd = sprintf('git status -s --untracked-files=no 2>&1 ');
+            $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $lastLine = exec($cmd, $this->cmdBuf, $ret);
+            $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
+            if (!$lastLine) return $this;
         }
 
-        // Check for any changes in this repository
-        $cmd = sprintf('git status -s --untracked-files=no 2>&1 ');
-        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
-        $lastLine = exec($cmd, $this->cmdBuf, $ret);
-        if (!$lastLine) return $this;
-
-        // Try commiting any changes if any
+        // Try committing any changes if any
         $cmd = sprintf('git commit -am %s 2>&1 ', escapeshellarg($message));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
         }
-        if (count($this->cmdBuf) && $lastLine) {
-            if (preg_match('/^(nothing to commit)|(nothing added)|(Everything up-to-date)/', $lastLine)) {
-                $this->writeComment('Nothing to commit', OutputInterface::VERBOSITY_NORMAL);
-                return $this;
-            } else {
-                $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+        $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
+
+        if (!$force) {
+            if (count($this->cmdBuf) && $lastLine) {
+                if (preg_match('/^(nothing to commit)|(nothing added)|(Everything up-to-date)/', $lastLine)) {
+                    $this->writeComment('Nothing to commit', OutputInterface::VERBOSITY_NORMAL);
+                    return $this;
+                } else {
+                    $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+                }
             }
         }
 
@@ -481,7 +489,7 @@ class Git
                     $this->writeComment('$msg(+) => ' . $msg, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 }
                 if (!in_array(md5($msg), $exists)) {
-                    $logs[] = $msg;
+                    $logs[] = '  - ' . $msg;
                     $exists[] = md5($msg);
                 }
             }
