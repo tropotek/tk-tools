@@ -1,5 +1,9 @@
 #CHANGELOG#
 
+Ver 1.2.36 [2018-08-07]:
+-------------------------------
+
+
 Ver 1.2.34 [2018-07-19]:
 -------------------------------
 Updated tk ci to receive messages as arguments not options
