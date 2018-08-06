@@ -7,9 +7,9 @@
         "tools",
         "tropotek"
     ],
-    "time": "2010-12-09",
+    "time": "2018-08-07",
     "license": "MIT",
-    "version": "master",
+    "version": "1.2.38",
     "authors":  [
          {
             "name": "Michael Mifsud",
@@ -17,7 +17,7 @@
             "homepage": "http://www.tropotek.com/"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "autoload":  {
         "psr-0":  {
             "Tbx\\": ""
