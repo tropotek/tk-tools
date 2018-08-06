@@ -509,15 +509,25 @@ class Git
         $changelogFile = $this->getPath() . '/changelog.md';
         $vb = $this->output->getVerbosity();
 
-        $composerJson = file_get_contents($composerFile);
-        if ($composerJson) {
+
+
+
+
+
+
+        $composerObj = null;
+        $composerJson = null;       // Orig master dev composer json, should not be modified
+        if (is_file($composerFile)) {
+            $composerJson = file_get_contents($composerFile);
             $composerObj = json_decode($composerJson);
+
+            // Setup the new tagged composer.json version
             $composerObj->version = $version;
             $composerObj->time = date('Y-m-d');
-
             file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
         }
 
+        // Update the changelog file ith any commit messages since the last tag
         $logArr =  $this->makeChangelog($this->getCurrentTag());
         $log = '';
         if (is_array($logArr)) {
@@ -535,8 +545,7 @@ class Git
             }
             $this->write($log, OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
-
-        // Copy log
+        // Save updated changelog file
         if ($log && $this->changelog) {
             $this->writeComment('Updating changelog.md.', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
@@ -545,12 +554,12 @@ class Git
         }
 
         // First Commit before tag to ensure all auto updated file changes are committed
-//        $currentBranch = $this->getCurrentBranch();
-//        $message= 'Preparing branch ' . $currentBranch . ' for new release';
-//        $this->writeComment($message);
-//        $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-//        $this->commit($message);
-//        $this->output->setVerbosity($vb);
+        $currentBranch = $this->getCurrentBranch();
+        $message= 'Preparing branch ' . $currentBranch . ' for new release';
+        $this->writeComment($message);
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+        $this->commit($message);
+        $this->output->setVerbosity($vb);
 
         $this->cmdBuf = array();
         // Tag trunk
@@ -606,21 +615,12 @@ class Git
         $composerFile = $this->getPath() . '/composer.json';
         if (is_file($composerFile)) {
             $composerObj = json_decode(file_get_contents($composerFile));
-            if ($composerObj) {
-                // Find branch-alias if one exists
-                if (isset($composerObj->extra->{'branch-alias'}->{'dev-trunk'})) {
-                    $aliasVer = $composerObj->extra->{'branch-alias'}->{'dev-trunk'};
-                    $aliasVer = str_replace(array('.x-dev'), '.' . self::MAX_VER, $aliasVer);
-                } else if (isset($composerObj->extra->{'branch-alias'}->{'dev-master'})) {
+            if ($composerObj) {     // Find branch-alias so we can get the major version X.X.x-dev
+                if (isset($composerObj->extra->{'branch-alias'}->{'dev-master'})) {
                     $aliasVer = $composerObj->extra->{'branch-alias'}->{'dev-master'};
                     $aliasVer = str_replace(array('.x-dev'), '.' . self::MAX_VER, $aliasVer);
                 }
             }
-
-            // TODO: What we need to do it solidify this release dependency versions
-            // so if this software was to be released
-
-
         }
         if (!$version || version_compare($version, $curVer, '<')) {
             $version = \Tbx\Util::incrementVersion($curVer, $aliasVer);
@@ -631,9 +631,7 @@ class Git
 
         $this->tag($version);
 
-
-
-        // Return the the branch we where at   ???? Is this needed
+        // Return the the branch we where at originally???? Is this needed
         $this->checkout($currentBranch);
         if ($composerObj && !empty($options['json'])) {
             $composerObj->version = $version;
