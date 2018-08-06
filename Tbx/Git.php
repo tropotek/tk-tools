@@ -509,12 +509,13 @@ class Git
         $changelogFile = $this->getPath() . '/changelog.md';
         $vb = $this->output->getVerbosity();
 
-        $json = file_get_contents($composerFile);
-        if ($json) {
-            $jsonTag = json_decode($json);
-            $jsonTag->version = $version;
-            $jsonTag->time = date('Y-m-d');
-            file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($jsonTag)));
+        $composerJson = file_get_contents($composerFile);
+        if ($composerJson) {
+            $composerObj = json_decode($composerJson);
+            $composerObj->version = $version;
+            $composerObj->time = date('Y-m-d');
+
+            file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
         }
 
         $logArr =  $this->makeChangelog($this->getCurrentTag());
@@ -543,12 +544,13 @@ class Git
             }
         }
 
-        $currentBranch = $this->getCurrentBranch();
-        $message= 'Preparing branch ' . $currentBranch . ' for new release';
-        $this->writeComment($message);
-        $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-        $this->commit($message);
-        $this->output->setVerbosity($vb);
+        // First Commit before tag to ensure all auto updated file changes are committed
+//        $currentBranch = $this->getCurrentBranch();
+//        $message= 'Preparing branch ' . $currentBranch . ' for new release';
+//        $this->writeComment($message);
+//        $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+//        $this->commit($message);
+//        $this->output->setVerbosity($vb);
 
         $this->cmdBuf = array();
         // Tag trunk
@@ -570,10 +572,10 @@ class Git
         }
 
         // Update composer.json
-        if ($json) {
+        if ($composerJson) {
             $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
-                file_put_contents($composerFile, $json);
+                file_put_contents($composerFile, $composerJson);
             }
             $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $this->commit();
@@ -599,21 +601,26 @@ class Git
             return $curVer;
         }
 
-        $pkg = null;
+        $composerObj = null;
         $aliasVer = '';
         $composerFile = $this->getPath() . '/composer.json';
         if (is_file($composerFile)) {
-            $pkg = json_decode(file_get_contents($composerFile));
-            if ($pkg) {
+            $composerObj = json_decode(file_get_contents($composerFile));
+            if ($composerObj) {
                 // Find branch-alias if one exists
-                if (isset($pkg->extra->{'branch-alias'}->{'dev-trunk'})) {
-                    $aliasVer = $pkg->extra->{'branch-alias'}->{'dev-trunk'};
+                if (isset($composerObj->extra->{'branch-alias'}->{'dev-trunk'})) {
+                    $aliasVer = $composerObj->extra->{'branch-alias'}->{'dev-trunk'};
                     $aliasVer = str_replace(array('.x-dev'), '.' . self::MAX_VER, $aliasVer);
-                } else if (isset($pkg->extra->{'branch-alias'}->{'dev-master'})) {
-                    $aliasVer = $pkg->extra->{'branch-alias'}->{'dev-master'};
+                } else if (isset($composerObj->extra->{'branch-alias'}->{'dev-master'})) {
+                    $aliasVer = $composerObj->extra->{'branch-alias'}->{'dev-master'};
                     $aliasVer = str_replace(array('.x-dev'), '.' . self::MAX_VER, $aliasVer);
                 }
             }
+
+            // TODO: What we need to do it solidify this release dependency versions
+            // so if this software was to be released
+
+
         }
         if (!$version || version_compare($version, $curVer, '<')) {
             $version = \Tbx\Util::incrementVersion($curVer, $aliasVer);
@@ -623,11 +630,14 @@ class Git
         }
 
         $this->tag($version);
+
+
+
         // Return the the branch we where at   ???? Is this needed
         $this->checkout($currentBranch);
-        if ($pkg && !empty($options['json'])) {
-            $pkg->version = $version;
-            return \Tbx\Util::jsonPrettyPrint(json_encode($pkg));
+        if ($composerObj && !empty($options['json'])) {
+            $composerObj->version = $version;
+            return \Tbx\Util::jsonPrettyPrint(json_encode($composerObj));
         }
         return $version;
     }
