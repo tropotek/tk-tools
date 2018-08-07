@@ -41,7 +41,6 @@ try {
 
     $app->add(new \Tbx\Console\Test());
 
-
     $app->run($input, $output);
 } catch (\Exception $e) {
   echo $e->__toString();
