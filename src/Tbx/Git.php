@@ -521,7 +521,7 @@ class Git
             file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
         }
 
-        // Update the changelog file ith any commit messages since the last tag
+        // Update the changelog file with any commit messages since the last tag
         $logArr =  $this->makeChangelog($this->getCurrentTag());
         $log = '';
         if (is_array($logArr)) {
@@ -623,8 +623,6 @@ class Git
                 $version = \Tbx\Util::incrementVersion($version, $aliasVer);
             }
         }
-
-        vd($tagList, $curVer);
 
         if (version_compare($version, end($tagList), '<=')) {
             $this->writeError('Version missmatch, check that you have the latest version of the project checked out.');
