@@ -518,7 +518,7 @@ class Git
             // Setup the new tagged composer.json version
             $composerObj->version = $version;
             $composerObj->time = date('Y-m-d');
-            if (isset($composerJson->{'minimum-stability'})) {
+            if (property_exists($composerJson, 'minimum-stability')) {
                 $composerJson->{'minimum-stability'} = 'stable';
             }
 
