@@ -599,7 +599,7 @@ class Git
         $curVer = $this->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
         $tagList = $this->getTagList();
-        vd($tagList, $curVer);
+
         // Check if repo has changed since last tag
         if (empty($options['forceTag']) && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$this->isDiff($curVer)) {
             return $curVer;
@@ -622,6 +622,13 @@ class Git
             if (empty($options['notStable']) && ((int)substr($version, strrpos($version, '.')+1) % 2) > 0) {
                 $version = \Tbx\Util::incrementVersion($version, $aliasVer);
             }
+        }
+
+        vd($tagList, $curVer);
+
+        if (version_compare($version, end($tagList), '<=')) {
+            $this->writeError('Version missmatch, check that you have the latest version of the project checked out.');
+            return $curVer;
         }
 
         $this->tag($version);
