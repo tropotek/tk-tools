@@ -599,7 +599,7 @@ class Git
         $curVer = $this->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
         $tagList = $this->getTagList();
-        vd($tagList);
+        vd($tagList, $curVer);
         // Check if repo has changed since last tag
         if (empty($options['forceTag']) && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$this->isDiff($curVer)) {
             return $curVer;
