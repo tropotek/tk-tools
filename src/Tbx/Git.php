@@ -518,10 +518,10 @@ class Git
             // Setup the new tagged composer.json version
             $composerObj->version = $version;
             $composerObj->time = date('Y-m-d');
-            if (property_exists($composerJson, 'minimum-stability')) {
-                $composerJson->{'minimum-stability'} = 'stable';
+            if (property_exists($composerObj, 'minimum-stability')) {
+                $composerObj->{'minimum-stability'} = 'stable';
+
             }
-vd($composerObj);
             $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
             file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
         }
