@@ -3,3 +3,4 @@
 .directory
 _notes
 vendor
+/src/config/config.php

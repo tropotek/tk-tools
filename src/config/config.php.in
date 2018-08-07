@@ -1,0 +1,42 @@
+<?php
+/*
+ * @author Michael Mifsud <info@tropotek.com>
+ * @link http://www.tropotek.com/
+ * @license Copyright 2015 Michael Mifsud
+ */
+$config = \Tk\Config::getInstance();
+
+// Deprecated
+$vendorPaths = array('/vendor/fvas', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/theme');
+
+//Use this one!!!
+$config['vendor.paths'] = array('/vendor/fvas', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/theme');
+
+
+/*
+ * Enable exception emails
+ */
+//$config['system.email.exception'] = array('user@example.com');
+
+/*
+ * Send copies of all system emails to these recipients (not error emails)
+ */
+//$config['mail.bcc'] = array('user1@example.edu.au');
+
+/*
+ * Enable logging of triggered events
+ * Default: false
+ */
+//$config['event.dispatcher.log'] = true;
+
+
+/*
+ * Debug
+ */
+//$config['debug'] = true;
+//$config['log.path'] = '/home/user/log/error.log';
+//$config['log.level'] = \Psr\Log\LogLevel::DEBUG;
+//$config['system.debug.email'] = 'root@localhost';
+
+
+

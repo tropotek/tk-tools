@@ -509,12 +509,6 @@ class Git
         $changelogFile = $this->getPath() . '/changelog.md';
         $vb = $this->output->getVerbosity();
 
-
-
-
-
-
-
         $composerObj = null;
         $composerJson = null;       // Orig master dev composer json, should not be modified
         if (is_file($composerFile)) {
@@ -605,6 +599,7 @@ class Git
         $curVer = $this->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
         $tagList = $this->getTagList();
+        vd($tagList);
         // Check if repo has changed since last tag
         if (empty($options['forceTag']) && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$this->isDiff($curVer)) {
             return $curVer;
