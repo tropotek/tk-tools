@@ -521,7 +521,8 @@ class Git
             if (property_exists($composerJson, 'minimum-stability')) {
                 $composerJson->{'minimum-stability'} = 'stable';
             }
-
+vd($composerObj);
+            $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
             file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
         }
 
@@ -580,7 +581,7 @@ class Git
 
         // Update composer.json
         if ($composerJson) {
-            $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeComment('Reverting composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, $composerJson);
             }
