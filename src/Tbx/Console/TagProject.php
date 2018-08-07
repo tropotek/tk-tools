@@ -55,24 +55,9 @@ class TagProject extends Iface
 
         // Tag Project
         if ($vcs->isDiff($curVer)) {
-            //$this->writeGrey('Remote Origin: ' . $vcs->getUri());
             $title = sprintf('%-20s %s', basename($vcs->getPath()), '['.$curVer.']');
             $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);
-
-
-            $composerFile = $vcs->getPath() . '/composer.json';
-            $composerJson = '';
-            if (is_file($vcs->getPath() . '/composer.json')) {
-                $composerJson = json_decode(file_get_contents($composerFile));
-                if ($composerJson->type != 'project') {
-                    throw new \Exception('Only `project` package types can be released.');
-                }
-                $composerJson->{'minimum-stability'} = 'stable';
-                if (!$input->getOption('dryRun')) {
-                    file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerJson)));
-                }
-            }
 
             $version = $vcs->tagRelease($input->getOptions());
             if (version_compare($version, $curVer, '>')) {
@@ -80,16 +65,6 @@ class TagProject extends Iface
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
             } else {
                 $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
-            }
-
-            if ($composerJson) {
-                $composerJson->{'minimum-stability'} = 'dev';
-                if (!$input->getOption('dryRun')) {
-                    file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerJson)));
-                    $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-                    $vcs->commit();
-                    $output->setVerbosity($vb);
-                }
             }
         }
 
