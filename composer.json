@@ -23,7 +23,7 @@
             "Tbx\\": "src/"
         },
         "files":  [
-            "Tbx/functions.php"
+            "src/Tbx/functions.php"
         ]
     },
     "require":  {
