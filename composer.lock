@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "content-hash": "d4e7b144f77a075d3b78fd67d4bfd2bb",
@@ -595,12 +595,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "3b633f37437d79e7314e7f56cef176e140c0bf50"
+                "reference": "48caafbd4daa86c9268127b176a34ad830c31233"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/3b633f37437d79e7314e7f56cef176e140c0bf50",
-                "reference": "3b633f37437d79e7314e7f56cef176e140c0bf50",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/48caafbd4daa86c9268127b176a34ad830c31233",
+                "reference": "48caafbd4daa86c9268127b176a34ad830c31233",
                 "shasum": ""
             },
             "require": {
@@ -641,7 +641,7 @@
                 "framework",
                 "tropotek"
             ],
-            "time": "2018-08-06T23:54:59+00:00"
+            "time": "2018-08-12T20:38:47+00:00"
         },
         {
             "name": "ttek/tk-http",
