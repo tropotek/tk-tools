@@ -68,8 +68,8 @@ class TagProject extends Iface
             }
         }
 
-        if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
-        foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
+        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
+        foreach ($this->getVendorPaths() as $vPath) {
             $vendorPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (!is_dir($vendorPath)) continue;
             foreach (new \DirectoryIterator($vendorPath) as $res) {

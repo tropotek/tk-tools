@@ -46,8 +46,9 @@ class Commit extends Iface
         $message = $input->getArgument('message');
         $vcs->commit($message, $input->getOption('force'));
 
-        if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
-        foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
+
+        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
+        foreach ($this->getVendorPaths() as $vPath) {
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
                 foreach (new \DirectoryIterator($libPath) as $res) {

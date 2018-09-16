@@ -27,6 +27,7 @@ abstract class Iface extends \Tk\Console\Console
     {
         parent::__construct($name);
         $this->locFile = $this->getConfig()->getTempPath().'/'.md5($this->getCwd().$this->getName()).'.lock';
+        $this->setVendorPaths($this->getConfig()->get('vendor.paths'));
     }
 
 
