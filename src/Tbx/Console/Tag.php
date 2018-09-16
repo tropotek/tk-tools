@@ -62,6 +62,8 @@ unless supplied as a param with --version=x.x.x
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         }
 
+        if (!\Tbx\Git::isGit($this->getCwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $curVer = $vcs->getCurrentTag();

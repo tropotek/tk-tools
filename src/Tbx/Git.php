@@ -98,6 +98,30 @@ class Git
     }
 
     /**
+     * Is the path GIT repository
+     *
+     * @param $path
+     * @return bool
+     */
+    public static function isGit($path)
+    {
+        $path = rtrim($path, '/');
+        return is_dir($path.'/.git');
+    }
+
+    /**
+     * Is the path a composer package
+     *
+     * @param $path
+     * @return bool
+     */
+    public static function isComposer($path)
+    {
+        $path = rtrim($path, '/');
+        return file_exists($path.'/composer.json');
+    }
+
+    /**
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return $this

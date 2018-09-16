@@ -36,6 +36,8 @@ class Status extends Iface
     {
         parent::execute($input, $output);
 
+        if (!\Tbx\Git::isGit($this->getCwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
@@ -51,8 +53,7 @@ class Status extends Iface
                 foreach (new \DirectoryIterator($libPath) as $res) {
                     if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
                     $path = $res->getRealPath();
-                    if (!$res->isDir() && !is_dir($path.'/.git')) continue;
-
+                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
                     try {
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
