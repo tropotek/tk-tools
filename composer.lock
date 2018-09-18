@@ -595,12 +595,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "48caafbd4daa86c9268127b176a34ad830c31233"
+                "reference": "98cb50558c4290ff89188fd8db24433475d31c95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/48caafbd4daa86c9268127b176a34ad830c31233",
-                "reference": "48caafbd4daa86c9268127b176a34ad830c31233",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/98cb50558c4290ff89188fd8db24433475d31c95",
+                "reference": "98cb50558c4290ff89188fd8db24433475d31c95",
                 "shasum": ""
             },
             "require": {
@@ -641,7 +641,7 @@
                 "framework",
                 "tropotek"
             ],
-            "time": "2018-08-12T20:38:47+00:00"
+            "time": "2018-08-16T03:08:09+00:00"
         },
         {
             "name": "ttek/tk-http",
@@ -649,12 +649,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-http.git",
-                "reference": "5f53154a1f598b0f9a1329084c3b8f043e6b7191"
+                "reference": "46c0394624bbb4744b3d35fc794a32a9aaa94d58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-http/zipball/5f53154a1f598b0f9a1329084c3b8f043e6b7191",
-                "reference": "5f53154a1f598b0f9a1329084c3b8f043e6b7191",
+                "url": "https://api.github.com/repos/tropotek/tk-http/zipball/46c0394624bbb4744b3d35fc794a32a9aaa94d58",
+                "reference": "46c0394624bbb4744b3d35fc794a32a9aaa94d58",
                 "shasum": ""
             },
             "require": {
@@ -690,7 +690,7 @@
                 "http",
                 "tropotek"
             ],
-            "time": "2018-08-03T01:12:53+00:00"
+            "time": "2018-08-16T03:08:29+00:00"
         },
         {
             "name": "ttek/tk-mvc",
