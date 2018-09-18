@@ -24,22 +24,6 @@ class Git
     const MAX_VER = 99999999999;
 
     /**
-     * These files are ignored when looking to see if a project has any changes and should be tagged
-     * @var array
-     * @todo: we need to find a way to make these configarable or added as a cmd arg
-     */
-    public static $DIFF_EXCLUDED = array('composer.json', 'changelog.md');
-
-    /**
-     * The libs in the project folder to iterate through
-     * @var array
-     */
-    public static $VENDOR_PATHS = array(
-        '/vendor/fvas', '/vendor/ttek', '/vendor/tropotek',
-        '/assets', '/plugin', '/theme'
-    );
-
-    /**
      * The repository base URI, all paths used should
      * be prepended with this base uri.
      * @var string
@@ -111,6 +95,30 @@ class Git
     {
         $obj = new static($path, $dryRun);
         return $obj;
+    }
+
+    /**
+     * Is the path GIT repository
+     *
+     * @param $path
+     * @return bool
+     */
+    public static function isGit($path)
+    {
+        $path = rtrim($path, '/');
+        return is_dir($path.'/.git');
+    }
+
+    /**
+     * Is the path a composer package
+     *
+     * @param $path
+     * @return bool
+     */
+    public static function isComposer($path)
+    {
+        $path = rtrim($path, '/');
+        return file_exists($path.'/composer.json');
     }
 
     /**
@@ -295,8 +303,6 @@ class Git
      * Check to see if the given tag name has changes to the HEAD of the repository
      * returns a list of changed files
      *
-     * Edit the self:$DIFF_EXCLUDED parameter to set the ignored files
-     *
      * @param string $tagName
      * @return array
      */
@@ -316,7 +322,7 @@ class Git
             if (!preg_match('/^[a-z]\s+(\S+)/i', $line, $regs)) {
                 continue;
             }
-            if (in_array(trim($regs[1]), self::$DIFF_EXCLUDED)) {
+            if (in_array(trim($regs[1]), $this->getConfig()->get('diff.exclude.files'))) {
                 continue;
             }
             $changed[] = trim($regs[1]);
@@ -645,9 +651,13 @@ class Git
         return $version;
     }
 
-
-
-
+    /**
+     * @return \Tk\Config
+     */
+    public function getConfig()
+    {
+        return \Tk\Config::getInstance();
+    }
 
 
     protected function writeStrong($str = '', $options = OutputInterface::VERBOSITY_NORMAL)

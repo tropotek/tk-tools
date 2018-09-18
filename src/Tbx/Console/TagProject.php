@@ -47,6 +47,8 @@ class TagProject extends Iface
         parent::execute($input, $output);
         $vb = $output->getVerbosity();
 
+        if (!\Tbx\Git::isGit($this->getCwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $curVer = $vcs->getCurrentTag();
@@ -68,14 +70,14 @@ class TagProject extends Iface
             }
         }
 
-        if ($input->getOption('noLibs') || !count(\Tbx\Git::$VENDOR_PATHS)) return;
-        foreach (\Tbx\Git::$VENDOR_PATHS as $vPath) {
+        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
+        foreach ($this->getVendorPaths() as $vPath) {
             $vendorPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (!is_dir($vendorPath)) continue;
             foreach (new \DirectoryIterator($vendorPath) as $res) {
                 if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
                 $path = $res->getRealPath();
-                if (!$res->isDir() && !is_dir($path.'/.git')) continue;
+                if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
                 try {
                     $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                     $v->setInputOutput($input, $output);

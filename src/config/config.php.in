@@ -6,12 +6,15 @@
  */
 $config = \Tk\Config::getInstance();
 
-// Deprecated
-$vendorPaths = array('/vendor/fvas', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/theme');
+/*
+ * Vendor paths to look for libs we manage
+ */
+$config['vendor.paths'] = array('/vendor/fvas', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/html');
 
-//Use this one!!!
-$config['vendor.paths'] = array('/vendor/fvas', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/theme');
-
+/*
+ *File to ignore when we are doing a comparison from this repo to the remote repo
+ */
+$config['diff.exclude.files'] = array('composer.json', 'changelog.md');
 
 /*
  * Enable exception emails
