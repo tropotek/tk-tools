@@ -45,6 +45,7 @@ FILES=(
   'tk.php'
   'tkCommit.php'
   'tkDbBackupMysql.sh'
+  'tkDbRestoreMysql.sh'
   'tkLdapFind'
   'tklog'
   'tkMd5.php'
