@@ -1,9 +1,16 @@
 TODO
 ====
 
+
+ - Update Tag Project command. The sub-libs should be tagged first, then we can   
+   run `composer update` and a `git commit` on the project befor tagging it.
+   The possability exist to modify all the version in the composer.json if needed.
+   this would allow every release to be static (oshould be configurable)
+
  - Package all tools into a tk.phar file so the `tk` can be the launch command for all build tools
    See this link: [http://moquet.net/blog/distributing-php-cli/][phar_tutorial]
    Also check out composer's compiler code: [\Composer\Compiler class][phar_composer]
+
  - Once a framework for the phar package is created migrate all commands into the phar package
    ready for execution: EG:
 ```
