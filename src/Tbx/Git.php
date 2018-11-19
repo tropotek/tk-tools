@@ -560,7 +560,9 @@ class Git
 
         // First Commit before tag to ensure all auto updated file changes are committed
         $currentBranch = $this->getCurrentBranch();
-        $message= 'Preparing branch ' . $currentBranch . ' for new release';
+
+        // TODO: note this $currentBranch will always be master here, we want the prev version tag???s
+        $message= 'Tagging branch ' . $currentBranch . ' for release ' . $version;
         $this->writeComment($message);
         $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $this->commit($message);
@@ -605,6 +607,15 @@ class Git
      */
     public function tagRelease($options, $version = '')
     {
+        $version = $this->lookupNewTag($options, $version);
+        $this->tag($version);
+
+        return $version;
+    }
+
+
+    public function lookupNewTag($options, $version = '')
+    {
         // Get tag/version information
         $currentBranch = $this->getCurrentBranch();
         $curVer = $this->getCurrentTag();
@@ -636,20 +647,14 @@ class Git
         }
 
         if (version_compare($version, end($tagList), '<=')) {
-            $this->writeError('Version missmatch, check that you have the latest version of the project checked out.');
+            $this->writeError('Version mismatch, check that you have the latest version of the project checked out.');
             return $curVer;
         }
 
-        $this->tag($version);
-
-        // Return the the branch we where at originally???? Is this needed
-        $this->checkout($currentBranch);
-        if ($composerObj && !empty($options['json'])) {
-            $composerObj->version = $version;
-            return \Tbx\Util::jsonPrettyPrint(json_encode($composerObj));
-        }
         return $version;
     }
+
+
 
     /**
      * @return \Tk\Config
