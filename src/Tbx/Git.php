@@ -609,7 +609,6 @@ class Git
     {
         $version = $this->lookupNewTag($options, $version);
         $this->tag($version);
-
         return $version;
     }
 
