@@ -40,7 +40,6 @@ unless supplied as a param with --version=x.x.x
         $this->setName('tag')
             ->addOption('name', 't', InputOption::VALUE_OPTIONAL, 'Specify a tag version name.', '')
             ->addOption('notStable', 's', InputOption::VALUE_NONE, 'Default stable(even) version tag (1.0.2, 1.0.4, etc). Set to enable odd version increments (1.0.1, 1.0.3, etc).')
-            ->addOption('json', 'j', InputOption::VALUE_NONE, 'Show the composer.json to stdout on completion.')
             ->addOption('forceTag', 'f', InputOption::VALUE_NONE, 'Forces a tag version even if there is no change from the previous version.')
 
             //->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
@@ -57,10 +56,10 @@ unless supplied as a param with --version=x.x.x
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-
-        if ($input->getOption('json')) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-        }
+//
+//        if ($input->getOption('json')) {
+//            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+//        }
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());

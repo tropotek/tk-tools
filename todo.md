@@ -1,9 +1,24 @@
-TODO
-====
+# TODO v2.0
+
+
+ - Update Tag Project command. The sub-libs should be tagged first, then we can   
+   run `composer update` and a `git commit` on the project befor tagging it.
+ - To fully handle static releases and make them work out of the box
+   we need to update the composer.json ttek lib versions and make them exact to
+   the version that the site was released with. This will allow us to roll back 
+   the site when needed (in emergencies as in the VOCE site recently).
+ - Whenever a major tag is released create a branch for the old major version
+   so that we can make updates to that branch if needed. the master branch
+   should always contain the most current working version
+
+
+
+# TODO V3.0
 
  - Package all tools into a tk.phar file so the `tk` can be the launch command for all build tools
    See this link: [http://moquet.net/blog/distributing-php-cli/][phar_tutorial]
    Also check out composer's compiler code: [\Composer\Compiler class][phar_composer]
+
  - Once a framework for the phar package is created migrate all commands into the phar package
    ready for execution: EG:
 ```

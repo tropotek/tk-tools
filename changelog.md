@@ -1,5 +1,14 @@
 #CHANGELOG#
 
+Ver 1.2.60 [2018-11-22]:
+-------------------------------
+
+
+Ver 1.2.58 [2018-11-20]:
+-------------------------------
+  - Merge branch 'master' of github.com:tropotek/tk-tools
+
+
 Ver 1.2.56 [2018-09-17]:
 -------------------------------
   - Fixed non repo errors

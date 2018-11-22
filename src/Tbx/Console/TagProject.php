@@ -61,7 +61,15 @@ class TagProject extends Iface
             $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);
 
+            // TODO: Tag this after the libs
+            // TODO:
+            // TODO: The edit the composer.json ttek libs versions so they are fixed versions
+            // TODO: This will allow us to roll back when needed
+            // TODO: IE: Also in the site upgrade command, we need to backup the DB
+            // TODO:     in the data folder somewhere after each version?
+            // TODO:
             $version = $vcs->tagRelease($input->getOptions());
+
             if (version_compare($version, $curVer, '>')) {
                 $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);

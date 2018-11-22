@@ -20,6 +20,7 @@ class TagShow extends Iface
     {
         $this->setName('tagShow')
             ->setAliases(array('ts'))
+            ->addOption('nextTag', 't', InputOption::VALUE_NONE, 'Display next release tag.')
             ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
             ->setDescription("Run from the root of a ttek project.");
@@ -44,6 +45,10 @@ class TagShow extends Iface
         $tag = $vcs->getCurrentTag();
         if ($tag)
             $this->writeComment($tag);
+        if ($input->getOption('nextTag')) {
+            $nextTag = $vcs->lookupNewTag($input->getOptions());
+            $this->writeBlue($nextTag);
+        }
 
         if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
         foreach ($this->getVendorPaths() as $vPath) {
@@ -60,6 +65,10 @@ class TagShow extends Iface
                         $tag = $v->getCurrentTag();
                         if ($tag)
                             $this->writeComment($tag);
+                            if ($input->getOption('nextTag')) {
+                                $nextTag = $v->lookupNewTag($input->getOptions());
+                                $this->writeBlue($nextTag);
+                            }
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }
