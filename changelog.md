@@ -1,5 +1,9 @@
 #CHANGELOG#
 
+Ver 1.3.2 [2018-12-20]:
+-------------------------------
+
+
 Ver 1.3.0 [2018-12-20]:
 -------------------------------
   - Updating TagProject to handle static releases
