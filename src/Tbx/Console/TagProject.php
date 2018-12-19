@@ -87,6 +87,7 @@ class TagProject extends Iface
 
         // Tag Project
 
+        chdir($projectPath);
         $vcs = \Tbx\Git::create($projectPath, $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $projCurVer = $vcs->getCurrentTag();
@@ -95,11 +96,9 @@ class TagProject extends Iface
         if ($vcs->isDiff($projCurVer)) {
             $title = sprintf('%-11s %s', '['.$projCurVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);
-            vd();
-            $version = $vcs->tagRelease($input->getOptions(), true);
-vd();
-            if (version_compare($version, $projCurVer, '>')) {
-                $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $projVersion = $vcs->tagRelease($input->getOptions(), '', true);
+            if (version_compare($projVersion, $projCurVer, '>')) {
+                $this->write('New Version: ' . $projVersion, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
             } else {
                 $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);

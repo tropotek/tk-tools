@@ -39,7 +39,7 @@ class TagShow extends Iface
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
 
-        $sformat = '<info>%-20s</info> <comment>%-12s %-12s</comment>';
+        $sformat = '<info>%-25s</info> <comment>%-12s %-12s</comment>';
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $projName = basename($vcs->getPath());

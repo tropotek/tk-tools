@@ -181,7 +181,9 @@ class Git
             throw new \Exception('Error: Not a GIT repository - ' . $path);
         }
         $this->path = $path;
-        chdir($this->path);
+//        if (!chdir($this->path)) {
+//            throw new \Exception('Cannot change directory: ' . $path);
+//        }
         return $this;
     }
 
@@ -191,6 +193,14 @@ class Git
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGitArgs()
+    {
+        return ' -C ' . escapeshellarg($this->path);
     }
 
     /**
@@ -204,11 +214,27 @@ class Git
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        $name = basename($this->getPath());
+        $composerFile = $this->getPath() . '/composer.json';
+        if (is_file($composerFile)) {
+            $composerObj = json_decode(file_get_contents($composerFile));
+            if ($composerObj and property_exists($composerObj, 'name')) {
+                $name = $composerObj->name;
+            }
+        }
+        return $name;
+    }
+
+    /**
      * Get the current branch
      */
     public function getCurrentBranch()
     {
-        $cmd = sprintf('git branch 2>&1 ');
+        $cmd = sprintf('git %s branch 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -239,7 +265,7 @@ class Git
      */
     public function getCurrentTag()
     {
-        $cmd = sprintf('git describe --abbrev=0 --tags --always 2>&1 ');
+        $cmd = sprintf('git %s describe --abbrev=0 --tags --always 2>&1 ', $this->getGitArgs());
         $lastLine = exec($cmd, $this->cmdBuf);
         return $lastLine;
     }
@@ -255,10 +281,10 @@ class Git
             $this->cmdBuf = array();
             $this->tagList = array();
 
-            $cmd = 'git tag 2>&1 ';
+            $cmd = sprintf('git %s tag 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
             exec($cmd, $this->cmdBuf);
-            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
 
             foreach($this->cmdBuf as $line) {
                 $line = trim($line);
@@ -280,7 +306,7 @@ class Git
      */
     public function getStatus()
     {
-        $cmd = sprintf('git status 2>&1 ');
+        $cmd = sprintf('git %s status 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf);
         $buff = '';
@@ -300,7 +326,7 @@ class Git
     {
         if (!$this->uri) {
             $this->cmdBuf = array();
-            $cmd = 'git remote -v 2>&1 ';
+            $cmd = sprintf('git %s remote -v 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
             exec($cmd, $this->cmdBuf);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
@@ -329,7 +355,7 @@ class Git
         }
         $this->cmdBuf = array();
         $tagName = trim($tagName, '/');
-        $cmd = 'git diff --name-status 2>&1 '.escapeshellarg($tagName).' HEAD';
+        $cmd = sprintf('git %s diff --name-status 2>&1 %s HEAD', $this->getGitArgs(), escapeshellarg($tagName));
         $this->write($this->getPath(), OutputInterface::VERBOSITY_VERY_VERBOSE);
         $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
         exec($cmd, $this->cmdBuf);
@@ -382,7 +408,7 @@ class Git
                 $message = self::DEFAULT_MESSAGE;
             }
             // Check for any changes in this repository
-            $cmd = sprintf('git status -s --untracked-files=no 2>&1 ');
+            $cmd = sprintf('git %s status -s --untracked-files=no 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
             $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
@@ -390,7 +416,7 @@ class Git
         }
 
         // Try committing any changes if any
-        $cmd = sprintf('git commit -am %s 2>&1 ', escapeshellarg($message));
+        $cmd = sprintf('git %s commit -am %s 2>&1 ', $this->getGitArgs(), escapeshellarg($message));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
@@ -409,7 +435,7 @@ class Git
         }
 
         $this->cmdBuf = array();
-        $cmd = sprintf('git push 2>&1 ');
+        $cmd = sprintf('git %s push 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
@@ -433,12 +459,12 @@ class Git
         $this->cmdBuf = array();
 
         // Does not seem to speed things up any
-//        $cmd = sprintf('git fetch --dry-run');
+//        $cmd = sprintf('git %s fetch --dry-run', $this->getGitArgs());
 //        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
 //        $lastLine = exec($cmd, $this->cmdBuf, $ret);
 //        if (!$lastLine) return $this;
 
-        $cmd = sprintf('git pull 2>&1 ');
+        $cmd = sprintf('git %s pull 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
 
@@ -468,7 +494,7 @@ class Git
     public function checkout($branch = 'master')
     {
         $this->cmdBuf = array();
-        $cmd = sprintf('git checkout %s 2>&1 ', escapeshellarg($branch));
+        $cmd = sprintf('git %s checkout %s 2>&1 ', $this->getGitArgs(), escapeshellarg($branch));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
@@ -488,7 +514,7 @@ class Git
         $exists = array();
         $logs = array();
 
-        $cmd = sprintf('git log --oneline %s..HEAD 2>&1 ', escapeshellarg($version));
+        $cmd = sprintf('git %s log --oneline %s..HEAD 2>&1 ', $this->getGitArgs(), escapeshellarg($version));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf, $ret);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
@@ -552,16 +578,17 @@ class Git
 
             if ($staticVersions) {
                 $tagList = $this->getCurrentTags(array());
-
-                vd($tagList);
-
+                //vd($tagList);
                 if (is_array($tagList) && count($tagList) > 1) {
                     foreach ($tagList as $name => $list) {
-
-                        //vd($name, basename($this->getPath()));
                         if ($name == basename($this->getPath())) continue;
-
+                        if (property_exists($composerObj->require, $name)) {
+                            $composerObj->require->{$name} = $list['next'];
+                        }
                     }
+                }
+                if ($this->isDryRun()) {
+                    $this->writeComment(\Tbx\Util::jsonPrettyPrint(json_encode($composerObj)), OutputInterface::VERBOSITY_VERBOSE);
                 }
             }
 
@@ -587,7 +614,7 @@ class Git
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
             }
-            $this->write($log, OutputInterface::VERBOSITY_DEBUG);
+            $this->write($this->changelog, OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
         // Save updated changelog file
         if ($log && $this->changelog) {
@@ -612,14 +639,14 @@ class Git
         $message = 'Tagging new release: ' . $version;
         $this->writeComment($message);
 
-        $cmd = sprintf("git tag -a %s -m %s 2>&1 ", $version, escapeshellarg($message) );
+        $cmd = sprintf("git %s tag -a %s -m %s 2>&1 ", $this->getGitArgs(), $version, escapeshellarg($message) );
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             exec($cmd, $this->cmdBuf);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
         $this->cmdBuf = array();
-        $cmd = sprintf("git push --tags 2>&1 ");
+        $cmd = sprintf("git %s push --tags 2>&1 ", $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             exec($cmd, $this->cmdBuf);
@@ -694,6 +721,8 @@ class Git
         return $version;
     }
 
+
+
     /**
      * @param $options
      * @return array
@@ -704,7 +733,7 @@ class Git
 
         $tag = $this->getCurrentTag();
         $nextTag = $this->lookupNewTag($options);
-        $tagList[basename($this->getPath())] = array('curr' => $tag, 'next' => $nextTag);
+        $tagList[$this->getName()] = array('curr' => $tag, 'next' => $nextTag);
 
         if (!is_array($this->getConfig()->get('vendor.paths'))) return $tagList;
         foreach ($this->getConfig()->get('vendor.paths') as $vPath) {
@@ -715,11 +744,11 @@ class Git
                     $path = $res->getRealPath();
                     if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
                     try {
-                        $v = \Tbx\Git::create($path, $options['dryRun']);
+                        $v = \Tbx\Git::create($path, !empty($options['dryRun']));
                         $v->setInputOutput($this->getInput(), $this->getOutput());
                         $tag = $v->getCurrentTag();
                         $nextTag = $v->lookupNewTag($options);
-                        $tagList[basename($v->getPath())] = array('curr' => $tag, 'next' => $nextTag);
+                        $tagList[$v->getName()] = array('curr' => $tag, 'next' => $nextTag);
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }
