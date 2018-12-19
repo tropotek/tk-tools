@@ -19,8 +19,8 @@ class TagShow extends Iface
     protected function configure()
     {
         $this->setName('tagShow')
-            ->setAliases(array('ts'))
-            ->addOption('nextTag', 't', InputOption::VALUE_NONE, 'Display next release tag.')
+            ->setAliases(array('tags', 'ts'))
+            ->addOption('nextTag', 't', InputOption::VALUE_NONE, 'Display next release tag if this project is to be released.')
             ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
             ->setDescription("Run from the root of a ttek project.");
@@ -40,15 +40,14 @@ class TagShow extends Iface
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
-        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
+        $sformat = '<info>%-20s</info> <comment>%-12s %-12s</comment>';
         $tag = $vcs->getCurrentTag();
-        if ($tag)
-            $this->writeComment($tag);
+        $nextTag = '';
         if ($input->getOption('nextTag')) {
             $nextTag = $vcs->lookupNewTag($input->getOptions());
-            $this->writeBlue($nextTag);
         }
+        $this->getOutput()->writeln(sprintf($sformat, basename($vcs->getPath()), $tag, $nextTag));
 
         if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
         foreach ($this->getVendorPaths() as $vPath) {
@@ -61,14 +60,12 @@ class TagShow extends Iface
                     try {
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
-                        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
                         $tag = $v->getCurrentTag();
-                        if ($tag)
-                            $this->writeComment($tag);
-                            if ($input->getOption('nextTag')) {
-                                $nextTag = $v->lookupNewTag($input->getOptions());
-                                $this->writeBlue($nextTag);
-                            }
+                        $nextTag = '';
+                        if ($input->getOption('nextTag')) {
+                            $nextTag = $v->lookupNewTag($input->getOptions());
+                        }
+                        $this->getOutput()->writeln(sprintf($sformat, basename($v->getPath()), $tag, $nextTag));
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }

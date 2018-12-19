@@ -616,7 +616,8 @@ class Git
     public function lookupNewTag($options, $version = '')
     {
         // Get tag/version information
-        $currentBranch = $this->getCurrentBranch();
+        //$currentBranch = $this->getCurrentBranch();
+
         $curVer = $this->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
         $tagList = $this->getTagList();
