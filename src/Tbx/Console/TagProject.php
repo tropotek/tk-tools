@@ -87,15 +87,17 @@ class TagProject extends Iface
             }
         }
 
+
         // Tag Project
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
+        vd($curVer, $vcs->isDiff($curVer));
         if ($vcs->isDiff($curVer)) {
             $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);
-
+            vd();
             $version = $vcs->tagRelease($input->getOptions(), true);
-
+vd();
             if (version_compare($version, $curVer, '>')) {
                 $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
