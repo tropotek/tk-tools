@@ -330,9 +330,10 @@ class Git
         $this->cmdBuf = array();
         $tagName = trim($tagName, '/');
         $cmd = 'git diff --name-status 2>&1 '.escapeshellarg($tagName).' HEAD';
-        $this->write($cmd, OutputInterface::VERBOSITY_DEBUG);
+        $this->write($this->getPath(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
         exec($cmd, $this->cmdBuf);
-        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         $changed = array();
         foreach($this->cmdBuf as $line) {
             if (!preg_match('/^[a-z]\s+(\S+)/i', $line, $regs)) {
@@ -586,7 +587,7 @@ class Git
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
             }
-            $this->write($log, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $this->write($log, OutputInterface::VERBOSITY_DEBUG);
         }
         // Save updated changelog file
         if ($log && $this->changelog) {
