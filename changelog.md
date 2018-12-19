@@ -7,6 +7,13 @@ Ver 1.3.2 [2018-12-20]:
 Ver 1.3.0 [2018-12-20]:
 -------------------------------
   - Updating TagProject to handle static releases
+ - Update Tag Project command. The sub-libs should be tagged first, then we can   
+   run `composer update` and a `git commit` on the project befor tagging it.
+ - To fully handle static releases and make them work out of the box
+   we need to update the composer.json ttek lib versions and make them exact to
+   the version that the site was released with. This will allow us to roll back 
+   the site when needed (in emergencies as in the VOCE site recently).
+
 
 
 Ver 1.3.0 [2018-12-20]:

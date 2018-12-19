@@ -35,11 +35,3 @@ $ tk help [cmd]                        // basic help text for package
 
 
 # DONE 
-
- - Update Tag Project command. The sub-libs should be tagged first, then we can   
-   run `composer update` and a `git commit` on the project befor tagging it.
- - To fully handle static releases and make them work out of the box
-   we need to update the composer.json ttek lib versions and make them exact to
-   the version that the site was released with. This will allow us to roll back 
-   the site when needed (in emergencies as in the VOCE site recently).
-
