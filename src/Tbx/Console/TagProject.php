@@ -49,14 +49,12 @@ class TagProject extends Iface
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
-        $vcs->setInputOutput($input, $output);
-
+        $projectPath = rtrim($this->getCwd(), '/');
 
         // Tag Libs
         if (!$input->getOption('noLibs') && count($this->getVendorPaths())) {
             foreach ($this->getVendorPaths() as $vPath) {
-                $vendorPath = rtrim($vcs->getPath(), '/') . $vPath;
+                $vendorPath = $projectPath . $vPath;
                 if (!is_dir($vendorPath)) continue;
                 foreach (new \DirectoryIterator($vendorPath) as $res) {
                     if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
@@ -75,7 +73,7 @@ class TagProject extends Iface
                             $version = $v->tagRelease($input->getOptions());
                             if (version_compare($version, $curVer, '>')) {
                                 $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
-                                $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                                $this->writeGrey('Changelog: ' . $v->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
                             } else {
                                 $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
                             }
@@ -87,18 +85,20 @@ class TagProject extends Iface
             }
         }
 
-
         // Tag Project
-        $curVer = $vcs->getCurrentTag();
-        if (!$curVer) $curVer = '0.0.0';
-        vd($curVer, $vcs->isDiff($curVer));
-        if ($vcs->isDiff($curVer)) {
-            $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
+
+        $vcs = \Tbx\Git::create($projectPath, $input->getOption('dryRun'));
+        $vcs->setInputOutput($input, $output);
+        $projCurVer = $vcs->getCurrentTag();
+
+        if (!$projCurVer) $projCurVer = '0.0.0';
+        if ($vcs->isDiff($projCurVer)) {
+            $title = sprintf('%-11s %s', '['.$projCurVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);
             vd();
             $version = $vcs->tagRelease($input->getOptions(), true);
 vd();
-            if (version_compare($version, $curVer, '>')) {
+            if (version_compare($version, $projCurVer, '>')) {
                 $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
             } else {
