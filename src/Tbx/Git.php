@@ -135,6 +135,22 @@ class Git
     }
 
     /**
+     * @return OutputInterface
+     */
+    public function getOutput()
+    {
+        return $this->output;
+    }
+
+    /**
+     * @return InputInterface
+     */
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    /**
      * @param bool $b
      * @return $this
      */
@@ -339,7 +355,6 @@ class Git
      * changes have been committed or not.
      *
      * @param string $tagName The tag/version name of the tag folder
-     * @param array  $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
      * @return integer
      */
     public function isDiff($tagName)
@@ -507,9 +522,10 @@ class Git
      * Tag a repository, basically copy the release to a tag and update the changelog
      *
      * @param string $version A version string in the format of x.x.x
+     * @param bool $staticVersions Set this to true to modify the composer.json to use static versions for tk lib packages
      * @throws \Exception
      */
-    protected function tag($version)
+    protected function tag($version, $staticVersions = false)
     {
         $composerFile = $this->getPath() . '/composer.json';
         $changelogFile = $this->getPath() . '/changelog.md';
@@ -526,10 +542,32 @@ class Git
             $composerObj->time = date('Y-m-d');
             if (property_exists($composerObj, 'minimum-stability')) {
                 $composerObj->{'minimum-stability'} = 'stable';
-
             }
+
+            // TODO: The edit the composer.json ttek libs versions so they are fixed versions
+            // TODO: This will allow us to roll back when needed
+            // TODO: IE: Also in the site upgrade command, we need to backup the DB
+            // TODO:   in the data folder somewhere after each version?
+
+            if ($staticVersions) {
+                $tagList = $this->getCurrentTags(array());
+
+                vd($tagList);
+
+                if (is_array($tagList) && count($tagList) > 1) {
+                    foreach ($tagList as $name => $list) {
+
+                        //vd($name, basename($this->getPath()));
+                        if ($name == basename($this->getPath())) continue;
+
+                    }
+                }
+            }
+
             $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
-            file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
+            if (!$this->isDryRun()) {
+                file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
+            }
         }
 
         // Update the changelog file with any commit messages since the last tag
@@ -602,13 +640,14 @@ class Git
     /**
      * @param string $version
      * @param array $options
+     * @param bool $staticVersions Set this to true to modify the composer.json to use static versions for tk lib packages
      * @return string
      * @throws \Exception
      */
-    public function tagRelease($options, $version = '')
+    public function tagRelease($options, $version = '', $staticVersions = false)
     {
         $version = $this->lookupNewTag($options, $version);
-        $this->tag($version);
+        $this->tag($version, $staticVersions);
         return $version;
     }
 
@@ -654,6 +693,42 @@ class Git
         return $version;
     }
 
+    /**
+     * @param $options
+     * @return array
+     */
+    public function getCurrentTags($options)
+    {
+        $tagList = array();
+
+        $tag = $this->getCurrentTag();
+        $nextTag = $this->lookupNewTag($options);
+        $tagList[basename($this->getPath())] = array('curr' => $tag, 'next' => $nextTag);
+
+        if (!is_array($this->getConfig()->get('vendor.paths'))) return $tagList;
+        foreach ($this->getConfig()->get('vendor.paths') as $vPath) {
+            $libPath = rtrim($this->getPath(), '/') . $vPath;
+            if (is_dir($libPath)) {      // If vendor path exists
+                foreach (new \DirectoryIterator($libPath) as $res) {
+                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
+                    $path = $res->getRealPath();
+                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
+                    try {
+                        $v = \Tbx\Git::create($path, $options['dryRun']);
+                        $v->setInputOutput($this->getInput(), $this->getOutput());
+                        $tag = $v->getCurrentTag();
+                        $nextTag = $v->lookupNewTag($options);
+                        $tagList[basename($v->getPath())] = array('curr' => $tag, 'next' => $nextTag);
+                    } catch (\Exception $e) {
+                        $this->writeError($e->getMessage());
+                    }
+                }
+            }
+        }
+
+        return $tagList;
+    }
+
 
 
     /**
@@ -691,8 +766,8 @@ class Git
 
     protected function write($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        if ($this->output)
-            return $this->output->writeln($str, $options);
+        if ($this->getOutput())
+            return $this->getOutput()->writeln($str, $options);
     }
 
 }

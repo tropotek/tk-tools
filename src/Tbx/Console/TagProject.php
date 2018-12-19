@@ -51,23 +51,86 @@ class TagProject extends Iface
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
+
+
+        // Tag Libs
+        if (!$input->getOption('noLibs') && count($this->getVendorPaths())) {
+            foreach ($this->getVendorPaths() as $vPath) {
+                $vendorPath = rtrim($vcs->getPath(), '/') . $vPath;
+                if (!is_dir($vendorPath)) continue;
+                foreach (new \DirectoryIterator($vendorPath) as $res) {
+                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
+                    $path = $res->getRealPath();
+                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
+                    try {
+                        $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
+                        $v->setInputOutput($input, $output);
+                        $curVer = $v->getCurrentTag();
+                        if (!$curVer) $curVer = '0.0.0';
+
+                        if ($v->isDiff($curVer)) {
+                            $title = sprintf('%-11s %s', '[' . $curVer . ']', basename($v->getPath()));
+                            $this->writeInfo($title);
+
+                            $version = $v->tagRelease($input->getOptions());
+                            if (version_compare($version, $curVer, '>')) {
+                                $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
+                                $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                            } else {
+                                $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        $this->writeError($e->getMessage());
+                    }
+                }
+            }
+        }
+
+        // Tag Project
+        $curVer = $vcs->getCurrentTag();
+        if (!$curVer) $curVer = '0.0.0';
+        if ($vcs->isDiff($curVer)) {
+            $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
+            $this->writeStrongInfo($title);
+
+            $version = $vcs->tagRelease($input->getOptions(), true);
+
+            if (version_compare($version, $curVer, '>')) {
+                $this->write('New Version: ' . $version, OutputInterface::VERBOSITY_VERY_VERBOSE);
+                $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+            } else {
+                $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
+            }
+        }
+
+
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|null|void
+     * @throws \Exception
+     */
+    protected function execute_org(InputInterface $input, OutputInterface $output)
+    {
+        parent::execute($input, $output);
+        $vb = $output->getVerbosity();
+
+        if (!\Tbx\Git::isGit($this->getCwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
+        $vcs->setInputOutput($input, $output);
         $curVer = $vcs->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
 
 
         // Tag Project
         if ($vcs->isDiff($curVer)) {
-            $title = sprintf('%-20s %s', basename($vcs->getPath()), '['.$curVer.']');
+            //$title = sprintf('%-20s %s', basename($vcs->getPath()), '['.$curVer.']');
             $title = sprintf('%-11s %s', '['.$curVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);
-
-            // TODO: Tag this after the libs
-            // TODO:
-            // TODO: The edit the composer.json ttek libs versions so they are fixed versions
-            // TODO: This will allow us to roll back when needed
-            // TODO: IE: Also in the site upgrade command, we need to backup the DB
-            // TODO:     in the data folder somewhere after each version?
-            // TODO:
             $version = $vcs->tagRelease($input->getOptions());
 
             if (version_compare($version, $curVer, '>')) {
@@ -93,7 +156,7 @@ class TagProject extends Iface
                     if (!$curVer) $curVer = '0.0.0';
 
                     if ($v->isDiff($curVer)) {
-                        $title = sprintf('%-30s %s', basename($v->getPath()), '[' . $curVer . ']');
+                        //$title = sprintf('%-30s %s', basename($v->getPath()), '[' . $curVer . ']');
                         $title = sprintf('%-11s %s', '[' . $curVer . ']', basename($v->getPath()));
                         $this->writeInfo($title);
 
@@ -110,7 +173,6 @@ class TagProject extends Iface
                 }
             }
         }
-
 
 
     }

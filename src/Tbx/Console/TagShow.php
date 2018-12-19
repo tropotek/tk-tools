@@ -38,39 +38,20 @@ class TagShow extends Iface
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
-        $vcs->setInputOutput($input, $output);
 
         $sformat = '<info>%-20s</info> <comment>%-12s %-12s</comment>';
-        $tag = $vcs->getCurrentTag();
-        $nextTag = '';
-        if ($input->getOption('nextTag')) {
-            $nextTag = $vcs->lookupNewTag($input->getOptions());
-        }
-        $this->getOutput()->writeln(sprintf($sformat, basename($vcs->getPath()), $tag, $nextTag));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
+        $vcs->setInputOutput($input, $output);
+        $projName = basename($vcs->getPath());
 
-        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
-        foreach ($this->getVendorPaths() as $vPath) {
-            $libPath = rtrim($vcs->getPath(), '/') . $vPath;
-            if (is_dir($libPath)) {      // If vendor path exists
-                foreach (new \DirectoryIterator($libPath) as $res) {
-                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
-                    $path = $res->getRealPath();
-                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
-                    try {
-                        $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
-                        $v->setInputOutput($input, $output);
-                        $tag = $v->getCurrentTag();
-                        $nextTag = '';
-                        if ($input->getOption('nextTag')) {
-                            $nextTag = $v->lookupNewTag($input->getOptions());
-                        }
-                        $this->getOutput()->writeln(sprintf($sformat, basename($v->getPath()), $tag, $nextTag));
-                    } catch (\Exception $e) {
-                        $this->writeError($e->getMessage());
-                    }
-                }
+        $tagList = $vcs->getCurrentTags($input->getOptions());
+        foreach ($tagList as $name => $list) {
+            if ($input->getOption('noLibs') && $name != $projName) continue;
+            $nextTag = '';
+            if ($input->getOption('nextTag')) {
+                $nextTag = $list['next'];
             }
+            $this->getOutput()->writeln(sprintf($sformat, $name, $list['curr'], $nextTag));
         }
 
     }
