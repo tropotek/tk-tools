@@ -37,6 +37,11 @@ class Git
     protected $path = '';
 
     /**
+     * @var string
+     */
+    protected $name = null;
+
+    /**
      * If true nothing is committed to the repository
      * @var boolean
      */
@@ -170,6 +175,24 @@ class Git
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        if (!$this->name) {
+            $this->name = basename($this->getPath());
+            $composerFile = $this->getPath() . '/composer.json';
+            if (is_file($composerFile)) {
+                $composerObj = json_decode(file_get_contents($composerFile));
+                if ($composerObj && property_exists($composerObj, 'name')) {
+                    $this->name = $composerObj->name;
+                }
+            }
+        }
+        return $this->name;
+    }
+
+    /**
      * @param $path
      * @return $this
      * @throws \Exception
@@ -181,9 +204,6 @@ class Git
             throw new \Exception('Error: Not a GIT repository - ' . $path);
         }
         $this->path = $path;
-//        if (!chdir($this->path)) {
-//            throw new \Exception('Cannot change directory: ' . $path);
-//        }
         return $this;
     }
 
@@ -200,7 +220,7 @@ class Git
      */
     public function getGitArgs()
     {
-        return ' -C ' . escapeshellarg($this->path);
+        return ' -C ' . escapeshellarg($this->getPath());
     }
 
     /**
@@ -211,22 +231,6 @@ class Git
     public function getChangelog()
     {
         return $this->changelog;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        $name = basename($this->getPath());
-        $composerFile = $this->getPath() . '/composer.json';
-        if (is_file($composerFile)) {
-            $composerObj = json_decode(file_get_contents($composerFile));
-            if ($composerObj and property_exists($composerObj, 'name')) {
-                $name = $composerObj->name;
-            }
-        }
-        return $name;
     }
 
     /**
@@ -400,9 +404,7 @@ class Git
     public function commit($message = '', $force = false)
     {
         $this->cmdBuf = array();
-
         $ret = null;
-
         if (!$force) {
             if (!$message) {
                 $message = self::DEFAULT_MESSAGE;

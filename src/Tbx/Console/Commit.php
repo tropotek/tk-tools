@@ -39,8 +39,6 @@ class Commit extends Iface
     {
         parent::execute($input, $output);
 
-        if (!\Tbx\Git::isGit($this->getCwd()))
-            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
@@ -53,14 +51,15 @@ class Commit extends Iface
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
                 foreach (new \DirectoryIterator($libPath) as $res) {
-                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
+                    if ($res->isDot() || !$res->isDir() || substr($res->getFilename(), 0, 1) == '_') continue;
                     $path = $res->getRealPath();
-                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
                     try {
+                        if (!\Tbx\Git::isGit($path)) continue;  // Stop unnecessary errors
+
                         $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
                         $v->setInputOutput($input, $output);
                         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
-                        $vcs->commit($message, $input->getOption('force'));
+                        $v->commit($message, $input->getOption('force'));
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }
