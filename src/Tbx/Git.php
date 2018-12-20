@@ -37,6 +37,11 @@ class Git
     protected $path = '';
 
     /**
+     * @var string
+     */
+    protected $name = null;
+
+    /**
      * If true nothing is committed to the repository
      * @var boolean
      */
@@ -135,6 +140,22 @@ class Git
     }
 
     /**
+     * @return OutputInterface
+     */
+    public function getOutput()
+    {
+        return $this->output;
+    }
+
+    /**
+     * @return InputInterface
+     */
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    /**
      * @param bool $b
      * @return $this
      */
@@ -154,6 +175,24 @@ class Git
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        if (!$this->name) {
+            $this->name = basename($this->getPath());
+            $composerFile = $this->getPath() . '/composer.json';
+            if (is_file($composerFile)) {
+                $composerObj = json_decode(file_get_contents($composerFile));
+                if ($composerObj && property_exists($composerObj, 'name')) {
+                    $this->name = $composerObj->name;
+                }
+            }
+        }
+        return $this->name;
+    }
+
+    /**
      * @param $path
      * @return $this
      * @throws \Exception
@@ -165,7 +204,6 @@ class Git
             throw new \Exception('Error: Not a GIT repository - ' . $path);
         }
         $this->path = $path;
-        chdir($this->path);
         return $this;
     }
 
@@ -175,6 +213,14 @@ class Git
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGitArgs()
+    {
+        return ' -C ' . escapeshellarg($this->getPath());
     }
 
     /**
@@ -192,7 +238,7 @@ class Git
      */
     public function getCurrentBranch()
     {
-        $cmd = sprintf('git branch 2>&1 ');
+        $cmd = sprintf('git %s branch 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -223,7 +269,7 @@ class Git
      */
     public function getCurrentTag()
     {
-        $cmd = sprintf('git describe --abbrev=0 --tags --always 2>&1 ');
+        $cmd = sprintf('git %s describe --abbrev=0 --tags --always 2>&1 ', $this->getGitArgs());
         $lastLine = exec($cmd, $this->cmdBuf);
         return $lastLine;
     }
@@ -239,10 +285,10 @@ class Git
             $this->cmdBuf = array();
             $this->tagList = array();
 
-            $cmd = 'git tag 2>&1 ';
+            $cmd = sprintf('git %s tag 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
             exec($cmd, $this->cmdBuf);
-            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
 
             foreach($this->cmdBuf as $line) {
                 $line = trim($line);
@@ -264,7 +310,7 @@ class Git
      */
     public function getStatus()
     {
-        $cmd = sprintf('git status 2>&1 ');
+        $cmd = sprintf('git %s status 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf);
         $buff = '';
@@ -284,7 +330,7 @@ class Git
     {
         if (!$this->uri) {
             $this->cmdBuf = array();
-            $cmd = 'git remote -v 2>&1 ';
+            $cmd = sprintf('git %s remote -v 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
             exec($cmd, $this->cmdBuf);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
@@ -313,10 +359,11 @@ class Git
         }
         $this->cmdBuf = array();
         $tagName = trim($tagName, '/');
-        $cmd = 'git diff --name-status 2>&1 '.escapeshellarg($tagName).' HEAD';
-        $this->write($cmd, OutputInterface::VERBOSITY_DEBUG);
+        $cmd = sprintf('git %s diff --name-status 2>&1 %s HEAD', $this->getGitArgs(), escapeshellarg($tagName));
+        $this->write($this->getPath(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
         exec($cmd, $this->cmdBuf);
-        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         $changed = array();
         foreach($this->cmdBuf as $line) {
             if (!preg_match('/^[a-z]\s+(\S+)/i', $line, $regs)) {
@@ -339,7 +386,6 @@ class Git
      * changes have been committed or not.
      *
      * @param string $tagName The tag/version name of the tag folder
-     * @param array  $excludeFiles All files must have the initial / removed as it is assumed relative to the project.
      * @return integer
      */
     public function isDiff($tagName)
@@ -358,15 +404,13 @@ class Git
     public function commit($message = '', $force = false)
     {
         $this->cmdBuf = array();
-
         $ret = null;
-
         if (!$force) {
             if (!$message) {
                 $message = self::DEFAULT_MESSAGE;
             }
             // Check for any changes in this repository
-            $cmd = sprintf('git status -s --untracked-files=no 2>&1 ');
+            $cmd = sprintf('git %s status -s --untracked-files=no 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
             $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
@@ -374,7 +418,7 @@ class Git
         }
 
         // Try committing any changes if any
-        $cmd = sprintf('git commit -am %s 2>&1 ', escapeshellarg($message));
+        $cmd = sprintf('git %s commit -am %s 2>&1 ', $this->getGitArgs(), escapeshellarg($message));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
@@ -393,7 +437,7 @@ class Git
         }
 
         $this->cmdBuf = array();
-        $cmd = sprintf('git push 2>&1 ');
+        $cmd = sprintf('git %s push 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
@@ -417,12 +461,12 @@ class Git
         $this->cmdBuf = array();
 
         // Does not seem to speed things up any
-//        $cmd = sprintf('git fetch --dry-run');
+//        $cmd = sprintf('git %s fetch --dry-run', $this->getGitArgs());
 //        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
 //        $lastLine = exec($cmd, $this->cmdBuf, $ret);
 //        if (!$lastLine) return $this;
 
-        $cmd = sprintf('git pull 2>&1 ');
+        $cmd = sprintf('git %s pull 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
 
@@ -452,7 +496,7 @@ class Git
     public function checkout($branch = 'master')
     {
         $this->cmdBuf = array();
-        $cmd = sprintf('git checkout %s 2>&1 ', escapeshellarg($branch));
+        $cmd = sprintf('git %s checkout %s 2>&1 ', $this->getGitArgs(), escapeshellarg($branch));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
@@ -472,7 +516,7 @@ class Git
         $exists = array();
         $logs = array();
 
-        $cmd = sprintf('git log --oneline %s..HEAD 2>&1 ', escapeshellarg($version));
+        $cmd = sprintf('git %s log --oneline %s..HEAD 2>&1 ', $this->getGitArgs(), escapeshellarg($version));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf, $ret);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
@@ -507,9 +551,10 @@ class Git
      * Tag a repository, basically copy the release to a tag and update the changelog
      *
      * @param string $version A version string in the format of x.x.x
+     * @param bool $staticVersions Set this to true to modify the composer.json to use static versions for tk lib packages
      * @throws \Exception
      */
-    protected function tag($version)
+    protected function tag($version, $staticVersions = false)
     {
         $composerFile = $this->getPath() . '/composer.json';
         $changelogFile = $this->getPath() . '/changelog.md';
@@ -526,10 +571,33 @@ class Git
             $composerObj->time = date('Y-m-d');
             if (property_exists($composerObj, 'minimum-stability')) {
                 $composerObj->{'minimum-stability'} = 'stable';
-
             }
+
+            // TODO: The edit the composer.json ttek libs versions so they are fixed versions
+            // TODO: This will allow us to roll back when needed
+            // TODO: IE: Also in the site upgrade command, we need to backup the DB
+            // TODO:   in the data folder somewhere after each version?
+
+            if ($staticVersions) {
+                $tagList = $this->getCurrentTags(array());
+                //vd($tagList);
+                if (is_array($tagList) && count($tagList) > 1) {
+                    foreach ($tagList as $name => $list) {
+                        if ($name == basename($this->getPath())) continue;
+                        if (property_exists($composerObj->require, $name)) {
+                            $composerObj->require->{$name} = $list['next'];
+                        }
+                    }
+                }
+                if ($this->isDryRun()) {
+                    $this->writeComment(\Tbx\Util::jsonPrettyPrint(json_encode($composerObj)), OutputInterface::VERBOSITY_VERBOSE);
+                }
+            }
+
             $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
-            file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
+            if (!$this->isDryRun()) {
+                file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
+            }
         }
 
         // Update the changelog file with any commit messages since the last tag
@@ -548,7 +616,7 @@ class Git
                 $changelog = $logTag . "\n\n" . $this->changelog;
                 $log = str_replace($logTag, $changelog, $log);
             }
-            $this->write($log, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $this->write($this->changelog, OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
         // Save updated changelog file
         if ($log && $this->changelog) {
@@ -573,14 +641,14 @@ class Git
         $message = 'Tagging new release: ' . $version;
         $this->writeComment($message);
 
-        $cmd = sprintf("git tag -a %s -m %s 2>&1 ", $version, escapeshellarg($message) );
+        $cmd = sprintf("git %s tag -a %s -m %s 2>&1 ", $this->getGitArgs(), $version, escapeshellarg($message) );
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             exec($cmd, $this->cmdBuf);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
         $this->cmdBuf = array();
-        $cmd = sprintf("git push --tags 2>&1 ");
+        $cmd = sprintf("git %s push --tags 2>&1 ", $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             exec($cmd, $this->cmdBuf);
@@ -602,13 +670,14 @@ class Git
     /**
      * @param string $version
      * @param array $options
+     * @param bool $staticVersions Set this to true to modify the composer.json to use static versions for tk lib packages
      * @return string
      * @throws \Exception
      */
-    public function tagRelease($options, $version = '')
+    public function tagRelease($options, $version = '', $staticVersions = false)
     {
         $version = $this->lookupNewTag($options, $version);
-        $this->tag($version);
+        $this->tag($version, $staticVersions);
         return $version;
     }
 
@@ -616,7 +685,8 @@ class Git
     public function lookupNewTag($options, $version = '')
     {
         // Get tag/version information
-        $currentBranch = $this->getCurrentBranch();
+        //$currentBranch = $this->getCurrentBranch();
+
         $curVer = $this->getCurrentTag();
         if (!$curVer) $curVer = '0.0.0';
         $tagList = $this->getTagList();
@@ -656,6 +726,44 @@ class Git
 
 
     /**
+     * @param $options
+     * @return array
+     */
+    public function getCurrentTags($options)
+    {
+        $tagList = array();
+
+        $tag = $this->getCurrentTag();
+        $nextTag = $this->lookupNewTag($options);
+        $tagList[$this->getName()] = array('curr' => $tag, 'next' => $nextTag);
+
+        if (!is_array($this->getConfig()->get('vendor.paths'))) return $tagList;
+        foreach ($this->getConfig()->get('vendor.paths') as $vPath) {
+            $libPath = rtrim($this->getPath(), '/') . $vPath;
+            if (is_dir($libPath)) {      // If vendor path exists
+                foreach (new \DirectoryIterator($libPath) as $res) {
+                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
+                    $path = $res->getRealPath();
+                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
+                    try {
+                        $v = \Tbx\Git::create($path, !empty($options['dryRun']));
+                        $v->setInputOutput($this->getInput(), $this->getOutput());
+                        $tag = $v->getCurrentTag();
+                        $nextTag = $v->lookupNewTag($options);
+                        $tagList[$v->getName()] = array('curr' => $tag, 'next' => $nextTag);
+                    } catch (\Exception $e) {
+                        $this->writeError($e->getMessage());
+                    }
+                }
+            }
+        }
+
+        return $tagList;
+    }
+
+
+
+    /**
      * @return \Tk\Config
      */
     public function getConfig()
@@ -690,8 +798,8 @@ class Git
 
     protected function write($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        if ($this->output)
-            return $this->output->writeln($str, $options);
+        if ($this->getOutput())
+            return $this->getOutput()->writeln($str, $options);
     }
 
 }
