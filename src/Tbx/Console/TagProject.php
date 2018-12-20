@@ -86,8 +86,6 @@ class TagProject extends Iface
         }
 
         // Tag Project
-
-        chdir($projectPath);
         $vcs = \Tbx\Git::create($projectPath, $input->getOption('dryRun'));
         $vcs->setInputOutput($input, $output);
         $projCurVer = $vcs->getCurrentTag();
@@ -96,7 +94,15 @@ class TagProject extends Iface
         if ($vcs->isDiff($projCurVer)) {
             $title = sprintf('%-11s %s', '['.$projCurVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);
-            $projVersion = $vcs->tagRelease($input->getOptions(), '', true);
+
+            // TODO:
+            // TODO: Static Versioning has an issue....
+            // TODO: It seem we have conflicts, this could be due to the lib requires versions,
+            // TODO: we may have to either edit all libs to update there release versions too????
+            // TODO:   Have to test a release and see what the cause is... For now we will
+            // TODO:   leave static version off until it is sorted, A job for 2019... ;-)
+
+            $projVersion = $vcs->tagRelease($input->getOptions(), '', false);
             if (version_compare($projVersion, $projCurVer, '>')) {
                 $this->write('New Version: ' . $projVersion, OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
