@@ -723,7 +723,8 @@ class Git
             }
         }
         reset($tagList);
-vd($tagList,$curVer, $version, end($tagList));
+//vd($tagList,$curVer, $version, end($tagList));
+
         if (version_compare($version, end($tagList), '<=')) {
             $this->writeError('Version mismatch, check that you have the latest version of the project checked out.');
             return $curVer;
