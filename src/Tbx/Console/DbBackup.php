@@ -19,64 +19,65 @@ class DbBackup extends Iface
      */
     protected function configure()
     {
+        $timestamp = date(\Tk\Date::FORMAT_ISO_DATE);
         $this->setName('dbBackup')
+            ->setAliases(array('db'))
+            ->addOption('user', 'U', InputOption::VALUE_OPTIONAL, 'The database username.', 'dev')
+            ->addOption('pass', 'P', InputOption::VALUE_OPTIONAL, 'The database password.', 'dev007')
+            ->addOption('host', 'H', InputOption::VALUE_OPTIONAL, 'The database password.', 'localhost')
+            ->addOption('type', 'T', InputOption::VALUE_OPTIONAL, 'The database type.', 'mysql')
+            ->addOption('name', 'N', InputOption::VALUE_OPTIONAL, 'The database name to dump, if none then all available databases are dumped', '')
+            ->addOption('path', 'p', InputOption::VALUE_OPTIONAL, 'The path to save the archive.', $this->getCwd())
+            ->addOption('backupName', 'B', InputOption::VALUE_OPTIONAL, 'the name of the archive', 'dbBackup-' . $timestamp)
             ->setDescription('Backup all tables in a DB');
     }
+
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|null|void
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
+        $options = $input->getOptions();
 
-        $timestamp = date(\Tk\Date::FORMAT_ISO_DATE);
-        $tempPath = sys_get_temp_dir();
-        $backupDir = $tempPath . '/dbBackup-' . $timestamp;
+        $backupName = $options['backupName'];
+        $tempPath = sys_get_temp_dir().'/tk-dbBackup-'.getmyuid();
+        $backupDir = $tempPath . '/' . $backupName;
+        $archivePath = $tempPath . '/' . $backupName . '.tgz';
 
-        $dbUser = 'dev';
-        $dbPass = 'dev007';
-        $dbHost = 'localhost';
-        $db = new \Tk\Db\Pdo($dsn, $username, $password, array());
+        if (!is_dir($backupDir))
+            mkdir($backupDir, 0777, true);
 
+        $exclude = array('Database', 'information_schema', 'performance_schema', 'phpmyadmin', 'mysql');
+        $databaseList = array($input->getOption('name'));
+        if (!$input->getOption('name')) {
+            $dsn = 'mysql:host='.$options['host'];
+            $db = new \PDO($dsn, $options['user'], $options['pass'], array());
+            $dbs = $db->query('SHOW DATABASES');
+            $databaseList = $dbs->fetchAll(\PDO::FETCH_COLUMN, 0);
+        }
 
+        foreach ($databaseList as $dbName) {
+            if (in_array($dbName, $exclude)) continue;
+            $this->writeStrong($dbName);
+            $options['name'] = $dbName;
+            $db = \Tk\Db\Pdo::create($options);
+            \Tk\Util\SqlBackup::create($db)->save($backupDir.'/'.$dbName.'.sql');
+        }
 
+        $cmd = sprintf('cd %s && tar zcf %s %s ', $tempPath, basename($archivePath), basename($backupDir));
+        $this->writeComment($cmd);
+        system($cmd);
 
-        vd($timestamp, $tempPath);
+        $cmd = sprintf('mv %s %s ', $archivePath, $options['path']);
+        $this->writeComment($cmd);
+        system($cmd);
 
-
-
-
-
-
-
-
-//        $this->writeInfo(ucwords($this->getName()));
-//
-//        $options = $input->getOptions();
-//        $arguments = $input->getArguments();
-//        $iniOptions = $input->getIniOptions();
-//
-//        $this->writeRed('writeRed');
-//        $this->writeGrey('writeGrey');
-//        $this->writeBlue('writeBlue');
-//        $this->writeStrongBlue('writeStrongBlue');
-//        $this->writeStrong('writeStrong');
-//        $this->writeInfo('writeInfo');
-//        $this->writeStrongInfo('writeStrongInfo');
-//        $this->writeComment('writeComment');
-//        $this->writeQuestion('writeQuestion');
-//        $this->writeError('writeError');
-//        $this->write('write');
-
-
-
-
-
+        \Tk\File::rmdir($tempPath);
     }
-
-
 
 }
