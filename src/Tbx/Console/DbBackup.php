@@ -52,7 +52,7 @@ class DbBackup extends Iface
         if (!is_dir($backupDir))
             mkdir($backupDir, 0777, true);
 
-        $exclude = array('Database', 'information_schema', 'performance_schema', 'phpmyadmin', 'mysql');
+        $exclude = array('Database', 'information_schema', 'performance_schema', 'phpmyadmin', 'mysql', 'dbispconfig', 'roundcube');
         $databaseList = array($input->getOption('name'));
         if (!$input->getOption('name')) {
             $dsn = 'mysql:host='.$options['host'];
