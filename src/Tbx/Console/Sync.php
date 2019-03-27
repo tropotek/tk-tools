@@ -77,7 +77,7 @@ class Sync extends Iface
 
         foreach ($hostList as $host => $options) {
             $backupPath = $path.'/'.$host;
-            if (!is_dir($backupPath))
+            if (!file_exists($backupPath))
                 mkdir($backupPath, 0777, true);
 
             // Backup database to a daily namespace so we can have 5 days of DB backups
