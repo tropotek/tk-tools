@@ -269,9 +269,16 @@ class Git
      */
     public function getCurrentTag()
     {
-        $cmd = sprintf('git %s describe --abbrev=0 --tags --always 2>&1 ', $this->getGitArgs());
-        $lastLine = exec($cmd, $this->cmdBuf);
-        return $lastLine;
+        //$cmd = sprintf('git %s describe --abbrev=0 --tags --always 2>&1 ', $this->getGitArgs());
+        //$ver = exec($cmd, $this->cmdBuf);
+        // TODO: there was an error here that I could not work out it was picking up the first tag rather than the current one,
+        // TODO: Maybe it is not needed????
+
+        $ver = '1.0.0';
+        $tags = $this->getTagList();
+        if (is_array($tags))
+            $ver = end($tags);
+        return $ver;
     }
 
     /**
@@ -708,12 +715,15 @@ class Git
                 }
             }
         }
+
         if (!$version || version_compare($version, $curVer, '<')) {
             $version = \Tbx\Util::incrementVersion($curVer, $aliasVer);
             if (empty($options['notStable']) && ((int)substr($version, strrpos($version, '.')+1) % 2) > 0) {
                 $version = \Tbx\Util::incrementVersion($version, $aliasVer);
             }
         }
+        reset($tagList);
+//vd($tagList,$curVer, $version, end($tagList));
 
         if (version_compare($version, end($tagList), '<=')) {
             $this->writeError('Version mismatch, check that you have the latest version of the project checked out.');
