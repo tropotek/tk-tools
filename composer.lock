@@ -649,12 +649,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-http.git",
-                "reference": "309c2efd7c225f909eff088855fdf7b13959d88f"
+                "reference": "da4918728f3de756ad811eae394f948f3b6ef91d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-http/zipball/309c2efd7c225f909eff088855fdf7b13959d88f",
-                "reference": "309c2efd7c225f909eff088855fdf7b13959d88f",
+                "url": "https://api.github.com/repos/tropotek/tk-http/zipball/da4918728f3de756ad811eae394f948f3b6ef91d",
+                "reference": "da4918728f3de756ad811eae394f948f3b6ef91d",
                 "shasum": ""
             },
             "require": {
@@ -690,7 +690,7 @@
                 "http",
                 "tropotek"
             ],
-            "time": "2018-12-13T01:04:01+00:00"
+            "time": "2018-12-19T22:12:42+00:00"
         },
         {
             "name": "ttek/tk-mvc",
