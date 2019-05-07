@@ -76,9 +76,13 @@ class Sync extends Iface
 
 
         foreach ($hostList as $host => $options) {
-            $backupPath = $path.'/'.$host;
-            if (!file_exists($backupPath))
+            $backupPath = $path . '/' . $host;
+
+            //if (!file_exists($backupPath))
+            if (!is_dir($backupPath)) {
+                // TODO: I think this causes errors on a windows filesystem when a files of the same name exists
                 mkdir($backupPath, 0777, true);
+            }
 
             // Backup database to a daily namespace so we can have 5 days of DB backups
             $dbArchFile = $backupPath . '/' . $host.'-'.date('D') . '.tgz';
