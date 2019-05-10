@@ -25,7 +25,6 @@
     },
     "require":  {
         "php": ">=7.1.0",
-
         "ttek/tk-framework": "dev-3beta as 3.0.x-dev",
         "ttek/tk-database": "dev-3beta as 3.0.x-dev",
 
