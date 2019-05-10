@@ -1,7 +1,7 @@
 {
     "name": "ttek/tk-tools",
     "type": "project",
-    "description": "The tropotek framework tools package. Useful scripts to help developing tropotek apps.",
+    "description": "Tk lib framework commands.",
     "keywords":  [
         "Tbx",
         "tools",
@@ -29,7 +29,8 @@
         "ttek/tk-framework": "dev-3beta as 3.0.x-dev",
         "ttek/tk-database": "dev-3beta as 3.0.x-dev",
 
-        "ttek/tk-mvc": "dev-3beta as 3.0.x-dev"
+        "ttek/tk-mvc": "dev-3beta as 3.0.x-dev",
+        "ttek/tk-installers": "dev-3beta as 3.0.x-dev"
     },
     "extra":  {
         "branch-alias":  {
