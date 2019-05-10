@@ -43,23 +43,11 @@ fi
 
 FILES=(
   'tk.php'
-  'tkCommit.php'
-  'tkDbBackupMysql.sh'
-  'tkDbRestoreMysql.sh'
   'tkLdapFind'
   'tklog'
-  'tkMd5.php'
-  'tkPassGen.php'
-  'tkStatus.php'
   'tkStrreplace.php'
-  'tkTag.php'
-  'tkTagProject.php'
-  'tkTagShow.php'
   'tkToUtf8.php'
   'tkTraceAnalyser.php'
-  'tkUpdate.php'
-  'tkVidHtml5Cnv'
-  'www_fix.sh'
 )
 
 

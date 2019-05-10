@@ -163,7 +163,7 @@ class Svn extends Iface
             $jsonTag = json_decode($json);
             $jsonTag->version = $version;
             $jsonTag->time = $date->format('Y-m-d');
-            $this->setFileContents('/composer.json', jsonPrettyPrint(json_encode($jsonTag)));
+            $this->setFileContents('/composer.json', \Tbx\Util::jsonPrettyPrint(json_encode($jsonTag)));
             //$this->commit('tag: Updated composer.json for tag release');
             $this->commit();
         }

@@ -183,7 +183,7 @@ class Git
             $this->name = basename($this->getPath());
             $composerFile = $this->getPath() . '/composer.json';
             if (is_file($composerFile)) {
-                $composerObj = json_decode(file_get_contents($composerFile));
+                $composerObj = \Tbx\Util::jsonDecode(file_get_contents($composerFile));
                 if ($composerObj && property_exists($composerObj, 'name')) {
                     $this->name = $composerObj->name;
                 }
@@ -572,7 +572,7 @@ class Git
         $composerJson = null;       // Orig master dev composer json, should not be modified
         if (is_file($composerFile)) {
             $composerJson = file_get_contents($composerFile);
-            $composerObj = json_decode($composerJson);
+            $composerObj = \Tbx\Util::jsonDecode($composerJson);
 
             // Setup the new tagged composer.json version
             $composerObj->version = $version;
@@ -598,13 +598,13 @@ class Git
                     }
                 }
                 if ($this->isDryRun()) {
-                    $this->writeComment(\Tbx\Util::jsonPrettyPrint(json_encode($composerObj)), OutputInterface::VERBOSITY_VERBOSE);
+                    $this->writeComment(\Tbx\Util::jsonEncode($composerObj), OutputInterface::VERBOSITY_VERBOSE);
                 }
             }
 
             $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
-                file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
+                file_put_contents($composerFile, \Tbx\Util::jsonEncode($composerObj));
             }
         }
 
@@ -708,7 +708,7 @@ class Git
         $aliasVer = '';
         $composerFile = $this->getPath() . '/composer.json';
         if (is_file($composerFile)) {
-            $composerObj = json_decode(file_get_contents($composerFile));
+            $composerObj = \Tbx\Util::jsonDecode(file_get_contents($composerFile));
             if ($composerObj) {     // Find branch-alias so we can get the major version X.X.x-dev
                 if (isset($composerObj->extra->{'branch-alias'}->{'dev-master'})) {
                     $aliasVer = $composerObj->extra->{'branch-alias'}->{'dev-master'};

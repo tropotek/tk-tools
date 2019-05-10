@@ -8,7 +8,7 @@
  * @license Copyright 2005 Michael Mifsud
  */
 //include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
-include dirname(__FILE__).'/prepend.php';
+include dirname(__FILE__) . '/prepend.php';
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
@@ -148,7 +148,7 @@ try {
     }
 
     // Tag released changed
-    $pkgTrunk = $pkg = json_decode(file_get_contents('composer.json'));
+    $pkgTrunk = $pkg = \Tbx\Util::jsonEncode(file_get_contents('composer.json'));
     $vcs->log('Tagging: ' . $pkg->name);
 
     if ($pkg) {
@@ -181,7 +181,7 @@ try {
     $vcs->log("  Changelog:\n\n" . $vcs->getChangelog(), \Tbx\Vcs\Adapter\Git::LOG_V);
 
     if ($json) {
-        $vcs->log(jsonPrettyPrint(json_encode($pkg)), \Tbx\Vcs\Adapter\Git::LOG_V);
+        $vcs->log(\Tbx\Util::jsonEncode($pkg), \Tbx\Vcs\Adapter\Git::LOG_V);
     }
 
     echo "\n";

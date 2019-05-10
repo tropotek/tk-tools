@@ -293,7 +293,7 @@ vd({array}): Array
             $jsonTag = json_decode($json);
             $jsonTag->version = $version;
             $jsonTag->time = date('Y-m-d');
-            file_put_contents('composer.json', jsonPrettyPrint(json_encode($jsonTag)));
+            file_put_contents('composer.json', \Tbx\Util::jsonPrettyPrint(json_encode($jsonTag)));
             $this->commit();
         }
 

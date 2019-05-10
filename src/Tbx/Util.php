@@ -84,6 +84,26 @@ class Util
     }
 
     /**
+     * @param mixed $obj
+     * @return string
+     */
+    public static function jsonEncode($obj)
+    {
+        return self::jsonPrettyPrint(json_encode($obj));
+    }
+
+    /**
+     * @param string $json
+     * @return mixed
+     */
+    public static function jsonDecode($json)
+    {
+        $str = json_decode($json);
+        return $str;
+    }
+
+
+    /**
      * Format JSON to text or HTML
      *
      * @param $json
