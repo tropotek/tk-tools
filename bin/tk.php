@@ -18,10 +18,19 @@ try {
     $input = new ArgvInput();
     $output = new ConsoleOutput();
 
-    $composer = json_decode(file_get_contents(dirname(__DIR__) . '/composer.json'));
+    $composer = \Tbx\Util::jsonDecode(file_get_contents(dirname(__DIR__) . '/composer.json'));
     $title = 'Tropotek Command Utilities';
     $ver = $composer->version;
+
+    $config = \Tk\Config::getInstance();
+
     $app = new Application($title, $ver);
+
+    $dispatcher = new \Tk\EventDispatcher\EventDispatcher();
+    if ($config->get('event.dispatcher.log')) {
+        $dispatcher->setLogger($config->getLog());
+    }
+    $app->setDispatcher($dispatcher);
 
     //Determine Environment
     $env = $input->getParameterOption(array('--env', '-e'), getenv('MYAPP_ENV') ?: 'prod');
