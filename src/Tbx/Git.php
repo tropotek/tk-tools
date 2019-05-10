@@ -243,7 +243,8 @@ class Git
         exec($cmd, $this->cmdBuf);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         foreach($this->cmdBuf as $line) {
-            if (preg_match('/^\* (b[0-9]+\.[0-9]+\.[0-9]+)/', $line, $regs)) {
+            if (preg_match('/^\* (.+)/', $line, $regs)) {
+            //if (preg_match('/^\* (b[0-9]+\.[0-9]+\.[0-9]+)/', $line, $regs)) {
                 return $regs[1];
             }
         }
