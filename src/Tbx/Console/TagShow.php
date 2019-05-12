@@ -40,18 +40,36 @@ class TagShow extends Iface
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
 
         $sformat = '<info>%-25s</info> <comment>%-12s %-12s</comment>';
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
-        $projName = basename($vcs->getPath());
+        $tag = $vcs->getCurrentTag($vcs->getBranchAlias());
+        $nextTag = $vcs->lookupNextTag($tag);
 
-        $tagList = $vcs->getCurrentTags($input->getOptions());
-        foreach ($tagList as $name => $list) {
-            if ($input->getOption('noLibs') && $name != $projName) continue;
-            $nextTag = '';
-            if ($input->getOption('nextTag')) {
-                $nextTag = $list['next'];
+        $this->getOutput()->writeln(sprintf($sformat, $vcs->getName(), $tag, $nextTag));
+
+        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
+        foreach ($this->getConfig()->get('vendor.paths') as $vPath) {
+            $libPath = rtrim($vcs->getPath(), '/') . $vPath;
+            if (is_dir($libPath)) {      // If vendor path exists
+                foreach (new \DirectoryIterator($libPath) as $res) {
+                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
+                    $path = $res->getRealPath();
+                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
+                    try {
+
+                        $v = \Tbx\Git::create($path, $input->getOptions());
+                        $v->setInputOutput($this->getInput(), $this->getOutput());
+                        $tag = $v->getCurrentTag($v->getBranchAlias());
+                        $nextTag = $v->lookupNextTag($tag);
+
+                        $this->getOutput()->writeln(sprintf($sformat, $v->getName(), $tag, $nextTag));
+                        //$tagList[$v->getName()] = array('curr' => $tag, 'next' => $nextTag);
+
+                    } catch (\Exception $e) {
+                        $this->writeError($e->getMessage());
+                    }
+                }
             }
-            $this->getOutput()->writeln(sprintf($sformat, $name, $list['curr'], $nextTag));
         }
 
     }

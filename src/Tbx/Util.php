@@ -43,14 +43,14 @@ class Util
      *    of 1.3.9 then the result will be 1.3.10
      *
      * @param string  $currVersion The current version to increment
-     * @param string  $maskVersion The proposed mask version. Default 0.0.x
+     * @param string  $maskVersion The proposed mask version, the last version value is ignored. Default 0.0.x
      * @param integer $step The number to increment the version by. Default 1
      * @return string
      */
     public static function incrementVersion($currVersion, $maskVersion = '0.0.x', $step = 1)
     {
         preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $currVersion, $currParts);
-        preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $maskVersion, $maskParts);
+        preg_match('/^([0-9]+)\.([0-9]+)\.([a-z0-9\-_]+)$/', $maskVersion, $maskParts);
         $ver = '1.0.0';
         if (count($maskParts) && version_compare($currParts[1] . '.' . $currParts[2], $maskParts[1] . '.' . $maskParts[2], '<')) {
             return $maskParts[1] . '.' . $maskParts[2] . '.0';

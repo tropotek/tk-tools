@@ -37,16 +37,13 @@ class Tag extends Iface
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-//
-//        if ($input->getOption('json')) {
-//            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-//        }
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
-        $curVer = $vcs->getCurrentTag();
+
+        $curVer = $vcs->getCurrentTag($vcs->getBranchAlias());
         if (!$curVer) {
             $curVer = '0.0.0';
         }
@@ -55,12 +52,7 @@ class Tag extends Iface
         $this->write('Curr Ver: ' . $curVer);
         $this->write('Remote Origin: ' . $vcs->getUri());
 
-        $version = $vcs->tagRelease($input->getOptions(), $input->getOption('name'));
-//        if ($input->getOption('json')) {
-//            $output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
-//            $this->write($version);
-//            return;
-//        }
+        $version = $vcs->tagRelease($input->getOption('name'));
 
         if (version_compare($version, $curVer, '>')) {
             $this->write('New Tag Released');
