@@ -692,7 +692,6 @@ class Git
             $this->getOption('forceTag', false) ||
             !count($this->getTagList()) ||
             preg_match('/\.x$/', $curTag) ||        // if no major version exists
-            //version_compare($curTag, '0.0.0', '<') ||
             $this->isDiff($curTag))
         {
             return true;
