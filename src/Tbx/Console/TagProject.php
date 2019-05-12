@@ -88,8 +88,6 @@ class TagProject extends Iface
         $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $projCurVer = $vcs->getCurrentTag($vcs->getBranchAlias());
-
-        if (!$projCurVer) $projCurVer = '0.0.0';
         if ($vcs->isDiff($projCurVer)) {
             $title = sprintf('%-11s %s', '['.$projCurVer.']', basename($vcs->getPath()));
             $this->writeStrongInfo($title);

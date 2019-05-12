@@ -1,5 +1,10 @@
 #CHANGELOG#
 
+Ver 3.0.0 [2019-05-13]:
+-------------------------------
+  - Merge branch 'master' of github.com:tropotek/tk-tools
+
+
 Ver 1.3.6 [2018-12-20]:
 -------------------------------
 

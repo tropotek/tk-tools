@@ -338,7 +338,9 @@ class Git
      */
     public function isDiff($tagName)
     {
-        return count($this->diff($tagName));
+        return
+            preg_match('/\.x$/', $tagName) ||        // if no major version exists
+            count($this->diff($tagName));
     }
 
     /**
@@ -408,18 +410,10 @@ class Git
     {
         $this->cmdBuf = array();
 
-        // Does not seem to speed things up any
-//        $cmd = sprintf('git %s fetch --dry-run', $this->getGitArgs());
-//        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
-//        $lastLine = exec($cmd, $this->cmdBuf, $ret);
-//        if (!$lastLine) return $this;
-
         $cmd = sprintf('git %s pull 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
 
-        // TODO: Look for a nicer way to handle this
-        //$this->writeComment(implode("\n", $this->cmdBuf));
         if (count($this->cmdBuf) && $lastLine) {
             $out = implode("\n", $this->cmdBuf);
             if (preg_match('/error:/', $out)) {
@@ -582,8 +576,6 @@ class Git
         $this->output->setVerbosity($vb);
 
         $this->cmdBuf = array();
-//        $message = 'Tagging new release: ' . $version;
-//        $this->writeComment($message);
         $cmd = sprintf("git %s tag -a %s -m %s 2>&1 ", $this->getGitArgs(), $version, escapeshellarg($message) );
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -638,7 +630,7 @@ class Git
      */
     public function getCurrentTag($branchAlias = '')
     {
-        $ver = '1.0.0';
+        $ver = '1.0.x';
         $tags = $this->getTagList();
         if ($branchAlias) {
             $verPrefix = substr($branchAlias, 0, strrpos($branchAlias, '.'));
@@ -691,7 +683,6 @@ class Git
         if (
             $this->getOption('forceTag', false) ||
             !count($this->getTagList()) ||
-            preg_match('/\.x$/', $curTag) ||        // if no major version exists
             $this->isDiff($curTag))
         {
             return true;
