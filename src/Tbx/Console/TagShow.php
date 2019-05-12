@@ -44,7 +44,6 @@ class TagShow extends Iface
         $vcs->setInputOutput($input, $output);
         $tag = $vcs->getCurrentTag($vcs->getBranchAlias());
         $nextTag = $vcs->lookupNextTag($tag);
-
         $this->getOutput()->writeln(sprintf($sformat, $vcs->getName(), $tag, $nextTag));
 
         if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
@@ -61,10 +60,7 @@ class TagShow extends Iface
                         $v->setInputOutput($this->getInput(), $this->getOutput());
                         $tag = $v->getCurrentTag($v->getBranchAlias());
                         $nextTag = $v->lookupNextTag($tag);
-
                         $this->getOutput()->writeln(sprintf($sformat, $v->getName(), $tag, $nextTag));
-                        //$tagList[$v->getName()] = array('curr' => $tag, 'next' => $nextTag);
-
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }
