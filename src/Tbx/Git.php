@@ -144,7 +144,7 @@ class Git
      */
     public function isDryRun()
     {
-        return isset($this->options['dryRun']) && $this->options['dryRun'] == true;
+        return $this->getOption('dryRun', false);
     }
 
     /**
@@ -669,7 +669,7 @@ class Git
             $alias = substr($curTag, 0, strrpos($curTag, '.')).'.x';
         }
         $step = 2;
-        $notStable = empty($this->options['notStable']) ? false : (bool)$this->options['notStable'];
+        $notStable = $this->getOption('notStable', false);
         if ($notStable) {   // increment ver by 1
             $step = 1;
         } else {
@@ -688,7 +688,7 @@ class Git
     public function canCreateTag($curTag = '')
     {
         if (
-            $this->options['forceTag'] ||
+            $this->getOption('forceTag', false) ||
             !count($this->getTagList()) ||
             //version_compare($curTag, '0.0.0', '<') ||
             $this->isDiff($curTag))
@@ -751,6 +751,28 @@ class Git
     public function getConfig()
     {
         return \Tk\Config::getInstance();
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasOption($name)
+    {
+        return !empty($this->options[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @param null|mixed $default
+     * @return mixed|null
+     */
+    public function getOption($name, $default = null)
+    {
+        if ($this->hasOption($name)) {
+            return $this->options[$name];
+        }
+        return $default;
     }
 
     /**
