@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5685a3686959c13d4598006cc2623865",
+    "content-hash": "ccaa768b7390eeb028f7866547a589c2",
     "packages": [
         {
             "name": "monolog/monolog",
@@ -1053,16 +1053,16 @@
         },
         {
             "name": "ttek/tk-database",
-            "version": "dev-3beta",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-database.git",
-                "reference": "f101dcef19289c19bc65052a2f5bbaa3ec297bbb"
+                "reference": "8582ce2684b89af8688cd471f6a62d5a37eeaedd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/f101dcef19289c19bc65052a2f5bbaa3ec297bbb",
-                "reference": "f101dcef19289c19bc65052a2f5bbaa3ec297bbb",
+                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/8582ce2684b89af8688cd471f6a62d5a37eeaedd",
+                "reference": "8582ce2684b89af8688cd471f6a62d5a37eeaedd",
                 "shasum": ""
             },
             "require": {
@@ -1096,20 +1096,20 @@
                 "database",
                 "tropotek"
             ],
-            "time": "2019-05-09T22:26:23+00:00"
+            "time": "2019-05-12T22:02:34+00:00"
         },
         {
             "name": "ttek/tk-framework",
-            "version": "dev-3beta",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "1f482fc37fba91f49f31f7fd0fa58234c85bf930"
+                "reference": "1c04762df7aad2bea91b491ef2a63eacf2815925"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/1f482fc37fba91f49f31f7fd0fa58234c85bf930",
-                "reference": "1f482fc37fba91f49f31f7fd0fa58234c85bf930",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/1c04762df7aad2bea91b491ef2a63eacf2815925",
+                "reference": "1c04762df7aad2bea91b491ef2a63eacf2815925",
                 "shasum": ""
             },
             "require": {
@@ -1147,26 +1147,26 @@
                     "homepage": "http://www.tropotek.com/"
                 }
             ],
-            "description": "Tropotek Framework V2",
+            "description": "Tropotek Framework",
             "keywords": [
                 "Tk",
                 "framework",
                 "tropotek"
             ],
-            "time": "2019-05-10T02:40:38+00:00"
+            "time": "2019-05-12T01:30:43+00:00"
         },
         {
             "name": "ttek/tk-installers",
-            "version": "dev-3beta",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-installers.git",
-                "reference": "95bbf43879e93688ef29d1ee4c320685be28a2be"
+                "reference": "bb441106bd7214ce59a51ac1dab9abba9e0a2655"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-installers/zipball/95bbf43879e93688ef29d1ee4c320685be28a2be",
-                "reference": "95bbf43879e93688ef29d1ee4c320685be28a2be",
+                "url": "https://api.github.com/repos/tropotek/tk-installers/zipball/bb441106bd7214ce59a51ac1dab9abba9e0a2655",
+                "reference": "bb441106bd7214ce59a51ac1dab9abba9e0a2655",
                 "shasum": ""
             },
             "require": {
@@ -1205,20 +1205,20 @@
                 "tools",
                 "tropotek"
             ],
-            "time": "2019-05-10T21:21:59+00:00"
+            "time": "2019-05-12T01:38:57+00:00"
         },
         {
             "name": "ttek/tk-mvc",
-            "version": "dev-3beta",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-mvc.git",
-                "reference": "9aa8fd5a964219e485afd6480a9cbfed62f8374b"
+                "reference": "6a5a617a221310d67ef847f52fc297b772e43074"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-mvc/zipball/9aa8fd5a964219e485afd6480a9cbfed62f8374b",
-                "reference": "9aa8fd5a964219e485afd6480a9cbfed62f8374b",
+                "url": "https://api.github.com/repos/tropotek/tk-mvc/zipball/6a5a617a221310d67ef847f52fc297b772e43074",
+                "reference": "6a5a617a221310d67ef847f52fc297b772e43074",
                 "shasum": ""
             },
             "require": {
@@ -1257,47 +1257,17 @@
                 "mvc",
                 "tropotek"
             ],
-            "time": "2019-05-10T00:17:12+00:00"
+            "time": "2019-05-12T01:47:49+00:00"
         }
     ],
     "packages-dev": [],
-    "aliases": [
-        {
-            "alias": "3.0.x-dev",
-            "alias_normalized": "3.0.9999999.9999999-dev",
-            "version": "dev-3beta",
-            "package": "ttek/tk-framework"
-        },
-        {
-            "alias": "3.0.x-dev",
-            "alias_normalized": "3.0.9999999.9999999-dev",
-            "version": "dev-3beta",
-            "package": "ttek/tk-database"
-        },
-        {
-            "alias": "3.0.x-dev",
-            "alias_normalized": "3.0.9999999.9999999-dev",
-            "version": "dev-3beta",
-            "package": "ttek/tk-mvc"
-        },
-        {
-            "alias": "3.0.x-dev",
-            "alias_normalized": "3.0.9999999.9999999-dev",
-            "version": "dev-3beta",
-            "package": "ttek/tk-installers"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "ttek/tk-framework": 20,
-        "ttek/tk-database": 20,
-        "ttek/tk-mvc": 20,
-        "ttek/tk-installers": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.1.0"
+        "php": "^7.1.3"
     },
     "platform-dev": []
 }

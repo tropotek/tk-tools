@@ -49,14 +49,17 @@ class Util
      */
     public static function incrementVersion($currVersion, $maskVersion = '0.0.x', $step = 1)
     {
-        preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $currVersion, $currParts);
+        preg_match('/^([0-9]+)\.([0-9]+)\.([a-z0-9]+)$/', $currVersion, $currParts);
         preg_match('/^([0-9]+)\.([0-9]+)\.([a-z0-9\-_]+)$/', $maskVersion, $maskParts);
         $ver = '1.0.0';
         if (count($maskParts) && version_compare($currParts[1] . '.' . $currParts[2], $maskParts[1] . '.' . $maskParts[2], '<')) {
             return $maskParts[1] . '.' . $maskParts[2] . '.0';
         }
         if (!empty($currParts[1])) {
-            $ver = $currParts[1] . '.' . $currParts[2] . '.' . ($currParts[3] + $step);
+            $x = 0;
+            if (is_numeric($currParts[3]))
+                $x = ($currParts[3] + $step);
+            $ver = $currParts[1] . '.' . $currParts[2] . '.' . $x;
         }
         return $ver;
     }

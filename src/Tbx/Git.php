@@ -642,6 +642,7 @@ class Git
         $tags = $this->getTagList();
         if ($branchAlias) {
             $verPrefix = substr($branchAlias, 0, strrpos($branchAlias, '.'));
+            $ver = $verPrefix.'.x';
             foreach ($tags as $tag) {
                 if (preg_match('/^'.preg_quote($verPrefix).'/', $tag)) {
                     $ver = $tag;
@@ -690,6 +691,7 @@ class Git
         if (
             $this->getOption('forceTag', false) ||
             !count($this->getTagList()) ||
+            preg_match('/\.x$/', $curTag) ||        // if no major version exists
             //version_compare($curTag, '0.0.0', '<') ||
             $this->isDiff($curTag))
         {
