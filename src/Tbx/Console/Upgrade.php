@@ -60,10 +60,11 @@ class Upgrade extends Iface
         );
 
         if ($config->isDebug()) {
-            array_unshift($cmdList, 'ci');
-            $cmdList[] = 'git reset --hard';
-            $cmdList[] = 'git checkout master';
-            $cmdList[] = 'composer update';
+            throw new \Tk\Exception('Projects should not be upgraded in debug mode');
+//            array_unshift($cmdList, 'ci');
+//            $cmdList[] = 'git reset --hard';
+//            $cmdList[] = 'git checkout master';
+//            $cmdList[] = 'composer update';
         }
 
 

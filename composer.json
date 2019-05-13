@@ -1,7 +1,7 @@
 {
     "name": "ttek/tk-tools",
     "type": "project",
-    "description": "The tropotek framework tools package. Useful scripts to help developing tropotek apps.",
+    "description": "Tk lib framework commands.",
     "keywords":  [
         "Tbx",
         "tools",
@@ -21,24 +21,17 @@
     "autoload":  {
         "psr-0":  {
             "Tbx\\": "src/"
-        },
-        "files":  [
-            "src/Tbx/functions.php"
-        ]
+        }
     },
     "require":  {
-        "php": ">=7.0.0",
-        "ttek/tk-framework": "~2.0",
-        "ttek/tk-database": "~2.0",
-        "ttek/tk-http": "~2.0",
-        "ttek/tk-mvc": "~2.0",
-        "symfony/event-dispatcher": "~3.4",
-        "symfony/console": "~3.4",
-        "symfony/translation": "~3.4"
+        "php": "^7.1.3",
+        "ttek/tk-framework": "~3.0",
+        "ttek/tk-database": "~3.0",
+        "ttek/tk-mvc": "~3.0"
     },
     "extra":  {
         "branch-alias":  {
-            "dev-master": "1.3.x-dev"
+            "dev-master": "3.0.x-dev"
         }
     }
 }

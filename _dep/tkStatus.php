@@ -7,7 +7,7 @@
  * @link http://www.tropotek.com/
  * @license Copyright 2005 Michael Mifsud
  */
-include dirname(__FILE__).'/prepend.php';
+include dirname(__FILE__) . '/prepend.php';
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];

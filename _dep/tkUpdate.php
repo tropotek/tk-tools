@@ -7,15 +7,15 @@
  * @link http://www.tropotek.com/
  * @license Copyright 2005 Michael Mifsud
  */
-include dirname(__FILE__).'/prepend.php';
+include dirname(__FILE__) . '/prepend.php';
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
 $commitMsg = isset($argv[1]) ? $argv[1] : '';
 $help = "
 Usage: ".basename($argv[0])." [Message] {options}
-This command is used to commit projects and libraries to the remote repository.
-It will iterate through all nested Tk libs and commit any changes.
+This command is used to update projects and libraries from a remote repository.
+It will iterate through all nested Tk libs and update any changes.
 
 Available options that this command can receive:
 
@@ -31,36 +31,26 @@ Report bugs to info@tropotek.com
 Tropotek home page: <http://www.tropotek.com/>
 ";
 
-if ($argc < 1 || $argc > 4) {
-    echo $help;
-    exit;
+if ($argc < 1 || $argc > 1){
+  echo $help;
+  exit;
 }
+
 $cwd = getcwd();
-$externFile = $cwd . '/externals';
-$commitMsg = @$argv[1];
-$novendor = false;
 $dryRun = false;
 $verbose = 0;
 
-
 foreach ($argv as $param) {
-    if (strtolower(substr($param, 0, 10)) == '--novendor') {
-        $novendor = true;
-    }
+
     if (strtolower(substr($param, 0, 8)) == '--dryrun') {
         $dryRun = true;
     }
-    if (strtolower(substr($param, 0, 7)) == '--debug') {
-        $debug = true;
-    }
-
     if (strtolower(substr($param, 0, 7)) == '--quiet') {
         $verbose = 0;
     }
     if (strtolower(substr($param, 0, 2)) == '-q') {
         $verbose = 0;
     }
-
     if (strtolower(substr($param, 0, 9)) == '--verbose') {
         $verbose = 5;
     }
@@ -80,7 +70,6 @@ foreach ($argv as $param) {
 }
 
 try {
-
     // Check if executed within a GIT repository
     $vcs = new \Tbx\Vcs\Adapter\Git($dryRun);
     $vcs->setVerbose($verbose);
@@ -90,40 +79,30 @@ try {
         exit;
     }
 
-    $currentBranch = $vcs->getCurrentBranch();
-    if (!$commitMsg) {
-        $commitMsg = 'Minor Code Updates - ' . trim(`hostname`);
-    }
-
     $vcs->log('------------------------------------------------', \Tbx\Vcs\Adapter\Git::LOG);
+    $vcs->log('UPDATE: ' . $cwd, \Tbx\Vcs\Adapter\Git::LOG);
+    $vcs->update();
 
-    $vcs->log('COMMIT: ' . $cwd, \Tbx\Vcs\Adapter\Git::LOG);
-    $vcs->commit($commitMsg);
-
-
-    // Commit child projects
-    if (!$novendor) {
-        foreach ($vendorPaths as $vPath) {
-            $vendorPath = rtrim($cwd, '/') . $vPath;
-            if (is_dir($vendorPath)) {      // If vendor path exists
-                foreach (new DirectoryIterator($vendorPath) as $res) {
-                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
-                        continue;
-                    }
-                    $path = $res->getRealPath();
-                    if (!$res->isDir() && !is_dir($path.'/.git')) {
-                        continue;
-                    }
-                    $cmd = sprintf('cd %s && %s %s --novendor ', escapeshellarg($path), basename($argv[0]), escapeshellarg($commitMsg));
-                    $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
-                    system($cmd, $out);
-                    $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_DEBUG);
+    // Update for project folders
+    foreach ($vendorPaths as $vPath) {
+        $vendorPath = rtrim($cwd, '/') . $vPath;
+        if (is_dir($vendorPath)) {      // If vendor path exists
+            foreach (new DirectoryIterator($vendorPath) as $res) {
+                if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') {
+                    continue;
                 }
+                $path = $res->getRealPath();
+                if (!$res->isDir() && !is_dir($path.'/.git')) {
+                    continue;
+                }
+                $cmd = sprintf('cd %s && %s', escapeshellarg($path), basename($argv[0]));
+                $vcs->log($cmd, \Tbx\Vcs\Adapter\Git::LOG_VVV);
+                system($cmd, $out);
+                $vcs->log($out, \Tbx\Vcs\Adapter\Git::LOG_DEBUG);
             }
         }
     }
-} catch (Exception $e) {
-    $vcs->log('ERROR: ' . $e->getMessage() . ' [' . $e->getFile().' -> '.$e->getLine() . ']', \Tbx\Vcs\Adapter\Git::LOG_V);
+} catch(Exception $e) {
+    print(basename($argv[0]) . ": \n" . $e->__toString());
     exit(-1);
 }
-

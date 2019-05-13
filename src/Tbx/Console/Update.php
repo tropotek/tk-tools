@@ -37,7 +37,7 @@ class Update extends Iface
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
@@ -52,7 +52,7 @@ class Update extends Iface
                     $path = $res->getRealPath();
                     if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
                     try {
-                        $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
+                        $v = \Tbx\Git::create($path, $input->getOptions());
                         $v->setInputOutput($input, $output);
                         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
                         $v->update();

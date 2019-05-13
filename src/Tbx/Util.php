@@ -43,20 +43,23 @@ class Util
      *    of 1.3.9 then the result will be 1.3.10
      *
      * @param string  $currVersion The current version to increment
-     * @param string  $maskVersion The proposed mask version. Default 0.0.x
+     * @param string  $maskVersion The proposed mask version, the last version value is ignored. Default 0.0.x
      * @param integer $step The number to increment the version by. Default 1
      * @return string
      */
     public static function incrementVersion($currVersion, $maskVersion = '0.0.x', $step = 1)
     {
-        preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $currVersion, $currParts);
-        preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $maskVersion, $maskParts);
+        preg_match('/^([0-9]+)\.([0-9]+)\.([a-z0-9]+)$/', $currVersion, $currParts);
+        preg_match('/^([0-9]+)\.([0-9]+)\.([a-z0-9\-_]+)$/', $maskVersion, $maskParts);
         $ver = '1.0.0';
         if (count($maskParts) && version_compare($currParts[1] . '.' . $currParts[2], $maskParts[1] . '.' . $maskParts[2], '<')) {
             return $maskParts[1] . '.' . $maskParts[2] . '.0';
         }
         if (!empty($currParts[1])) {
-            $ver = $currParts[1] . '.' . $currParts[2] . '.' . ($currParts[3] + $step);
+            $x = 0;
+            if (is_numeric($currParts[3]))
+                $x = ($currParts[3] + $step);
+            $ver = $currParts[1] . '.' . $currParts[2] . '.' . $x;
         }
         return $ver;
     }
@@ -82,6 +85,26 @@ class Util
         }
         return empty($home) ? NULL : $home;
     }
+
+    /**
+     * @param mixed $obj
+     * @return string
+     */
+    public static function jsonEncode($obj)
+    {
+        return self::jsonPrettyPrint(json_encode($obj));
+    }
+
+    /**
+     * @param string $json
+     * @return mixed
+     */
+    public static function jsonDecode($json)
+    {
+        $str = json_decode($json);
+        return $str;
+    }
+
 
     /**
      * Format JSON to text or HTML

@@ -13,25 +13,6 @@ use Symfony\Component\Console\Input\InputOption;
 class Tag extends Iface
 {
 
-    /*
-Tag and release a repository project.
-Currently only GIT and composer are supported.
-
-If the code has a composer.json file with a `branch-alias`, that alias
-number os prepended to the new minor number that will be created.
-
-EG: `branch-alias`: { `dev-master`: `1.3.x-dev` }
-The minor version number is found by searching the existing tags for the
-next highest number. So if a version 1.3.34 was found to be the current
-highest tag for the 1.3.x versions then this lib version would be 1.3.35.
-
-If no `composer.json` file or no branch-alias exists then the svn repo
-will be searched and the next highest minor version from the repository
-will be created. NOTE: This gives you no control over the major version
-unless supplied as a param with --version=x.x.x
-     */
-
-
     /**
      *
      */
@@ -56,16 +37,13 @@ unless supplied as a param with --version=x.x.x
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-//
-//        if ($input->getOption('json')) {
-//            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-//        }
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
-        $curVer = $vcs->getCurrentTag();
+
+        $curVer = $vcs->getCurrentTag($vcs->getBranchAlias());
         if (!$curVer) {
             $curVer = '0.0.0';
         }
@@ -74,12 +52,7 @@ unless supplied as a param with --version=x.x.x
         $this->write('Curr Ver: ' . $curVer);
         $this->write('Remote Origin: ' . $vcs->getUri());
 
-        $version = $vcs->tagRelease($input->getOptions(), $input->getOption('name'));
-        if ($input->getOption('json')) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
-            $this->write($version);
-            return;
-        }
+        $version = $vcs->tagRelease($input->getOption('name'));
 
         if (version_compare($version, $curVer, '>')) {
             $this->write('New Tag Released');

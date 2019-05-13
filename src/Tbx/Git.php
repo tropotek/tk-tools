@@ -41,11 +41,6 @@ class Git
      */
     protected $name = null;
 
-    /**
-     * If true nothing is committed to the repository
-     * @var boolean
-     */
-    protected $dryRun = false;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
@@ -78,29 +73,48 @@ class Git
      */
     protected $defaultMessage = '';
 
+    /**
+     * @var array
+     */
+    protected $options = array();
+
+    /**
+     * @var null
+     */
+    protected $composerObj = null;
+
+    /**
+     * If true nothing is committed to the repository
+     * @var boolean
+     * @deprcated Use isDryRun()
+     */
+    protected $dryRun = false;
+
 
     /**
      * @param string $path
-     * @param bool $dryRun
+     * @param array $options
      * @throws \Exception
      */
-    public function __construct($path, $dryRun = false)
+    public function __construct($path, $options = array())
     {
         $this->setPath($path);
-        $this->dryRun = $dryRun;
+        $this->options = $options;
+
     }
 
     /**
      * @param string $path
-     * @param bool $dryRun
+     * @param array $options
      * @return static
      * @throws \Exception
      */
-    public static function create($path, $dryRun = false)
+    public static function create($path, $options = array())
     {
-        $obj = new static($path, $dryRun);
+        $obj = new static($path, $options);
         return $obj;
     }
+
 
     /**
      * Is the path GIT repository
@@ -112,6 +126,25 @@ class Git
     {
         $path = rtrim($path, '/');
         return is_dir($path.'/.git');
+    }
+
+    /**
+     * @param bool $b
+     * @return $this
+     */
+    public function setDryRun($b = true)
+    {
+        $this->options['dryRun'] = $b;
+        $this->writeComment('Dry Run Enabled.');
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDryRun()
+    {
+        return $this->getOption('dryRun', false);
     }
 
     /**
@@ -127,51 +160,19 @@ class Git
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return $this
-     * @todo: make individual methods and implement writeLn() to check if output exists
+     * Try to load a composer.jsong for this repository
+     *
+     * @return null|\stdClass
      */
-    public function setInputOutput(InputInterface $input, OutputInterface $output)
+    public function getComposer()
     {
-        $this->input = $input;
-        $this->output = $output;
-        return $this;
-    }
-
-    /**
-     * @return OutputInterface
-     */
-    public function getOutput()
-    {
-        return $this->output;
-    }
-
-    /**
-     * @return InputInterface
-     */
-    public function getInput()
-    {
-        return $this->input;
-    }
-
-    /**
-     * @param bool $b
-     * @return $this
-     */
-    public function setDryRun($b = true)
-    {
-        $this->dryRun = $b;
-        $this->writeComment('Dry Run Enabled.');
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDryRun()
-    {
-        return $this->dryRun;
+        if (!$this->composerObj && self::isComposer($this->getPath())) {
+            $composerFile = $this->getPath() . '/composer.json';
+            if (is_file($composerFile)) {
+                $this->composerObj = \Tbx\Util::jsonDecode(file_get_contents($composerFile));
+            }
+        }
+        return $this->composerObj;
     }
 
     /**
@@ -181,9 +182,8 @@ class Git
     {
         if (!$this->name) {
             $this->name = basename($this->getPath());
-            $composerFile = $this->getPath() . '/composer.json';
-            if (is_file($composerFile)) {
-                $composerObj = json_decode(file_get_contents($composerFile));
+            if ($this->getComposer()) {
+                $composerObj = $this->getComposer();
                 if ($composerObj && property_exists($composerObj, 'name')) {
                     $this->name = $composerObj->name;
                 }
@@ -243,70 +243,11 @@ class Git
         exec($cmd, $this->cmdBuf);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         foreach($this->cmdBuf as $line) {
-            if (preg_match('/^\* (b[0-9]+\.[0-9]+\.[0-9]+)/', $line, $regs)) {
+            if (preg_match('/^\* (.+)/', $line, $regs)) {
                 return $regs[1];
             }
         }
         return 'master';
-    }
-
-    /**
-     * Get the path for the most recent tag version
-     *
-     * @return string
-     * @deprecated use getCurrentTag()
-     */
-    public function getCurrentTagFromList()
-    {
-        $tags = $this->getTagList();
-        if (is_array($tags))
-            return end($tags);
-        return '';
-    }
-
-    /**
-     * Return the current tag based on the largest version number
-     */
-    public function getCurrentTag()
-    {
-        //$cmd = sprintf('git %s describe --abbrev=0 --tags --always 2>&1 ', $this->getGitArgs());
-        //$ver = exec($cmd, $this->cmdBuf);
-        // TODO: there was an error here that I could not work out it was picking up the first tag rather than the current one,
-        // TODO: Maybe it is not needed????
-
-        $ver = '1.0.0';
-        $tags = $this->getTagList();
-        if (is_array($tags))
-            $ver = end($tags);
-        return $ver;
-    }
-
-    /**
-     * Get an array of current tagged versions.
-     *
-     * @return array
-     */
-    public function getTagList()
-    {
-        if (!$this->tagList) {
-            $this->cmdBuf = array();
-            $this->tagList = array();
-
-            $cmd = sprintf('git %s tag 2>&1 ', $this->getGitArgs());
-            $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
-            exec($cmd, $this->cmdBuf);
-            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
-
-            foreach($this->cmdBuf as $line) {
-                $line = trim($line);
-                if (!$line) continue;
-                if (preg_match('/^([0-9\.]+)/i', $line, $regs)) {
-                    $this->tagList[$line] = $line;
-                }
-            }
-            \Tbx\Util::sortVersionArray($this->tagList);
-        }
-        return $this->tagList;
     }
 
 
@@ -397,7 +338,9 @@ class Git
      */
     public function isDiff($tagName)
     {
-        return count($this->diff($tagName));
+        return
+            preg_match('/\.x$/', $tagName) ||        // if no major version exists
+            count($this->diff($tagName));
     }
 
     /**
@@ -467,18 +410,10 @@ class Git
     {
         $this->cmdBuf = array();
 
-        // Does not seem to speed things up any
-//        $cmd = sprintf('git %s fetch --dry-run', $this->getGitArgs());
-//        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
-//        $lastLine = exec($cmd, $this->cmdBuf, $ret);
-//        if (!$lastLine) return $this;
-
         $cmd = sprintf('git %s pull 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
 
-        // TODO: Look for a nicer way to handle this
-        //$this->writeComment(implode("\n", $this->cmdBuf));
         if (count($this->cmdBuf) && $lastLine) {
             $out = implode("\n", $this->cmdBuf);
             if (preg_match('/error:/', $out)) {
@@ -555,13 +490,32 @@ class Git
     }
 
     /**
+     *
+     *
+     * @param string $tagName If not set then it will be automatically generated from the composerJson branch alias
+     * @return string
+     * @throws \Exception
+     */
+    public function tagRelease($tagName = '')
+    {
+        $curTag = $this->getCurrentTag($this->getBranchAlias());
+        if (!$tagName || !preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $tagName)) {
+            $tagName = $this->lookupNextTag($curTag);
+        }
+        if ($this->canCreateTag($curTag)) {
+            $this->tag($tagName);
+            return $tagName;
+        }
+        return $curTag;
+    }
+
+    /**
      * Tag a repository, basically copy the release to a tag and update the changelog
      *
      * @param string $version A version string in the format of x.x.x
-     * @param bool $staticVersions Set this to true to modify the composer.json to use static versions for tk lib packages
      * @throws \Exception
      */
-    protected function tag($version, $staticVersions = false)
+    protected function tag($version)
     {
         $composerFile = $this->getPath() . '/composer.json';
         $changelogFile = $this->getPath() . '/changelog.md';
@@ -571,7 +525,7 @@ class Git
         $composerJson = null;       // Orig master dev composer json, should not be modified
         if (is_file($composerFile)) {
             $composerJson = file_get_contents($composerFile);
-            $composerObj = json_decode($composerJson);
+            $composerObj = \Tbx\Util::jsonDecode($composerJson);
 
             // Setup the new tagged composer.json version
             $composerObj->version = $version;
@@ -580,30 +534,9 @@ class Git
                 $composerObj->{'minimum-stability'} = 'stable';
             }
 
-            // TODO: The edit the composer.json ttek libs versions so they are fixed versions
-            // TODO: This will allow us to roll back when needed
-            // TODO: IE: Also in the site upgrade command, we need to backup the DB
-            // TODO:   in the data folder somewhere after each version?
-
-            if ($staticVersions) {
-                $tagList = $this->getCurrentTags(array());
-                //vd($tagList);
-                if (is_array($tagList) && count($tagList) > 1) {
-                    foreach ($tagList as $name => $list) {
-                        if ($name == basename($this->getPath())) continue;
-                        if (property_exists($composerObj->require, $name)) {
-                            $composerObj->require->{$name} = $list['next'];
-                        }
-                    }
-                }
-                if ($this->isDryRun()) {
-                    $this->writeComment(\Tbx\Util::jsonPrettyPrint(json_encode($composerObj)), OutputInterface::VERBOSITY_VERBOSE);
-                }
-            }
-
             $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
-                file_put_contents($composerFile, \Tbx\Util::jsonPrettyPrint(json_encode($composerObj)));
+                file_put_contents($composerFile, \Tbx\Util::jsonEncode($composerObj));
             }
         }
 
@@ -636,18 +569,14 @@ class Git
         // First Commit before tag to ensure all auto updated file changes are committed
         $currentBranch = $this->getCurrentBranch();
 
-        // TODO: note this $currentBranch will always be master here, we want the prev version tag???s
-        $message= 'Tagging branch ' . $currentBranch . ' for release ' . $version;
+        $message= 'Tagging and releasing branch `' . $currentBranch . '` with version `' . $version .'`.';
         $this->writeComment($message);
+
         $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $this->commit($message);
         $this->output->setVerbosity($vb);
 
         $this->cmdBuf = array();
-        // Tag trunk
-        $message = 'Tagging new release: ' . $version;
-        $this->writeComment($message);
-
         $cmd = sprintf("git %s tag -a %s -m %s 2>&1 ", $this->getGitArgs(), $version, escapeshellarg($message) );
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -664,7 +593,7 @@ class Git
 
         // Update composer.json
         if ($composerJson) {
-            $this->writeComment('Reverting composer.json', OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeComment('Restoring branch composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, $composerJson);
             }
@@ -675,101 +604,137 @@ class Git
     }
 
     /**
-     * @param string $version
-     * @param array $options
-     * @param bool $staticVersions Set this to true to modify the composer.json to use static versions for tk lib packages
+     * Return the branch alias from the composer object as this is what we use to
+     * determin the next release version
+     * EG:
+     *   3.0.x-dev
+     *
      * @return string
-     * @throws \Exception
      */
-    public function tagRelease($options, $version = '', $staticVersions = false)
+    public function getBranchAlias()
     {
-        $version = $this->lookupNewTag($options, $version);
-        $this->tag($version, $staticVersions);
-        return $version;
-    }
-
-
-    public function lookupNewTag($options, $version = '')
-    {
-        // Get tag/version information
-        //$currentBranch = $this->getCurrentBranch();
-
-        $curVer = $this->getCurrentTag();
-        if (!$curVer) $curVer = '0.0.0';
-        $tagList = $this->getTagList();
-
-        // Check if repo has changed since last tag
-        if (empty($options['forceTag']) && count($tagList) && version_compare($curVer, '0.0.0', '>') && !$this->isDiff($curVer)) {
-            return $curVer;
-        }
-
-        $composerObj = null;
-        $aliasVer = '';
-        $composerFile = $this->getPath() . '/composer.json';
-        if (is_file($composerFile)) {
-            $composerObj = json_decode(file_get_contents($composerFile));
-            if ($composerObj) {     // Find branch-alias so we can get the major version X.X.x-dev
-                if (isset($composerObj->extra->{'branch-alias'}->{'dev-master'})) {
-                    $aliasVer = $composerObj->extra->{'branch-alias'}->{'dev-master'};
-                    $aliasVer = str_replace(array('.x-dev'), '.' . self::MAX_VER, $aliasVer);
-                }
+        $alias = '';
+        if ($this->getComposer()) {
+            if (isset($this->getComposer()->extra->{'branch-alias'}->{'dev-master'})) {
+                $alias = $this->getComposer()->extra->{'branch-alias'}->{'dev-master'};
             }
         }
-
-        if (!$version || version_compare($version, $curVer, '<')) {
-            $version = \Tbx\Util::incrementVersion($curVer, $aliasVer);
-            if (empty($options['notStable']) && ((int)substr($version, strrpos($version, '.')+1) % 2) > 0) {
-                $version = \Tbx\Util::incrementVersion($version, $aliasVer);
-            }
-        }
-        reset($tagList);
-//vd($tagList,$curVer, $version, end($tagList));
-
-        if (version_compare($version, end($tagList), '<=')) {
-            $this->writeError('Version mismatch, check that you have the latest version of the project checked out.');
-            return $curVer;
-        }
-
-        return $version;
+        return $alias;
     }
-
-
 
     /**
-     * @param $options
-     * @return array
+     * Return the current tag based on the largest version number for this branch
+     *
+     *
+     * @param null|string $branchAlias If no branch alias is supplied then return the current tag for the project
+     * @return string
      */
-    public function getCurrentTags($options)
+    public function getCurrentTag($branchAlias = '')
     {
-        $tagList = array();
-
-        $tag = $this->getCurrentTag();
-        $nextTag = $this->lookupNewTag($options);
-        $tagList[$this->getName()] = array('curr' => $tag, 'next' => $nextTag);
-
-        if (!is_array($this->getConfig()->get('vendor.paths'))) return $tagList;
-        foreach ($this->getConfig()->get('vendor.paths') as $vPath) {
-            $libPath = rtrim($this->getPath(), '/') . $vPath;
-            if (is_dir($libPath)) {      // If vendor path exists
-                foreach (new \DirectoryIterator($libPath) as $res) {
-                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
-                    $path = $res->getRealPath();
-                    if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
-                    try {
-                        $v = \Tbx\Git::create($path, !empty($options['dryRun']));
-                        $v->setInputOutput($this->getInput(), $this->getOutput());
-                        $tag = $v->getCurrentTag();
-                        $nextTag = $v->lookupNewTag($options);
-                        $tagList[$v->getName()] = array('curr' => $tag, 'next' => $nextTag);
-                    } catch (\Exception $e) {
-                        $this->writeError($e->getMessage());
-                    }
+        $ver = '1.0.x';
+        $tags = $this->getTagList();
+        if ($branchAlias) {
+            $verPrefix = substr($branchAlias, 0, strrpos($branchAlias, '.'));
+            $ver = $verPrefix.'.x';
+            foreach ($tags as $tag) {
+                if (preg_match('/^'.preg_quote($verPrefix).'/', $tag)) {
+                    $ver = $tag;
                 }
             }
+        } else {
+            if (is_array($tags)) {
+                $v = $tags[count($tags)-1];
+                if ($v) $ver = $v;
+            }
         }
-
-        return $tagList;
+        return $ver;
     }
+
+    /**
+     *
+     * @param string $curTag Either a static tag version or a branch-alias to increment
+     * @return string
+     */
+    public function getNextTagName($curTag = '')
+    {
+        $alias = substr($curTag, 0, strrpos($curTag, '.')).'.x';
+        if (preg_match('/\.x-dev$/', $curTag)) {
+            $curTag = $this->getCurrentTag($curTag);
+            $alias = substr($curTag, 0, strrpos($curTag, '.')).'.x';
+        }
+        $step = 2;
+        $notStable = $this->getOption('notStable', false);
+        if ($notStable) {   // increment ver by 1
+            $step = 1;
+        } else {
+            if (((int)substr($curTag, strrpos($curTag, '.')+1) % 2) > 0) {
+                $step = 1;
+            }
+        }
+        $nextTag = \Tbx\Util::incrementVersion($curTag, $alias, $step);
+        return $nextTag;
+    }
+
+    /**
+     * @param string $curTag
+     * @return bool
+     */
+    public function canCreateTag($curTag = '')
+    {
+        if (
+            $this->getOption('forceTag', false) ||
+            !count($this->getTagList()) ||
+            $this->isDiff($curTag))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * This will return the next version number if the repo can be tagged
+     * Repositories that have no modifications will return the current version tag.
+     *
+     * @param string $curTag
+     * @return string
+     */
+    public function lookupNextTag($curTag = '')
+    {
+        $nextTag = $curTag;
+        if ($this->canCreateTag($curTag)) {
+            $nextTag = $this->getNextTagName($curTag);
+        }
+        return $nextTag;
+    }
+
+    /**
+     * Get an array of current tagged versions.
+     *
+     * @return array
+     */
+    public function getTagList()
+    {
+        if (!$this->tagList) {
+            $this->cmdBuf = array();
+            $this->tagList = array();
+
+            $cmd = sprintf('git %s tag 2>&1 ', $this->getGitArgs());
+            $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
+            exec($cmd, $this->cmdBuf);
+            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+
+            foreach($this->cmdBuf as $line) {
+                $line = trim($line);
+                if (!$line) continue;
+                if (preg_match('/^([0-9\.]+)/i', $line, $regs)) {
+                    $this->tagList[$line] = $line;
+                }
+            }
+            \Tbx\Util::sortVersionArray($this->tagList);
+        }
+        return $this->tagList;
+    }
+
 
 
 
@@ -779,6 +744,57 @@ class Git
     public function getConfig()
     {
         return \Tk\Config::getInstance();
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasOption($name)
+    {
+        return !empty($this->options[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @param null|mixed $default
+     * @return mixed|null
+     */
+    public function getOption($name, $default = null)
+    {
+        if ($this->hasOption($name)) {
+            return $this->options[$name];
+        }
+        return $default;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return $this
+     * @todo: make individual methods and implement writeLn() to check if output exists
+     */
+    public function setInputOutput(InputInterface $input, OutputInterface $output)
+    {
+        $this->input = $input;
+        $this->output = $output;
+        return $this;
+    }
+
+    /**
+     * @return OutputInterface
+     */
+    public function getOutput()
+    {
+        return $this->output;
+    }
+
+    /**
+     * @return InputInterface
+     */
+    public function getInput()
+    {
+        return $this->input;
     }
 
 

@@ -39,7 +39,7 @@ class Commit extends Iface
     {
         parent::execute($input, $output);
 
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOption('dryRun'));
+        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
@@ -56,7 +56,7 @@ class Commit extends Iface
                     try {
                         if (!\Tbx\Git::isGit($path)) continue;  // Stop unnecessary errors
 
-                        $v = \Tbx\Git::create($path, $input->getOption('dryRun'));
+                        $v = \Tbx\Git::create($path, $input->getOptions());
                         $v->setInputOutput($input, $output);
                         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
                         $v->commit($message, $input->getOption('force'));

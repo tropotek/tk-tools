@@ -8,7 +8,7 @@
  * @license Copyright 2005 Michael Mifsud
  */
 //include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
-include dirname(__FILE__).'/prepend.php';
+include dirname(__FILE__) . '/prepend.php';
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
@@ -148,7 +148,7 @@ try {
 
     $vcs->log('Retrieving project composer.json file.');
     // get composer.json file
-    $tagJson = $headJson = json_decode(file_get_contents('composer.json'));
+    $tagJson = $headJson = \Tbx\Util::jsonDecode(file_get_contents('composer.json'));
     if (!$headJson) {
         throw new Exception('Error reading composer.json file in project root.');
     }
@@ -209,7 +209,7 @@ try {
         // Update composer file
         $tagJson->{'minimum-stability'} = 'stable';
         if (!$dryRun) {
-            file_put_contents('composer.json', jsonPrettyPrint(json_encode($tagJson)));
+            file_put_contents('composer.json', \Tbx\Util::jsonEncode($tagJson));
         }
         $vcs->commit();
 
@@ -223,7 +223,7 @@ try {
 
         // Reset the trunk for dev mode
         $headJson->{'minimum-stability'} = 'dev';
-        file_put_contents('composer.json', jsonPrettyPrint(json_encode($headJson)));
+        file_put_contents('composer.json', \Tbx\Util::jsonEncode($headJson));
         $vcs->commit();
     }
 
