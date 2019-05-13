@@ -1057,12 +1057,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-database.git",
-                "reference": "8582ce2684b89af8688cd471f6a62d5a37eeaedd"
+                "reference": "b6c108516222ef0305309bc2043cc31e347c5e6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/8582ce2684b89af8688cd471f6a62d5a37eeaedd",
-                "reference": "8582ce2684b89af8688cd471f6a62d5a37eeaedd",
+                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/b6c108516222ef0305309bc2043cc31e347c5e6c",
+                "reference": "b6c108516222ef0305309bc2043cc31e347c5e6c",
                 "shasum": ""
             },
             "require": {
@@ -1096,7 +1096,7 @@
                 "database",
                 "tropotek"
             ],
-            "time": "2019-05-12T22:02:34+00:00"
+            "time": "2019-05-12T23:53:49+00:00"
         },
         {
             "name": "ttek/tk-framework",

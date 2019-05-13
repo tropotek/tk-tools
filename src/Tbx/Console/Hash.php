@@ -23,7 +23,7 @@ class Hash extends Iface
             ->addArgument('string', InputArgument::OPTIONAL, 'The string that is to have the hash applied to it.')
             ->addOption('algorithm', 'a', InputOption::VALUE_OPTIONAL, 'Specify a hash algorithm to use.', 'md5')
             ->addOption('algoList', 'l', InputOption::VALUE_NONE, 'List the available hash() algorithms.')
-            ->setDescription('This is a test script only');
+            ->setDescription('Generate a hash value. (i.e. "md5", "sha256", "haval160,4", etc..)');
     }
 
     /**
