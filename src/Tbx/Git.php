@@ -569,8 +569,9 @@ class Git
         // First Commit before tag to ensure all auto updated file changes are committed
         $currentBranch = $this->getCurrentBranch();
 
-        $message= 'Tagging branch ' . $currentBranch . ' for release ' . $version;
+        $message= 'Tagging and releasing branch `' . $currentBranch . '` with version `' . $version .'`.';
         $this->writeComment($message);
+
         $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $this->commit($message);
         $this->output->setVerbosity($vb);
