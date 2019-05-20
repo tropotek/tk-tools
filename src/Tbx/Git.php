@@ -642,7 +642,7 @@ class Git
                 }
             }
         } else {
-            if (is_array($tags)) {
+            if (is_array($tags) && count($tags)) {
                 $v = $tags[count($tags)-1];
                 if ($v) $ver = $v;
             }
