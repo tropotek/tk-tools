@@ -522,12 +522,13 @@ class Git
         $vb = $this->output->getVerbosity();
 
         $composerObj = null;
-        $composerJson = null;       // Orig master dev composer json, should not be modified
+        $composerJson = null;
+
+        // update the release composer file
         if (is_file($composerFile)) {
             $composerJson = file_get_contents($composerFile);
             $composerObj = \Tbx\Util::jsonDecode($composerJson);
 
-            // Setup the new tagged composer.json version
             $composerObj->version = $version;
             $composerObj->time = date('Y-m-d');
             if (property_exists($composerObj, 'minimum-stability')) {
@@ -540,7 +541,7 @@ class Git
             }
         }
 
-        // Update the changelog file with any commit messages since the last tag
+        // Update the release changelog file
         $logArr =  $this->makeChangelog($this->getCurrentTag());
         $log = '';
         if (is_array($logArr)) {
@@ -558,7 +559,7 @@ class Git
             }
             $this->write($this->changelog, OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
-        // Save updated changelog file
+        // Save release changelog file
         if ($log && $this->changelog) {
             $this->writeComment('Updating changelog.md.', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
@@ -566,9 +567,7 @@ class Git
             }
         }
 
-        // First Commit before tag to ensure all auto updated file changes are committed
         $currentBranch = $this->getCurrentBranch();
-
         $message= 'Tagging and releasing branch `' . $currentBranch . '` with version `' . $version .'`.';
         $this->writeComment($message);
 
@@ -591,7 +590,7 @@ class Git
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
 
-        // Update composer.json
+        // Restore the dev composer.json
         if ($composerJson) {
             $this->writeComment('Restoring branch composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
