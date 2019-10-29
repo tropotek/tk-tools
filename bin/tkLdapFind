@@ -212,6 +212,7 @@ function getHomePath() {
  */
 function ldapProcessEntries($entries)
 {
+    //vd($entries);
     $arr = array();
     if (!$entries || count($entries) <= 0 || empty($entries['count'])) {
         iput("  No Data Found! \n");
@@ -221,7 +222,8 @@ function ldapProcessEntries($entries)
         if (!is_array($d)) continue;
         $person = array();
         foreach ($d as $k => $v) {
-            if (preg_match('/^[0-9]+$/', $k) || $k == 'count' || $k == 'objectclass') {
+            //if (preg_match('/^[0-9]+$/', $k) || $k == 'count' || $k == 'objectclass') {
+            if (preg_match('/^[0-9]+$/', $k) || $k == 'count') {
                 continue;
             }
             if (is_array($v)) {
