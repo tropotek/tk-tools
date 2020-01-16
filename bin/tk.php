@@ -19,12 +19,9 @@ try {
     $output = new ConsoleOutput();
 
     $composer = \Tbx\Util::jsonDecode(file_get_contents(dirname(__DIR__) . '/composer.json'));
-    $title = 'Tropotek Command Utilities';
-    $ver = $composer->version;
-
     $config = \Tk\Config::getInstance();
 
-    $app = new Application($title, $ver);
+    $app = new Application('Tropotek Command Utilities', $config->getVersion());
 
     $dispatcher = new \Tk\EventDispatcher\EventDispatcher();
     if ($config->get('event.dispatcher.log')) {
