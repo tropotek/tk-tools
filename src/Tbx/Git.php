@@ -519,6 +519,7 @@ class Git
     {
         $composerFile = $this->getPath() . '/composer.json';
         $changelogFile = $this->getPath() . '/changelog.md';
+        $versionFile = $this->getPath() . '/version.md';
         $vb = $this->output->getVerbosity();
 
         $composerObj = null;
@@ -529,7 +530,12 @@ class Git
             $composerJson = file_get_contents($composerFile);
             $composerObj = \Tbx\Util::jsonDecode($composerJson);
 
-            $composerObj->version = $version;
+            // TODO: I think we need a version.md file instead, as composer is validating its .json file now
+            //$composerObj->version = $version;
+            if (!$this->isDryRun()) {
+                file_put_contents($versionFile, $version);
+            }
+
             $composerObj->time = date('Y-m-d');
             if (property_exists($composerObj, 'minimum-stability')) {
                 $composerObj->{'minimum-stability'} = 'stable';
@@ -567,8 +573,14 @@ class Git
             }
         }
 
+        $cmd = sprintf('git %s add . 2>&1 ', $this->getGitArgs());
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        if (!$this->isDryRun()) {
+            exec($cmd, $this->cmdBuf);
+        }
+
         $currentBranch = $this->getCurrentBranch();
-        $message= 'Tagging and releasing branch `' . $currentBranch . '` with version `' . $version .'`.';
+        $message = 'Tagging and releasing branch `' . $currentBranch . '` with version `' . $version .'`.';
         $this->writeComment($message);
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
