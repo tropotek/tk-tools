@@ -1072,15 +1072,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-database.git",
-                "reference": "2b25eea79fbf64bb346b9cb8dd6f5cc878c53b46"
+                "reference": "0e5da53c4b2512cabad19c9a9cc8a24f397ab738"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/2b25eea79fbf64bb346b9cb8dd6f5cc878c53b46",
-                "reference": "2b25eea79fbf64bb346b9cb8dd6f5cc878c53b46",
+                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/0e5da53c4b2512cabad19c9a9cc8a24f397ab738",
+                "reference": "0e5da53c4b2512cabad19c9a9cc8a24f397ab738",
                 "shasum": ""
             },
             "require": {
+                "ext-pdo": "*",
                 "ttek/tk-framework": "~3.0"
             },
             "type": "library",
@@ -1111,7 +1112,7 @@
                 "database",
                 "tropotek"
             ],
-            "time": "2020-01-07T01:10:04+00:00"
+            "time": "2020-01-16T18:42:22+00:00"
         },
         {
             "name": "ttek/tk-framework",
@@ -1119,15 +1120,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "3c7835ce8b6ac27a5de6cfa383940767e01b98e2"
+                "reference": "abcaf0c142b078ce733dabbd59e220eb9643bdd2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/3c7835ce8b6ac27a5de6cfa383940767e01b98e2",
-                "reference": "3c7835ce8b6ac27a5de6cfa383940767e01b98e2",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/abcaf0c142b078ce733dabbd59e220eb9643bdd2",
+                "reference": "abcaf0c142b078ce733dabbd59e220eb9643bdd2",
                 "shasum": ""
             },
             "require": {
+                "ext-json": "*",
                 "monolog/monolog": "^1.0",
                 "psr/log": "^1.0",
                 "symfony/http-foundation": "4.2.*",
@@ -1168,7 +1170,7 @@
                 "framework",
                 "tropotek"
             ],
-            "time": "2020-01-16T18:33:20+00:00"
+            "time": "2020-01-16T18:42:17+00:00"
         },
         {
             "name": "ttek/tk-installers",
