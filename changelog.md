@@ -1,5 +1,12 @@
 #CHANGELOG#
 
+Ver 3.0.2 [2020-01-17]:
+-------------------------------
+  - Merge branch 'master' of github.com:tropotek/tk-tools
+  - updated the model creator tools
+  - 252s-dev
+
+
 Ver 3.0.0 [2019-05-13]:
 -------------------------------
   - Merge branch 'master' of github.com:tropotek/tk-tools
