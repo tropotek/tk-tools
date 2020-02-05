@@ -529,6 +529,7 @@ class Git
         if (is_file($composerFile)) {
             $composerJson = file_get_contents($composerFile);
             $composerObj = \Tbx\Util::jsonDecode($composerJson);
+            if (!$composerObj) $composerObj = new \stdClass();
 
             // TODO: I think we need a version.md file instead, as composer is validating its .json file now
             //$composerObj->version = $version;
