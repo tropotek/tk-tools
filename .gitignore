@@ -1,6 +1,7 @@
 # Created by .gitignore support plugin (hsz.mobi)
 .idea
 .directory
-_notes
-vendor
+/_notes
+/vendor
 /src/config/config.php
+/data
