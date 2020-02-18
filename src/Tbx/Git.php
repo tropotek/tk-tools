@@ -100,7 +100,6 @@ class Git
     {
         $this->setPath($path);
         $this->options = $options;
-
     }
 
     /**
@@ -238,15 +237,21 @@ class Git
      */
     public function getCurrentBranch()
     {
-        $cmd = sprintf('git %s branch 2>&1 ', $this->getGitArgs());
+        $cmd = sprintf('git %s rev-parse --abbrev-ref HEAD 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf);
-        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-        foreach($this->cmdBuf as $line) {
-            if (preg_match('/^\* (.+)/', $line, $regs)) {
-                return $regs[1];
-            }
-        }
+        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+        if (count($this->cmdBuf)) return $this->cmdBuf[0];
+//        $cmd = sprintf('git %s branch 2>&1 ', $this->getGitArgs());
+//        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+//        exec($cmd, $this->cmdBuf);
+//        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+//        foreach($this->cmdBuf as $line) {
+//            if (preg_match('/^\* (.+)/', $line, $regs)) {
+//                return $regs[1];
+//            }
+//        }
+
         return 'master';
     }
 

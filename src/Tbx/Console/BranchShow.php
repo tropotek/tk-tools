@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
  * @see http://www.tropotek.com/
  * @license Copyright 2017 Michael Mifsud
  */
-class Update extends Iface
+class BranchShow extends Iface
 {
 
     /**
@@ -18,11 +18,10 @@ class Update extends Iface
      */
     protected function configure()
     {
-        $this->setName('update')
-            ->setAliases(array('up'))
-            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
-            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
-            ->setDescription("Run from the root of a ttek project to update the repository.");
+        $this->setName('branchShow')
+            ->setAliases(array('branches', 'bs'))
+            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not show the ttek libs.')
+            ->setDescription("Run from the root of a ttek project.");
     }
 
     /**
@@ -34,20 +33,17 @@ class Update extends Iface
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-        $sp = '%s: %-18s %s';
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+
+        $sformat = '<info>%-25s</info> <comment>%-12s</comment>';
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
-        //$this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
-        $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');
-        $this->writeStrongInfo($s);
-
-        $vcs->update();
+        $this->getOutput()->writeln(sprintf($sformat, $vcs->getName(), $vcs->getCurrentBranch()));
 
         if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
-        foreach ($this->getVendorPaths() as $vPath) {
+        foreach ($this->getConfig()->get('vendor.paths') as $vPath) {
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
                 foreach (new \DirectoryIterator($libPath) as $res) {
@@ -56,11 +52,8 @@ class Update extends Iface
                     if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
                     try {
                         $v = \Tbx\Git::create($path, $input->getOptions());
-                        $v->setInputOutput($input, $output);
-                        //$this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
-                        $s = sprintf($sp, ucwords($this->getName()), basename($v->getPath()), '{'.$v->getCurrentBranch().'}');
-                        $this->writeInfo($s);
-                        $v->update();
+                        $v->setInputOutput($this->getInput(), $this->getOutput());
+                        $this->getOutput()->writeln(sprintf($sformat, $v->getName(), $v->getCurrentBranch()));
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
                     }

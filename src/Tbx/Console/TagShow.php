@@ -21,8 +21,7 @@ class TagShow extends Iface
         $this->setName('tagShow')
             ->setAliases(array('tags', 'ts'))
             ->addOption('nextTag', 't', InputOption::VALUE_NONE, 'Display next release tag if this project is to be released.')
-            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
-            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
+            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not show the ttek libs.')
             ->setDescription("Run from the root of a ttek project.");
     }
 

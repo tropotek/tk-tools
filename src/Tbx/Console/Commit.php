@@ -38,10 +38,13 @@ class Commit extends Iface
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
+        $sp = '%s: %-18s %s';
 
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
-        $this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
+        $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');
+        $this->writeStrongInfo($s);
+        //$this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
         $message = $input->getArgument('message');
         $vcs->commit($message, $input->getOption('force'));
@@ -58,7 +61,9 @@ class Commit extends Iface
 
                         $v = \Tbx\Git::create($path, $input->getOptions());
                         $v->setInputOutput($input, $output);
-                        $this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()));
+                        $s = sprintf($sp, ucwords($this->getName()), basename($v->getPath()), '{'.$v->getCurrentBranch().'}');
+                        $this->writeInfo($s);
+                        //$this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()) .'      [' . $v->getCurrentBranch() . ']');
                         $v->commit($message, $input->getOption('force'));
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
