@@ -237,20 +237,35 @@ class Git
      */
     public function getCurrentBranch()
     {
-        $cmd = sprintf('git %s rev-parse --abbrev-ref HEAD 2>&1 ', $this->getGitArgs());
-        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
-        exec($cmd, $this->cmdBuf);
-        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-        if (count($this->cmdBuf)) return $this->cmdBuf[0];
-//        $cmd = sprintf('git %s branch 2>&1 ', $this->getGitArgs());
+        // TODO: This is not working as expected???
+        //       [3.0.58]    tk-table
+        //       Tagging and releasing branch `M Tk/Table/Cell/Iface.php` with version `3.0.60`.
+        // Array[6]
+        //(
+        //  [0] => M      composer.json
+        //  [1] => M      src/App/Controller/Animal/View.php
+        //  [2] => M      src/App/Form/Animal.php
+        //  [3] => 92276c8 ~Auto: Commit
+        //  [4] => 256f534 ~Auto: Commit
+        //  [5] => 3.0                          <<--- This is what we need
+        //
+        //)
+//        $cmd = sprintf('git %s rev-parse --abbrev-ref HEAD 2>&1 ', $this->getGitArgs());
 //        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
 //        exec($cmd, $this->cmdBuf);
-//        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-//        foreach($this->cmdBuf as $line) {
-//            if (preg_match('/^\* (.+)/', $line, $regs)) {
-//                return $regs[1];
-//            }
-//        }
+//        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+//        vd($this->cmdBuf);
+//        if (count($this->cmdBuf)) return $this->cmdBuf[0];
+
+        $cmd = sprintf('git %s branch 2>&1 ', $this->getGitArgs());
+        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        exec($cmd, $this->cmdBuf);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+        foreach($this->cmdBuf as $line) {
+            if (preg_match('/^\* (.+)/', $line, $regs)) {
+                return $regs[1];
+            }
+        }
 
         return 'master';
     }
@@ -634,9 +649,33 @@ class Git
         if ($this->getComposer()) {
             if (isset($this->getComposer()->extra->{'branch-alias'}->{'dev-master'})) {
                 $alias = $this->getComposer()->extra->{'branch-alias'}->{'dev-master'};
+                // TODO we need to handle 3.0.x-dev and 3.0-dev better
+                if (preg_match('/\.[0-9]+-dev$/', $alias)) {
+                    $alias = str_replace('-dev', '.x-dev', $alias);
+                }
             }
         }
         return $alias;
+    }
+
+    /**
+     * Clean a version alias string:
+     *
+     *   - 3.0-dev => 3.0.x
+     *   - 3.0.x-dev => 3.0.x
+     *   - 3.0 => 3.0.x
+     *
+     * @param string $verAlias
+     * @return string|string[]
+     */
+    private function cleanAlias($verAlias = '1.0.x-dev')
+    {
+        $verAlias = trim($verAlias, ". \t\n\r\0\x0B");
+        $verAlias = str_replace('.x-dev', '.x', $verAlias);
+        $verAlias = str_replace('-dev', '.x', $verAlias);
+        if (!preg_match('/\.x$/', $verAlias))
+            $verAlias = $verAlias.'.x';
+        return $verAlias;
     }
 
     /**
