@@ -24,15 +24,9 @@
   },
   "require": {
     "php": "^7.1.3",
-    "ttek/tk-framework": "~3.0",
-    "ttek/tk-database": "~3.0",
-    "ttek/tk-mvc": "~3.0",
-    "ext-json": "*",
-    "ext-pdo": "*"
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "3.0.x-dev"
-    }
+    "ttek/tk-framework": "~3.0.0",
+    "ttek/tk-database": "~3.0.0",
+    "ttek/tk-mvc": "~3.0.0",
+    "ext-json": "*"
   }
 }
