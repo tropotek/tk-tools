@@ -366,6 +366,7 @@
             },
             "replace": {
                 "symfony/cache-contracts": "self.version",
+                "symfony/deprecation-contracts": "self.version",
                 "symfony/event-dispatcher-contracts": "self.version",
                 "symfony/http-client-contracts": "self.version",
                 "symfony/service-contracts": "self.version",
@@ -1120,12 +1121,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "551251fb15779dfb6622561c2bfd69f59473e7ab"
+                "reference": "2df5de8dea6c31c2b82f72b7a80d5b604416dacf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/551251fb15779dfb6622561c2bfd69f59473e7ab",
-                "reference": "551251fb15779dfb6622561c2bfd69f59473e7ab",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/2df5de8dea6c31c2b82f72b7a80d5b604416dacf",
+                "reference": "2df5de8dea6c31c2b82f72b7a80d5b604416dacf",
                 "shasum": ""
             },
             "require": {
@@ -1170,7 +1171,7 @@
                 "framework",
                 "tropotek"
             ],
-            "time": "2020-01-30T01:25:03+00:00"
+            "time": "2020-02-09T20:06:37+00:00"
         },
         {
             "name": "ttek/tk-installers",

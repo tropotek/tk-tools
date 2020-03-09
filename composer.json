@@ -27,7 +27,8 @@
     "ttek/tk-framework": "~3.0",
     "ttek/tk-database": "~3.0",
     "ttek/tk-mvc": "~3.0",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-pdo": "*"
   },
   "extra": {
     "branch-alias": {
