@@ -46,6 +46,9 @@ class DbBackup extends Iface
 
         $backupName = $options['backupName'];
         $tempPath = sys_get_temp_dir().'/tk-dbBackup-'.getmyuid();
+        if ($input->getOption('name'))
+            $tempPath = sys_get_temp_dir().'/'.$input->getOption('name').'-'.getmyuid();
+
         $backupDir = $tempPath . '/' . $backupName;
         $archivePath = $tempPath . '/' . $backupName . '.tgz';
 
