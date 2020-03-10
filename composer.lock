@@ -180,6 +180,52 @@
             "time": "2019-10-04T14:07:35+00:00"
         },
         {
+            "name": "psr/event-dispatcher",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/event-dispatcher.git",
+                "reference": "cfea31e2e2abbe98159e825ce7d5040a39fba5f0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/event-dispatcher/zipball/cfea31e2e2abbe98159e825ce7d5040a39fba5f0",
+                "reference": "cfea31e2e2abbe98159e825ce7d5040a39fba5f0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\EventDispatcher\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Standard interfaces for event handling.",
+            "keywords": [
+                "events",
+                "psr",
+                "psr-14"
+            ],
+            "time": "2019-05-22T19:30:22+00:00"
+        },
+        {
             "name": "psr/log",
             "version": "dev-master",
             "source": {
@@ -300,34 +346,40 @@
         },
         {
             "name": "symfony/contracts",
-            "version": "v1.1.8",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/contracts.git",
-                "reference": "f51bca9de06b7a25b19a4155da7bebad099a5def"
+                "reference": "2d19b12caccbd80cf0c85624dc87b7021a0df1d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/contracts/zipball/f51bca9de06b7a25b19a4155da7bebad099a5def",
-                "reference": "f51bca9de06b7a25b19a4155da7bebad099a5def",
+                "url": "https://api.github.com/repos/symfony/contracts/zipball/2d19b12caccbd80cf0c85624dc87b7021a0df1d5",
+                "reference": "2d19b12caccbd80cf0c85624dc87b7021a0df1d5",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1.3",
+                "php": "^7.2.5",
                 "psr/cache": "^1.0",
-                "psr/container": "^1.0"
+                "psr/container": "^1.0",
+                "psr/event-dispatcher": "^1.0"
             },
             "replace": {
                 "symfony/cache-contracts": "self.version",
+                "symfony/deprecation-contracts": "self.version",
                 "symfony/event-dispatcher-contracts": "self.version",
                 "symfony/http-client-contracts": "self.version",
                 "symfony/service-contracts": "self.version",
                 "symfony/translation-contracts": "self.version"
             },
             "require-dev": {
+                "psr/cache": "^1.0",
+                "psr/container": "^1.0",
                 "symfony/polyfill-intl-idn": "^1.10"
             },
             "suggest": {
+                "psr/cache": "When using the Cache contracts",
+                "psr/container": "When using the Service contracts",
                 "psr/event-dispatcher": "When using the EventDispatcher contracts",
                 "symfony/cache-implementation": "",
                 "symfony/event-dispatcher-implementation": "",
@@ -373,7 +425,7 @@
                 "interoperability",
                 "standards"
             ],
-            "time": "2019-11-07T12:44:51+00:00"
+            "time": "2019-06-05T13:28:50+00:00"
         },
         {
             "name": "symfony/debug",
@@ -1017,21 +1069,21 @@
         },
         {
             "name": "ttek/tk-database",
-            "version": "3.0.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-database.git",
-                "reference": "bfafa098a0cd3b72c7e174f04498fa09dfb9df51"
+                "reference": "05cfaef380a419e9c4b73ef28b0ca697eb08f9c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/bfafa098a0cd3b72c7e174f04498fa09dfb9df51",
-                "reference": "bfafa098a0cd3b72c7e174f04498fa09dfb9df51",
+                "url": "https://api.github.com/repos/tropotek/tk-database/zipball/05cfaef380a419e9c4b73ef28b0ca697eb08f9c5",
+                "reference": "05cfaef380a419e9c4b73ef28b0ca697eb08f9c5",
                 "shasum": ""
             },
             "require": {
                 "ext-pdo": "*",
-                "ttek/tk-framework": "~3.0"
+                "ttek/tk-framework": "~3.0.0"
             },
             "type": "library",
             "extra": {
@@ -1061,26 +1113,25 @@
                 "database",
                 "tropotek"
             ],
-            "time": "2020-02-25T03:01:35+00:00"
+            "time": "2020-02-05T01:03:53+00:00"
         },
         {
             "name": "ttek/tk-framework",
-            "version": "3.0.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "0eb2d7c76d36ce3f0609292ae4101608f49144cc"
+                "reference": "2df5de8dea6c31c2b82f72b7a80d5b604416dacf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/0eb2d7c76d36ce3f0609292ae4101608f49144cc",
-                "reference": "0eb2d7c76d36ce3f0609292ae4101608f49144cc",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/2df5de8dea6c31c2b82f72b7a80d5b604416dacf",
+                "reference": "2df5de8dea6c31c2b82f72b7a80d5b604416dacf",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "monolog/monolog": "^1.0",
-                "php": "^7.3.0",
                 "psr/log": "^1.0",
                 "symfony/http-foundation": "4.2.*",
                 "ttek/tk-installers": "~3.0.0"
@@ -1120,20 +1171,20 @@
                 "framework",
                 "tropotek"
             ],
-            "time": "2020-03-08T21:44:09+00:00"
+            "time": "2020-02-09T20:06:37+00:00"
         },
         {
             "name": "ttek/tk-installers",
-            "version": "3.0.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-installers.git",
-                "reference": "e8dd816052345866ad8da69ed46bbdcbbe223121"
+                "reference": "90992d46f212d8817635ffb856597a2d5e80c108"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-installers/zipball/e8dd816052345866ad8da69ed46bbdcbbe223121",
-                "reference": "e8dd816052345866ad8da69ed46bbdcbbe223121",
+                "url": "https://api.github.com/repos/tropotek/tk-installers/zipball/90992d46f212d8817635ffb856597a2d5e80c108",
+                "reference": "90992d46f212d8817635ffb856597a2d5e80c108",
                 "shasum": ""
             },
             "require": {
@@ -1172,20 +1223,20 @@
                 "tools",
                 "tropotek"
             ],
-            "time": "2020-02-26T21:35:52+00:00"
+            "time": "2020-01-22T21:58:15+00:00"
         },
         {
             "name": "ttek/tk-mvc",
-            "version": "3.0.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-mvc.git",
-                "reference": "96aaa77fa48f2421abcbbe82239c6c0dcda74187"
+                "reference": "2a9f1a66e957af37b4829aabf73b21305b363e2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-mvc/zipball/96aaa77fa48f2421abcbbe82239c6c0dcda74187",
-                "reference": "96aaa77fa48f2421abcbbe82239c6c0dcda74187",
+                "url": "https://api.github.com/repos/tropotek/tk-mvc/zipball/2a9f1a66e957af37b4829aabf73b21305b363e2a",
+                "reference": "2a9f1a66e957af37b4829aabf73b21305b363e2a",
                 "shasum": ""
             },
             "require": {
@@ -1224,7 +1275,7 @@
                 "mvc",
                 "tropotek"
             ],
-            "time": "2020-02-19T23:43:29+00:00"
+            "time": "2020-02-05T01:03:38+00:00"
         }
     ],
     "packages-dev": [],
