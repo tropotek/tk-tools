@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class DbBackup extends Iface
 {
-    
+
     /**
      *
      */
@@ -25,7 +25,7 @@ class DbBackup extends Iface
             ->addOption('user', 'U', InputOption::VALUE_OPTIONAL, 'The database username.', 'dev')
             ->addOption('pass', 'P', InputOption::VALUE_OPTIONAL, 'The database password.', 'dev007')
             ->addOption('host', 'H', InputOption::VALUE_OPTIONAL, 'The database password.', 'localhost')
-            ->addOption('type', 'T', InputOption::VALUE_OPTIONAL, 'The database type.', 'mysql')
+            ->addOption('type', 'M', InputOption::VALUE_OPTIONAL, 'The database type.', 'mysql')
             ->addOption('name', 'N', InputOption::VALUE_OPTIONAL, 'The database name to dump, if none then all available databases are dumped', '')
             ->addOption('path', 'p', InputOption::VALUE_OPTIONAL, 'The path to save the archive.', $this->getCwd())
             ->addOption('backupName', 'B', InputOption::VALUE_OPTIONAL, 'the name of the archive', 'dbBackup-' . $timestamp)
@@ -46,6 +46,9 @@ class DbBackup extends Iface
 
         $backupName = $options['backupName'];
         $tempPath = sys_get_temp_dir().'/tk-dbBackup-'.getmyuid();
+        if ($input->getOption('name'))
+            $tempPath = sys_get_temp_dir().'/'.$input->getOption('name').'-'.getmyuid();
+
         $backupDir = $tempPath . '/' . $backupName;
         $archivePath = $tempPath . '/' . $backupName . '.tgz';
 
