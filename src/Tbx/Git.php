@@ -757,10 +757,10 @@ class Git
     public function lookupNextTag($curTag = '')
     {
         $nextTag = $curTag;
+        vd($this->getName(), $this->canCreateTag($curTag));
         if ($this->canCreateTag($curTag)) {
             $nextTag = $this->getNextTagName($curTag);
         }
-        vd($curTag, $nextTag);
         return $nextTag;
     }
 
