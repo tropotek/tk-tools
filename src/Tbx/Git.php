@@ -760,6 +760,7 @@ class Git
         if ($this->canCreateTag($curTag)) {
             $nextTag = $this->getNextTagName($curTag);
         }
+        vd($curTag, $nextTag);
         return $nextTag;
     }
 
