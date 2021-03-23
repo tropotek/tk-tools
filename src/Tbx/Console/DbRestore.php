@@ -97,6 +97,7 @@ class DbRestore extends Iface
 
                 $this->writeComment('  Restore Complete');
             } catch (\Exception $e) {
+                \Tk\Log::error('Error Restoring: ' . $dbName);
                 \Tk\Log::error($e->__toString());
                 $this->writeError('  Restore Failed');
             }
