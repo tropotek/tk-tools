@@ -46,7 +46,7 @@ class Update extends Iface
 
         $vcs->update();
 
-        if ($input->getOption('noLibs') || !$this->getVendorPaths() || !count($this->getVendorPaths())) return;
+        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
         foreach ($this->getVendorPaths() as $vPath) {
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
