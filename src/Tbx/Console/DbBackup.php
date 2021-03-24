@@ -67,7 +67,7 @@ class DbBackup extends Iface
 
         foreach ($databaseList as $dbName) {
             if (in_array($dbName, $exclude)) continue;
-            $this->writeStrong($dbName);
+            $this->writeStrong($dbName, OutputInterface::VERBOSITY_VERBOSE);
             $options['name'] = $dbName;
             $db = \Tk\Db\Pdo::create($options);
             \Tk\Util\SqlBackup::create($db)->save($backupDir.'/'.$dbName.'.sql');
