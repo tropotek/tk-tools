@@ -67,9 +67,7 @@ class DbRestore extends Iface
         $cmd = sprintf('tar zxf %s -C %s ', $filename, $tempPath);
         $this->writeComment($cmd);
         system($cmd);
-
-
-
+        
         $exclude = array('Database', 'information_schema', 'performance_schema', 'phpmyadmin', 'mysql', 'dbispconfig', 'roundcube');
         // loop through all sql files and backup if table does not exist
         foreach (new \DirectoryIterator($dirname) as $fileInfo) {
