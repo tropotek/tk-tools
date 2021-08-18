@@ -56,8 +56,9 @@ class DbRestore extends Iface
 
         if ($input->getOption('name'))
             $tempPath = sys_get_temp_dir().'/'.$input->getOption('name').'-'.getmyuid();
-        if (is_dir($tempPath))
+        if (is_dir($tempPath)) {
             \Tk\File::rmdir($tempPath);
+        }
 
         if (!is_dir($tempPath))
             mkdir($tempPath, 0777, true);
@@ -78,10 +79,12 @@ class DbRestore extends Iface
             try {
                 $this->writeComment('  Restoring ' . $dbName . ' [' . $fileInfo->getFilename() . ']:');
                 $options = $input->getOptions();
+                $options['name'] = $dbName;
                 $db = \Tk\Db\Pdo::create($options);
+
                 if ($db->hasDatabase($dbName)) {
-                    $db->setDatabase($dbName);
                     try {
+                        $db->exec('USE ' . $dbName);
                         if (count($db->getTableList()) > 0) {
                             $this->writeInfo('  Skipped. (DB Exists)');
                             continue;
@@ -89,19 +92,17 @@ class DbRestore extends Iface
                     } catch (\Exception $e) {
                         $this->writeInfo('  Skipped. (DB Connection Error)');
                     }
+                } else {
+                    $db->exec('CREATE DATABASE IF NOT EXISTS ' . $dbName);
+                    $db->exec('USE ' . $dbName);
+                    \Tk\Util\SqlBackup::create($db)->restore($fileInfo->getPathname());
+                    $this->writeComment('  Restore Complete');
                 }
-
-                $db->query('CREATE DATABASE IF NOT EXISTS ' . $dbName);
-                $db->setDatabase($dbName);
-                \Tk\Util\SqlBackup::create($db)->restore($fileInfo->getPathname());
-
-                $this->writeComment('  Restore Complete');
             } catch (\Exception $e) {
                 \Tk\Log::error($e->__toString());
                 $this->writeError('  Restore Failed');
             }
         }
-
 
         if (!$this->getConfig()->isDebug())
             \Tk\File::rmdir($tempPath);
