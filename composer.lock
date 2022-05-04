@@ -1789,12 +1789,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "c41b9640c65d1365ca38c32c1f42811c18313823"
+                "reference": "7b1a28eaa2bc8504f399a0936cf53de9ee74c897"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/c41b9640c65d1365ca38c32c1f42811c18313823",
-                "reference": "c41b9640c65d1365ca38c32c1f42811c18313823",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/7b1a28eaa2bc8504f399a0936cf53de9ee74c897",
+                "reference": "7b1a28eaa2bc8504f399a0936cf53de9ee74c897",
                 "shasum": ""
             },
             "require": {
@@ -1814,8 +1814,7 @@
             },
             "autoload": {
                 "files": [
-                    "Tk/Exception.php",
-                    "functions/varDump.php"
+                    "Tk/Exception.php"
                 ],
                 "psr-0": {
                     "Tk\\": ""
