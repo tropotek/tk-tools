@@ -366,6 +366,9 @@ class Git
     /**
      * Commit the current branch and push to remote repos
      *
+     * @todo We need to call git pull if there is a sync error with the remote,
+     *       then re-push the code again...
+     *
      * @param string $message
      * @param bool $force
      * @return static
@@ -392,6 +395,7 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
+            vd($lastLine);
         }
         $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
 
@@ -411,6 +415,7 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
+            vd($lastLine);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
         }
 
@@ -608,6 +613,7 @@ class Git
         $this->commit($message);
         $this->output->setVerbosity($vb);
 
+        // Tag the repository
         $this->cmdBuf = array();
         $cmd = sprintf("git %s tag -a %s -m %s 2>&1 ", $this->getGitArgs(), $version, escapeshellarg($message) );
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
@@ -615,6 +621,8 @@ class Git
             exec($cmd, $this->cmdBuf);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
+
+        // Push the tag to the remote repository
         $this->cmdBuf = array();
         $cmd = sprintf("git %s push --tags 2>&1 ", $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
@@ -622,6 +630,7 @@ class Git
             exec($cmd, $this->cmdBuf);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
+
 
         // Restore the dev composer.json
         if ($composerJson) {
