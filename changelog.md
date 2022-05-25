@@ -1,5 +1,9 @@
 #CHANGELOG#
 
+Ver 3.2.4 [2022-05-26]:
+-------------------------------
+
+
 Ver 3.2.2 [2021-11-09]:
 -------------------------------
   - Merge branch '3.0' of github.com:tropotek/tk-tools into 3.0
