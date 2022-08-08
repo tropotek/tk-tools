@@ -395,7 +395,6 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            vd($lastLine);
         }
         $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
 
@@ -415,7 +414,6 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
-            vd($lastLine);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
         }
 
