@@ -2,14 +2,10 @@
 <?php
 include(dirname(__FILE__) . '/prepend.php');
 
-//use Symfony\Component\Console\Application;
 use Tbx\Console\Application;
 use Tbx\Console\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-// Ensure only one instance running
-//exec("ps aux | grep " . basename(__FILE__), $output, $return);
-//if (count($output) > 3) exit();
 set_time_limit(0);
 
 try {

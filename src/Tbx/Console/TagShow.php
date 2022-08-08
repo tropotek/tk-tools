@@ -35,13 +35,15 @@ class TagShow extends Iface
     {
         parent::execute($input, $output);
 
-        if (!\Tbx\Git::isGit($this->getCwd()))
+        if (!\Tbx\Git::isGit($this->getCwd())) {
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+        }
 
         $sformat = '<info>%-25s</info> <comment>%-12s %-12s</comment>';
         $this->getOutput()->writeln(sprintf('<fg=magenta>%-25s</> <fg=magenta>%-12s %-12s</>', 'package', 'curr', 'next'));
 
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
+
         $vcs->setInputOutput($input, $output);
         $tag = $vcs->getCurrentTag($vcs->getBranchAlias());
         $nextTag = $vcs->lookupNextTag($tag);

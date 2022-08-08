@@ -45,11 +45,18 @@ class TagProject extends Iface
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-        //$vb = $output->getVerbosity();
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
         $projectPath = rtrim($this->getCwd(), '/');
+
+        $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
+        $keywords = [];
+        if (!empty($vcs->getComposer()->keywords))
+            $keywords = $vcs->getComposer()->keywords;
+        if (in_array('tk-template', $keywords)) {
+            throw new \Tk\Exception('Template projects cannot be tagged');
+        }
 
         // Tag Libs
         if (!$input->getOption('noLibs') && count($this->getVendorPaths())) {

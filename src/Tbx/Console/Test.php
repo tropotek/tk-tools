@@ -20,6 +20,7 @@ class Test extends Iface
     protected function configure()
     {
         $this->setName('test')
+            ->setAliases(array('t'))
             ->setDescription('This is a test script only');
     }
 

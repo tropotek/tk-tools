@@ -40,8 +40,16 @@ class Tag extends Iface
 
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
+
+        $keywords = [];
+        if (!empty($vcs->getComposer()->keywords))
+            $keywords = $vcs->getComposer()->keywords;
+        if (in_array('tk-template', $keywords)) {
+            throw new \Tk\Exception('Template projects cannot be tagged');
+        }
 
         $curVer = $vcs->getCurrentTag($vcs->getBranchAlias());
         if (!$curVer) {

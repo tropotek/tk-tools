@@ -12,6 +12,13 @@ try {
         $logger->pushHandler($handler);
         $config->setLog($logger);
         \Tk\Log::getInstance($logger);
+
+        // Init the tk vardump functions
+        \Tk\Debug\VarDump::getInstance($config->getLog(), dirname(dirname(__FILE__)));
+
+        // Init framework error handler
+        \Tk\ErrorHandler::getInstance($config->getLog());
+
     } else {
         error_log('Log Path not readable: ' . $config->getLogPath());
     }

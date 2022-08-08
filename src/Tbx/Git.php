@@ -79,7 +79,7 @@ class Git
     protected $options = array();
 
     /**
-     * @var null
+     * @var \stdClass|null
      */
     protected $composerObj = null;
 
@@ -161,7 +161,7 @@ class Git
     /**
      * Try to load a composer.jsong for this repository
      *
-     * @return null|\stdClass
+     * @return \stdClass
      */
     public function getComposer()
     {

@@ -24,10 +24,11 @@
   },
   "require": {
     "php": "^7.1|^8.0",
+    "ext-json": "*",
+
     "ttek/tk-framework": "~3.0.0",
     "ttek/tk-database": "~3.2.0",
-    "ttek/tk-mvc": "~3.2.0",
-    "ext-json": "*"
+    "ttek/tk-mvc": "~3.2.0"
   },
   "extra": {
     "branch-alias": {
