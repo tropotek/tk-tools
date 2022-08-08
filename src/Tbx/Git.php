@@ -565,7 +565,6 @@ class Git
                 $composerObj->{'minimum-stability'} = 'stable';
             }
             $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
-            //vd(\Tbx\Util::jsonEncode($composerObj));
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, \Tbx\Util::jsonEncode($composerObj));
             }
