@@ -1,42 +1,43 @@
 {
-    "name": "ttek/tk-tools",
-    "type": "project",
-    "description": "Tk lib framework commands.",
-    "keywords":  [
-        "Tbx",
-        "tools",
-        "tropotek"
-    ],
-    "time": "2022-08-09",
-    "license": "MIT",
-    "authors":  [
-         {
-            "name": "Michael Mifsud",
-            "email": "info@tropotek.com.au",
-            "homepage": "http://www.tropotek.com/"
-        }
-    ],
-    "minimum-stability": "stable",
-    "autoload":  {
-        "psr-0":  {
-            "Tbx\\": "src/"
-        }
-    },
-    "require":  {
-        "php": "^7.1|^8.0",
-        "ext-json": "*",
-        "ttek/tk-framework": "~3.0.0",
-        "ttek/tk-database": "~3.2.0",
-        "ttek/tk-mvc": "~3.2.0"
-    },
-    "extra":  {
-        "branch-alias":  {
-            "dev-master": "3.2.x-dev"
-        }
-    },
-    "config":  {
-        "allow-plugins":  {
-            "ttek/tk-installers": true
-        }
+  "name": "ttek/tk-tools",
+  "type": "project",
+  "description": "Tk lib framework commands.",
+  "keywords": [
+    "Tbx",
+    "tools",
+    "tropotek"
+  ],
+  "time": "2010-12-09",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michael Mifsud",
+      "email": "info@tropotek.com.au",
+      "homepage": "http://www.tropotek.com/"
     }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-0": {
+      "Tbx\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^7.1|^8.0",
+    "ext-json": "*",
+
+    "ttek/tk-framework": "~3.0.0",
+    "ttek/tk-database": "~3.2.0",
+    "ttek/tk-mvc": "~3.2.0"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "3.2.x-dev"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "ttek/tk-installers": true
+    }
+  }
 }
