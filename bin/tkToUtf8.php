@@ -1,11 +1,7 @@
 #! /usr/bin/php
 <?php
 /*
- * Tropotek Web Development Tools.
- *
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2005 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 
 $argv = $_SERVER['argv'];
@@ -33,7 +29,7 @@ foreach ($argv as $param) {
     if (strtolower(substr($param, 0, 7)) == '--path=') {
         $startPath = substr($param, 7);
         if (!is_dir($startPath)) {
-            echo 'Path does not exist: ' . $path;
+            echo 'Path does not exist: ' . $startPath;
             exit(-1);
         }
     }
@@ -68,13 +64,13 @@ try {
     exit(-1);
 }
 
-function encode($dir, $ext = 'php')
+function encode(string $dir, string $ext = 'php')
 {
     global $dryRun, $startPath;
 
     if (is_dir($dir)) {
         foreach (new DirectoryIterator($dir) as $res) {
-            if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_' || $res->getFilename() == 'bin' ) {
+            if ($res->isDot() || str_starts_with($res->getFilename(), '_') || $res->getFilename() == 'bin' ) {
                 continue;
             }
             if ($res->isFile()) {
@@ -109,7 +105,7 @@ function encode($dir, $ext = 'php')
     }
 }
 
-function fixEncoding($x)
+function fixEncoding(string $x): string
 {
     //$utf = iconv(mb_detect_encoding($data), ENC_UTF8, $data);
     //$utf = mb_convert_encoding($data, ENC_UTF8, mb_detect_encoding($data));

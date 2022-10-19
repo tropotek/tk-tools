@@ -1,11 +1,11 @@
 <?php
 $classLoader = include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
 
-$system = \Tk\System::instance();
-$config = \Tk\Config::instance();
-$factory = \Tk\Factory::instance();
-
 try {
+
+    $system = \Tk\System::instance();
+    $config = \Tk\Config::instance();
+    $factory = \Tk\Factory::instance();
 
     // Define App Constants/Settings
     include_once(dirname(__DIR__) . '/src/config/config.php');

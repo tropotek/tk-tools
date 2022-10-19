@@ -4,9 +4,7 @@
  * Tropotek Web Development Tools.
  * This is an example of a script using the project framework.
  *
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2005 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 
 include dirname(__FILE__).'/prepend.php';
@@ -182,7 +180,8 @@ function iput($str) {
 /**
  * Return the user's home directory.
  */
-function getHomePath() {
+function getHomePath(): array|string|null
+{
     // $user = posix_getpwuid(posix_getuid());
     // return $user['dir'];
 
@@ -210,7 +209,7 @@ function getHomePath() {
  * @param $entries
  * @return array
  */
-function ldapProcessEntries($entries)
+function ldapProcessEntries($entries): array
 {
     //vd($entries);
     $arr = array();
@@ -261,7 +260,7 @@ function ldapProcessEntries($entries)
  *
  * @param $path
  */
-function genConfig($path)
+function genConfig($path): void
 {
     $str = <<<INI
 ;------------------------------------------------------

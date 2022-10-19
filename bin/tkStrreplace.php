@@ -1,11 +1,7 @@
 #! /usr/bin/php
 <?php
 /*
- * Tropotek Web Development Tools.
- * 
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2005 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 
 $argv = $_SERVER['argv'];
@@ -52,16 +48,16 @@ $filesChanged = 0;
 $stringsReplaced = 0;
 
 foreach ($argv as $param) {
-    if (substr($param, 0, 6) == '--ext=') {
+    if (str_starts_with($param, '--ext=')) {
         $ext = substr($param, 6);
     }
-    if (substr($param, 0, 11) == '--noRecurse') {
+    if (str_starts_with($param, '--noRecurse')) {
         $recurse = false;
     }
-    if (substr($param, 0, 7) == '--quiet') {
+    if (str_starts_with($param, '--quiet')) {
         $quiet = true;
     }
-    if (strtolower(substr($param, 0, 6)) == '--help') {
+    if (str_starts_with($param,'--help')) {
         echo $help;
         exit;
     }
@@ -69,13 +65,9 @@ foreach ($argv as $param) {
 
 /**
  * Simple recursive directory scanner
- *
- * @param string $dir The directory to scan
- * @param string $ext The file extension to grab *=all
- * @param bool $recurse If true, recurse into subdirectories
- * @return array An array of files encountered
  */
-function scan_directory($dir, $ext = '*', $recurse = true) {
+function scan_directory(string $dir, string $ext = '*', bool $recurse = true): array
+{
     $files = array ();
     if ($handle = opendir($dir)) {
         while (false !== ($file = readdir($handle))) {
@@ -87,7 +79,7 @@ function scan_directory($dir, $ext = '*', $recurse = true) {
                 continue;
             }
             if (is_dir ($dir . '/' . $file)) {
-                if ($recurse == true)
+                if ($recurse)
                     $files = array_merge($files, scan_directory ($dir . '/' . $file, $ext));
             } else {
                 if($ext == get_file_extension($file) || $ext == '*') {
@@ -102,11 +94,9 @@ function scan_directory($dir, $ext = '*', $recurse = true) {
 
 /**
  * Return the extension of a file
- *
- * @param string $file the file name to examine
- * @return string Tthe file's extension
  */
-function get_file_extension($file) {
+function get_file_extension(string $file): string
+{
     $temp_vals = explode('.',$file);
     $file_ext = strtolower(rtrim(array_pop($temp_vals)));
     unset ($temp_vals);
@@ -115,7 +105,7 @@ function get_file_extension($file) {
 
 if (is_file($path)) {
     if (!is_writable($path)) {
-        error("File " . $path . " is not writable.");
+        error_log("File " . $path . " is not writable.");
         exit(-1);
     }
     $count = fileReplace($path, $findText, $replaceText);
@@ -144,13 +134,8 @@ if (is_file($path)) {
 
 /**
  * Find and replace some text in a file
- *
- * @param string $file
- * @param string $find
- * @param string $replace
- * @return int
  */
-function fileReplace($file, $find, $replace) 
+function fileReplace(string $file, string $find, string $replace): int
 {
     $count = 0;
     $buff = file_get_contents($file, false);

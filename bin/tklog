@@ -4,9 +4,8 @@
 # Place an error.log file in your ~/public_html/log/ folder
 #  so Tk 2.0 apps can log data and this command will
 #  allow you to view it in real time... Cool Hey!
-# 
-# Date: 03/01/2013
-# Author: Michael Mifsud
+#
+# @author Tropotek <info@tropotek.com>
 #
 
 FILE=/home/${USER}/log/error.log

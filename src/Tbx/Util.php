@@ -3,9 +3,7 @@ namespace Tbx;
 
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2018 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class Util
 {
@@ -14,10 +12,8 @@ class Util
      * Sort an array of software versions....
      *
      * @see http://php.net/version_compare
-     * @param array $array
-     * @return bool true on success or false on failure.
      */
-    public static function sortVersionArray(&$array)
+    public static function sortVersionArray(array &$array): bool
     {
         return usort($array, function ($a, $b) {
             if ($a == $b) {
@@ -42,12 +38,8 @@ class Util
      *  o If a $maskVersion of 1.3.x is supplied with a $currentVersion
      *    of 1.3.9 then the result will be 1.3.10
      *
-     * @param string  $currVersion The current version to increment
-     * @param string  $maskVersion The proposed mask version, the last version value is ignored. Default 0.0.x
-     * @param integer $step The number to increment the version by. Default 1
-     * @return string
      */
-    public static function incrementVersion($currVersion, $maskVersion = '0.0.x', $step = 1)
+    public static function incrementVersion(string $currVersion, string $maskVersion = '0.0.x', int $step = 1): string
     {
         preg_match('/^([0-9]+)\.([0-9]+)\.([a-z0-9]+)$/', $currVersion, $currParts);
         preg_match('/^([0-9]+)\.([0-9]+)\.([a-z0-9\-_]+)$/', $maskVersion, $maskParts);
@@ -66,9 +58,8 @@ class Util
 
     /**
      * Return the user executing the cmd home path
-     * @return null|string
      */
-    public static function getHomePath()
+    public static function getHomePath(): ?string
     {
         // Cannot use $_SERVER superglobal since that's empty during UnitUnishTestCase
         // getenv('HOME') isn't set on Windows and generates a Notice.
@@ -86,34 +77,21 @@ class Util
         return empty($home) ? NULL : $home;
     }
 
-    /**
-     * @param mixed $obj
-     * @return string
-     */
-    public static function jsonEncode($obj)
+    public static function jsonEncode(mixed $obj): string
     {
         return self::jsonPrettyPrint(json_encode($obj));
     }
 
-    /**
-     * @param string $json
-     * @return mixed
-     */
-    public static function jsonDecode($json)
+    public static function jsonDecode(string $json): mixed
     {
         $str = json_decode($json);
         return $str;
     }
 
-
     /**
      * Format JSON to text or HTML
-     *
-     * @param $json
-     * @param bool $html
-     * @return string
      */
-    public static function jsonPrettyPrint($json, $html = false)
+    public static function jsonPrettyPrint(string $json, bool $html = false): string
     {
         $tabcount = 0;
         $result = '';

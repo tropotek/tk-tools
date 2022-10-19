@@ -18,7 +18,7 @@ class Update extends Iface
             ->setAliases(array('up'))
             ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
-            ->setDescription("Run from the root of a ttek project to update the repository.");
+            ->setDescription("Run from the root of a ttek project to update the repository and ttek libs.");
     }
 
     /**

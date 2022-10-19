@@ -17,60 +17,52 @@
    | Authors:  Derick Rethans <derick@xdebug.org>                         |
    +----------------------------------------------------------------------+
  */
-if ( $argc <= 1 || $argc > 4 )
-{
+if ($argc <= 1 || $argc > 4) {
     showUsage();
 }
 
 $fileName = $argv[1];
-$sortKey  = 'time-own';
+$sortKey = 'time-own';
 $elements = 25;
-if ( $argc > 2 )
-{
+if ($argc > 2) {
     $sortKey = $argv[2];
-    if ( !in_array( $sortKey, array( 'calls', 'time-inclusive', 'memory-inclusive', 'time-own', 'memory-own' ) ) )
-    {
+    if (!in_array($sortKey, array('calls', 'time-inclusive', 'memory-inclusive', 'time-own', 'memory-own'))) {
         showUsage();
     }
 }
-if ( $argc > 3 )
-{
-    $elements = (int) $argv[3];
+if ($argc > 3) {
+    $elements = (int)$argv[3];
 }
 
-$o = new drXdebugTraceFileParser( $argv[1] );
+$o = new drXdebugTraceFileParser($argv[1]);
 $o->parse();
-$functions = $o->getFunctions( $sortKey );
+$functions = $o->getFunctions($sortKey);
 
 // find longest function name
 $maxLen = 0;
-foreach( $functions as $name => $f )
-{
-    if ( strlen( $name ) > $maxLen )
-    {
-        $maxLen = strlen( $name );
+foreach ($functions as $name => $f) {
+    if (strlen($name) > $maxLen) {
+        $maxLen = strlen($name);
     }
 }
 
 echo "Showing the {$elements} most costly calls sorted by '{$sortKey}'.\n\n";
 
-echo "        ", str_repeat( ' ', $maxLen - 8 ), "        Inclusive        Own\n";
-echo "function", str_repeat( ' ', $maxLen - 8 ), "#calls  time     memory  time     memory\n";
-echo "--------", str_repeat( '-', $maxLen - 8 ), "----------------------------------------\n";
+echo "        ", str_repeat(' ', $maxLen - 8), "        Inclusive        Own\n";
+echo "function", str_repeat(' ', $maxLen - 8), "#calls  time     memory  time     memory\n";
+echo "--------", str_repeat('-', $maxLen - 8), "----------------------------------------\n";
 
 // display functions
 $c = 0;
-foreach( $functions as $name => $f )
-{
+foreach ($functions as $name => $f) {
     $c++;
-    if ( $c > $elements )
-    {
+    if ($c > $elements) {
         break;
     }
-    printf( " %-{$maxLen}s %5d  %3.4f %8d  %3.4f %8d         \n",
+    printf(" %-{$maxLen}s %5d  %3.4f %8d  %3.4f %8d         \n",
         $name, $f['calls'],
         $f['time-inclusive'], $f['memory-inclusive'],
-        $f['time-own'], $f['memory-own'] );
+        $f['time-own'], $f['memory-own']);
 }
 
 function showUsage()
@@ -101,21 +93,19 @@ class drXdebugTraceFileParser
      */
     protected $stackFunctions;
 
-    public function __construct( $fileName )
+    public function __construct($fileName)
     {
-        $this->handle = fopen( $fileName, 'r' );
-        if ( !$this->handle )
-        {
-            throw new Exception( "Can't open '$fileName'" );
+        $this->handle = fopen($fileName, 'r');
+        if (!$this->handle) {
+            throw new Exception("Can't open '$fileName'");
         }
-        $this->stack[-1] = array( '', 0, 0, 0, 0 );
-        $this->stack[ 0] = array( '', 0, 0, 0, 0 );
+        $this->stack[-1] = array('', 0, 0, 0, 0);
+        $this->stack[0] = array('', 0, 0, 0, 0);
 
         $this->stackFunctions = array();
-        $header1 = fgets( $this->handle );
-        $header2 = fgets( $this->handle );
-        if ( !preg_match( '@Version: [23].*@', $header1 ) || !preg_match( '@File format: [2-4]@', $header2 ) )
-        {
+        $header1 = fgets($this->handle);
+        $header2 = fgets($this->handle);
+        if (!preg_match('@Version: [23].*@', $header1) || !preg_match('@File format: [2-4]@', $header2)) {
             echo "\nThis file is not an Xdebug trace file made with format option '1' and version 2 to 4.\n";
             showUsage();
         }
@@ -125,26 +115,24 @@ class drXdebugTraceFileParser
     {
         echo "\nparsing...\n";
         $c = 0;
-        $size = fstat( $this->handle );
+        $size = fstat($this->handle);
         $size = $size['size'];
         $read = 0;
 
-        while ( !feof( $this->handle ) )
-        {
-            $buffer = fgets( $this->handle, 4096 );
-            $read += strlen( $buffer );
-            $this->parseLine( $buffer );
+        while (!feof($this->handle)) {
+            $buffer = fgets($this->handle, 4096);
+            $read += strlen($buffer);
+            $this->parseLine($buffer);
             $c++;
 
-            if ( $c % 25000 === 0 )
-            {
-                printf( " (%5.2f%%)      \r", ( $read / $size ) * 100 );
+            if ($c % 25000 === 0) {
+                printf(" (%5.2f%%)      \r", ($read / $size) * 100);
             }
         }
         echo "\n\nDone.\n\n";
     }
 
-    private function parseLine( $line )
+    private function parseLine($line)
     {
         /*
             if ( preg_match( '@^Version: (.*)@', $line, $matches ) )
@@ -159,52 +147,49 @@ class drXdebugTraceFileParser
             else // assume a normal line
             */
         {
-            $parts = explode( "\t", $line );
-            if ( count( $parts ) < 5 )
-            {
+            $parts = explode("\t", $line);
+            if (count($parts) < 5) {
                 return;
             }
             $depth = $parts[0];
             $funcNr = $parts[1];
             $time = $parts[3];
             $memory = $parts[4];
-            if ( $parts[2] == '0' ) // function entry
+            if ($parts[2] == '0') // function entry
             {
                 $funcName = $parts[5];
                 $intFunc = $parts[6];
 
-                $this->stack[$depth] = array( $funcName, $time, $memory, 0, 0 );
+                $this->stack[$depth] = array($funcName, $time, $memory, 0, 0);
 
-                array_push( $this->stackFunctions, $funcName );
-            }
-            else if ( $parts[2] == '1' ) // function exit
+                array_push($this->stackFunctions, $funcName);
+            } else if ($parts[2] == '1') // function exit
             {
-                list( $funcName, $prevTime, $prevMem, $nestedTime, $nestedMemory ) = $this->stack[$depth];
+                list($funcName, $prevTime, $prevMem, $nestedTime, $nestedMemory) = $this->stack[$depth];
 
                 // collapse data onto functions array
-                $dTime   = $time   - $prevTime;
+                $dTime = $time - $prevTime;
                 $dMemory = $memory - $prevMem;
 
                 $this->stack[$depth - 1][3] += $dTime;
                 $this->stack[$depth - 1][4] += $dMemory;
 
-                array_pop( $this->stackFunctions );
+                array_pop($this->stackFunctions);
 
-                $this->addToFunction( $funcName, $dTime, $dMemory, $nestedTime, $nestedMemory );
+                $this->addToFunction($funcName, $dTime, $dMemory, $nestedTime, $nestedMemory);
             }
         }
     }
 
-    protected function addToFunction( $function, $time, $memory, $nestedTime, $nestedMemory )
+    protected function addToFunction($function, $time, $memory, $nestedTime, $nestedMemory)
     {
-        if ( !isset( $this->functions[$function] ) )
-        {
-            $this->functions[$function] = array( 0, 0, 0, 0, 0 );
+        if (!isset($this->functions[$function])) {
+            $this->functions[$function] = array(0, 0, 0, 0, 0);
         }
 
         $elem = &$this->functions[$function];
         $elem[0]++;
-        if ( !in_array( $function, $this->stackFunctions ) ) {
+        if (!in_array($function, $this->stackFunctions)) {
             $elem[1] += $time;
             $elem[2] += $memory;
             $elem[3] += $nestedTime;
@@ -212,28 +197,25 @@ class drXdebugTraceFileParser
         }
     }
 
-    public function getFunctions( $sortKey = null )
+    public function getFunctions($sortKey = null)
     {
         $result = array();
-        foreach ( $this->functions as $name => $function )
-        {
+        foreach ($this->functions as $name => $function) {
             $result[$name] = array(
-                'calls'                 => $function[0],
-                'time-inclusive'        => $function[1],
-                'memory-inclusive'      => $function[2],
-                'time-children'         => $function[3],
-                'memory-children'       => $function[4],
-                'time-own'              => $function[1] - $function[3],
-                'memory-own'            => $function[2] - $function[4]
+                'calls' => $function[0],
+                'time-inclusive' => $function[1],
+                'memory-inclusive' => $function[2],
+                'time-children' => $function[3],
+                'memory-children' => $function[4],
+                'time-own' => $function[1] - $function[3],
+                'memory-own' => $function[2] - $function[4]
             );
         }
 
-        if ( $sortKey !== null )
-        {
-            uasort( $result,
-                function( $a, $b ) use ( $sortKey )
-                {
-                    return ( $a[$sortKey] > $b[$sortKey] ) ? -1 : ( $a[$sortKey] < $b[$sortKey] ? 1 : 0 );
+        if ($sortKey !== null) {
+            uasort($result,
+                function ($a, $b) use ($sortKey) {
+                    return ($a[$sortKey] > $b[$sortKey]) ? -1 : ($a[$sortKey] < $b[$sortKey] ? 1 : 0);
                 }
             );
         }
@@ -241,4 +223,5 @@ class drXdebugTraceFileParser
         return $result;
     }
 }
+
 ?>

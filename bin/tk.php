@@ -40,7 +40,6 @@ try {
     // Other commands
     $app->add(new \Tbx\Console\Hash());
     $app->add(new \Tbx\Console\PassGen());
-
     //$app->add(new \Tbx\Console\Test());
 
     $app->run($input, $output);
