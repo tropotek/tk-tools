@@ -9,21 +9,18 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 set_time_limit(0);
 
 try {
-    $iniParams = array();
-
+    $iniParams = [];
     $input = new ArgvInput();
     $output = new ConsoleOutput();
 
+    $system = \Tk\System::instance();
+    $config = \Tk\Config::instance();
+    $factory = \Tk\Factory::instance();
+
     $composer = \Tbx\Util::jsonDecode(file_get_contents(dirname(__DIR__) . '/composer.json'));
-    $config = \Tk\Config::getInstance();
 
-    $app = new Application('Tropotek Command Utilities', $config->getVersion());
-
-    $dispatcher = new \Tk\EventDispatcher\EventDispatcher();
-    if ($config->get('event.dispatcher.log')) {
-        $dispatcher->setLogger($config->getLog());
-    }
-    $app->setDispatcher($dispatcher);
+    $app = new Application('Tropotek Command Utilities', $system->getVersion());
+    $app->setDispatcher($factory->getEventDispatcher());
 
     //Determine Environment
     $env = $input->getParameterOption(array('--env', '-e'), getenv('MYAPP_ENV') ?: 'prod');

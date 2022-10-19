@@ -1,34 +1,33 @@
 <?php
 /*
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2015 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
-$config = \Tk\Config::getInstance();
+$config = \Tk\Config::instance();
 
 /*
  * Vendor paths to look for libs we manage
  */
-$config['vendor.paths'] = array('/vendor/uom', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/html');
+$config['vendor.paths'] = ['/vendor/uom', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/html'];
 
 /*
  *File to ignore when we are doing a comparison from this repo to the remote repo
  */
-$config['diff.exclude.files'] = array('composer.json', 'changelog.md');
+$config['diff.exclude.files'] = ['composer.json', 'changelog.md'];
 
 /*
  * Enable exception emails
  */
-//$config['system.email.exception'] = array('user@example.com');
+//$config['system.email.exception'] = ['user@example.com'];
 
 /*
  * Send copies of all system emails to these recipients (not error emails)
  */
-//$config['mail.bcc'] = array('user1@example.edu.au');
+//$config['mail.bcc'] = ['user1@example.edu.au'];
 
 /*
  * Enable logging of triggered events
  * Default: false
+ * @deprecated Until further notice
  */
 //$config['event.dispatcher.log'] = true;
 
