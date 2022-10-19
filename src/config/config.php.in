@@ -35,10 +35,14 @@ $config['diff.exclude.files'] = ['composer.json', 'changelog.md'];
 /*
  * Debug
  */
-//$config['debug'] = true;
-//$config['log.path'] = '/home/user/log/error.log';
-//$config['log.level'] = \Psr\Log\LogLevel::DEBUG;
-//$config['system.debug.email'] = 'root@localhost';
+$config['debug'] = true;
+if ($config->isDebug()) {
+    error_reporting(-1);
+    $config['php.display_errors'] = 'On';
+    $config['php.error_log']      = '/home/user/log/error.log';
+    $config['system.debug.email'] = 'user@example.com';
+    $config['log.logLevel']       = \Psr\Log\LogLevel::DEBUG;
+}
 
 
 
