@@ -12,7 +12,6 @@ try {
 
     \Tk\Factory::instance()->getBootstrap()->init();
 
-        vd('------------');
 } catch (\Exception $e) {
     error_log($e->__toString());
 }
