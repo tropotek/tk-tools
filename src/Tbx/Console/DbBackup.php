@@ -1,22 +1,19 @@
 <?php
 namespace Tbx\Console;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Tk\Db\Util\SqlBackup;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @see http://www.tropotek.com/
- * @license Copyright 2017 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class DbBackup extends Iface
 {
 
-    /**
-     *
-     */
     protected function configure()
     {
         $timestamp = date(\Tk\Date::FORMAT_ISO_DATE);
@@ -29,20 +26,15 @@ class DbBackup extends Iface
             ->addOption('name', 'N', InputOption::VALUE_OPTIONAL, 'The database name to dump, if none then all available databases are dumped', '')
             ->addOption('path', 'p', InputOption::VALUE_OPTIONAL, 'The path to save the archive.', $this->getCwd())
             ->addOption('backupName', 'B', InputOption::VALUE_OPTIONAL, 'the name of the archive', 'dbBackup-' . $timestamp)
-            //->addOption('user', 'U', InputOption::VALUE_OPTIONAL, 'The database username.', 'dev')
             ->setDescription('Backup all tables in a DB');
     }
 
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int|null|void
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
         $options = $input->getOptions();
 
         $backupName = $options['backupName'];
@@ -70,7 +62,7 @@ class DbBackup extends Iface
             $this->writeStrong($dbName, OutputInterface::VERBOSITY_VERBOSE);
             $options['name'] = $dbName;
             $db = \Tk\Db\Pdo::create($options);
-            \Tk\Util\SqlBackup::create($db)->save($backupDir.'/'.$dbName.'.sql');
+            (new SqlBackup($db))->save($backupDir.'/'.$dbName.'.sql');
         }
 
         $cmd = sprintf('cd %s && tar zcf %s %s ', $tempPath, basename($archivePath), basename($backupDir));
@@ -82,7 +74,9 @@ class DbBackup extends Iface
         system($cmd);
 
         $this->write($options['path'].'/'.basename($archivePath));
-        \Tk\File::rmdir($tempPath);
+        \Tk\FileUtil::rmdir($tempPath);
+
+        return Command::SUCCESS;
     }
 
 }

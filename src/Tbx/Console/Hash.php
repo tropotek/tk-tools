@@ -1,41 +1,32 @@
 <?php
 namespace Tbx\Console;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @see http://www.tropotek.com/
- * @license Copyright 2017 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class Hash extends Iface
 {
-    
-    /**
-     *
-     */
+
     protected function configure()
     {
         $this->setName('hash')
             ->addArgument('string', InputArgument::OPTIONAL, 'The string that is to have the hash applied to it.')
             ->addOption('algorithm', 'a', InputOption::VALUE_OPTIONAL, 'Specify a hash algorithm to use.', 'md5')
             ->addOption('algoList', 'l', InputOption::VALUE_NONE, 'List the available hash() algorithms.')
-            ->setDescription('Generate a hash value. (i.e. "md5", "sha256", "haval160,4", etc..)');
+            ->setDescription('Generate a hash value. (i.e. "md5", "sha256", etc..)');
     }
 
     /**
-     * @param \Tbx\Console\ArgvInput $input
-     * @param OutputInterface $output
-     * @return int|null|void
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
-
         if (!$input->getOption('algoList')) {
             $this->writeInfo(ucwords($this->getName()));
             $str = $input->getArgument('string');
@@ -54,6 +45,7 @@ class Hash extends Iface
                     $this->writeComment(sprintf('%-12s %3d %s', $v, strlen($r), $r));
             }
         }
+        return Command::SUCCESS;
     }
 
 
