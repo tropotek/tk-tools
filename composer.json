@@ -22,16 +22,13 @@
     }
   },
   "require": {
-    "php": "^7.1|^8.0",
+    "php": "^8.0",
     "ext-json": "*",
-
-    "ttek/tk-framework": "~3.0.0",
-    "ttek/tk-database": "~3.2.0",
-    "ttek/tk-mvc": "~3.2.0"
+    "ttek/tk-framework": "^8.0.0"
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "3.2.x-dev"
+      "dev-master": "8.0.x-dev"
     }
   },
   "config": {
