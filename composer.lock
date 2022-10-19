@@ -2399,12 +2399,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "43319731d20f913c546431d3c32af7febacc70fa"
+                "reference": "88cde4c076adf676a28629a045f7c6ac85caa8a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/43319731d20f913c546431d3c32af7febacc70fa",
-                "reference": "43319731d20f913c546431d3c32af7febacc70fa",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/88cde4c076adf676a28629a045f7c6ac85caa8a2",
+                "reference": "88cde4c076adf676a28629a045f7c6ac85caa8a2",
                 "shasum": ""
             },
             "require": {

@@ -7,11 +7,10 @@ $factory = \Tk\Factory::instance();
 
 try {
 
-    // Init the tk vardump functions
-    \Tk\Debug\VarDump::instance($factory->getLogger(), dirname(dirname(__FILE__)));
+    // Define App Constants/Settings
+    include_once(dirname(__DIR__) . '/src/config/config.php');
 
-    // Init framework error handler
-    \Tk\ErrorHandler::instance($factory->getLogger());
+    \Tk\Factory::instance()->getBootstrap()->init();
 
 } catch (\Exception $e) {
     error_log($e->__toString());

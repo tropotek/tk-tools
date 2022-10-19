@@ -1,22 +1,18 @@
 <?php
 namespace Tbx\Console;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @see http://www.tropotek.com/
- * @license Copyright 2017 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class Commit extends Iface
 {
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this->setName('commit')
@@ -29,32 +25,24 @@ class Commit extends Iface
             ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int|null|void
-     * @throws \Exception
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
         $sp = '%s: %-18s %s';
 
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');
         $this->writeStrongInfo($s);
-        //$this->writeStrongInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 
         $message = $input->getArgument('message');
         $vcs->commit($message, $input->getOption('force'));
 
-        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return;
+        if ($input->getOption('noLibs') || !count($this->getVendorPaths())) return Command::FAILURE;
         foreach ($this->getVendorPaths() as $vPath) {
             $libPath = rtrim($vcs->getPath(), '/') . $vPath;
             if (is_dir($libPath)) {      // If vendor path exists
                 foreach (new \DirectoryIterator($libPath) as $res) {
-                    if ($res->isDot() || !$res->isDir() || substr($res->getFilename(), 0, 1) == '_') continue;
+                    if ($res->isDot() || !$res->isDir() || str_starts_with($res->getFilename(), '_')) continue;
                     $path = $res->getRealPath();
                     try {
                         if (!\Tbx\Git::isGit($path)) continue;  // Stop unnecessary errors
@@ -63,7 +51,6 @@ class Commit extends Iface
                         $v->setInputOutput($input, $output);
                         $s = sprintf($sp, ucwords($this->getName()), basename($v->getPath()), '{'.$v->getCurrentBranch().'}');
                         $this->writeInfo($s);
-                        //$this->writeInfo(ucwords($this->getName()) . ': ' . basename($v->getPath()) .'      [' . $v->getCurrentBranch() . ']');
                         $v->commit($message, $input->getOption('force'));
                     } catch (\Exception $e) {
                         $this->writeError($e->getMessage());
@@ -72,7 +59,7 @@ class Commit extends Iface
             }
         }
 
-
+        return Command::SUCCESS;
     }
 
 

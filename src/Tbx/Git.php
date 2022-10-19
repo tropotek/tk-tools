@@ -3,16 +3,17 @@ namespace Tbx;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Tk\Traits\SystemTrait;
 
 /**
  * Use this to do operations on a Git repository
  *
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2016 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class Git
 {
+    use SystemTrait;
+
     /**
      * The default commit message
      */
@@ -717,7 +718,7 @@ class Git
      * @param string $curTag Either a static tag version or a branch-alias to increment
      * @return string
      */
-    public function getNextTagName($curTag = '')
+    public function getNextTagName(string $curTag = ''): string
     {
         $alias = substr($curTag, 0, strrpos($curTag, '.')).'.x';
         if (preg_match('/\.x-dev$/', $curTag)) {
@@ -737,11 +738,7 @@ class Git
         return $nextTag;
     }
 
-    /**
-     * @param string $curTag
-     * @return bool
-     */
-    public function canCreateTag($curTag = '')
+    public function canCreateTag(string $curTag = ''): bool
     {
         if (
             $this->getOption('forceTag', false) ||
@@ -756,11 +753,8 @@ class Git
     /**
      * This will return the next version number if the repo can be tagged
      * Repositories that have no modifications will return the current version tag.
-     *
-     * @param string $curTag
-     * @return string
      */
-    public function lookupNextTag($curTag = '')
+    public function lookupNextTag(string $curTag = ''): string
     {
         $nextTag = $curTag;
         if ($this->canCreateTag($curTag)) {
@@ -771,14 +765,12 @@ class Git
 
     /**
      * Get an array of current tagged versions.
-     *
-     * @return array
      */
-    public function getTagList()
+    public function getTagList(): ?array
     {
         if (!$this->tagList) {
-            $this->cmdBuf = array();
-            $this->tagList = array();
+            $this->cmdBuf = [];
+            $this->tagList = [];
 
             $cmd = sprintf('git %s tag 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -797,32 +789,12 @@ class Git
         return $this->tagList;
     }
 
-
-
-
-    /**
-     * @return \Tk\Config
-     */
-    public function getConfig()
-    {
-        return \Tk\Config::getInstance();
-    }
-
-    /**
-     * @param string $name
-     * @return bool
-     */
-    public function hasOption($name)
+    public function hasOption(string $name): bool
     {
         return !empty($this->options[$name]);
     }
 
-    /**
-     * @param string $name
-     * @param null|mixed $default
-     * @return mixed|null
-     */
-    public function getOption($name, $default = null)
+    public function getOption(string $name, mixed $default = null): mixed
     {
         if ($this->hasOption($name)) {
             return $this->options[$name];
@@ -830,31 +802,19 @@ class Git
         return $default;
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return $this
-     * @todo: make individual methods and implement writeLn() to check if output exists
-     */
-    public function setInputOutput(InputInterface $input, OutputInterface $output)
+    public function setInputOutput(InputInterface $input, OutputInterface $output): static
     {
         $this->input = $input;
         $this->output = $output;
         return $this;
     }
 
-    /**
-     * @return OutputInterface
-     */
-    public function getOutput()
+    public function getOutput(): ?OutputInterface
     {
         return $this->output;
     }
 
-    /**
-     * @return InputInterface
-     */
-    public function getInput()
+    public function getInput(): ?InputInterface
     {
         return $this->input;
     }
@@ -862,32 +822,33 @@ class Git
 
     protected function writeStrong($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return $this->write(sprintf('<options=bold>%s</>', $str), $options);
+        $this->write(sprintf('<options=bold>%s</>', $str), $options);
     }
+
     protected function writeInfo($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return $this->write(sprintf('<info>%s</info>', $str), $options);
+        $this->write(sprintf('<info>%s</info>', $str), $options);
     }
 
     protected function writeComment($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return $this->write(sprintf('<comment>%s</comment>', $str), $options);
+        $this->write(sprintf('<comment>%s</comment>', $str), $options);
     }
 
     protected function writeQuestion($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return $this->write(sprintf('<question>%s</question>', $str), $options);
+        $this->write(sprintf('<question>%s</question>', $str), $options);
     }
 
     protected function writeError($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
-        return $this->write(sprintf('<error>%s</error>', $str), $options);
+        $this->write(sprintf('<error>%s</error>', $str), $options);
     }
 
     protected function write($str, $options = OutputInterface::VERBOSITY_NORMAL)
     {
         if ($this->getOutput())
-            return $this->getOutput()->writeln($str, $options);
+            $this->getOutput()->writeln($str, $options);
     }
 
 }

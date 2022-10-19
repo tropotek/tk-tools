@@ -13,15 +13,12 @@ abstract class Iface extends \Tk\Console\Console
 
     protected array $vendorPaths = [];
 
-    public function __construct(string $name = '')
+    public function __construct(string $name = null)
     {
         parent::__construct($name);
-        $this->setVendorPaths($this->getConfig()->get('vendor.paths'));
+        $this->setVendorPaths($this->getConfig()->get('vendor.paths', []));
     }
 
-    /**
-     * @return array
-     */
     public function getVendorPaths(): array
     {
         return $this->vendorPaths;
