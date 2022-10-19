@@ -28,7 +28,7 @@ class Commit extends Iface
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $sp = '%s: %-18s %s';
-
+vd($this->getCwd());
         $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');
