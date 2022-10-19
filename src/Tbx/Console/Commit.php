@@ -16,10 +16,9 @@ class Commit extends Iface
     protected function configure()
     {
         $this->setName('commit')
-            ->setAliases(array('ci'))
+            ->setAliases(['ci'])
             ->addArgument('message', InputArgument::OPTIONAL, 'Repository Commit Message', '')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not changes, just commit. Slower.')
-            //->addOption('message', 'm', InputOption::VALUE_OPTIONAL, 'Repository Commit Message', '')
             ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
             ->setDescription("Run from the root of a ttek project to commit the code and ttek lib changes.");

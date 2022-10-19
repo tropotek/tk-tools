@@ -4,27 +4,19 @@ namespace Tbx\Console;
 use Symfony\Component\Console\Input\InputDefinition;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @link http://www.tropotek.com/
- * @license Copyright 2018 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class ArgvInput extends \Symfony\Component\Console\Input\ArgvInput
 {
     /**
      * The name of the ini file that can be placed in the users home dir
-     * @var string
      */
-    public static $INI_FILE = '.tkrc';
+    public static string $INI_FILE = '.tkrc';
 
-    /**
-     * @var array
-     */
-    private $ini = array();
+    private array $ini = [];
 
     /**
      * ArgvInput constructor.
-     * @param array|null $argv
-     * @param InputDefinition|null $definition
      */
     public function __construct(array $argv = null, InputDefinition $definition = null)
     {
@@ -33,34 +25,22 @@ class ArgvInput extends \Symfony\Component\Console\Input\ArgvInput
         $iniFile = \Tbx\Util::getHomePath() . '/' . self::$INI_FILE;
         if (is_file($iniFile)) {
             $this->ini = parse_ini_file($iniFile, true);
-            if (!is_array($this->ini)) $this->ini = array();
         }
     }
 
-    /**
-     * @param $name
-     * @return mixed|string
-     */
-    public function getIniOption($name)
+    public function getIniOption(string $name): mixed
     {
         if ($this->hasIniOption($name))
             return $this->ini[$name];
         return '';
     }
 
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function hasIniOption($name)
+    public function hasIniOption(string $name): bool
     {
         return isset($this->ini[$name]);
     }
 
-    /**
-     * @return array
-     */
-    public function getIniOptions()
+    public function getIniOptions(): array
     {
         return $this->ini;
     }

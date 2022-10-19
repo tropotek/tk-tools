@@ -2,9 +2,9 @@
 <?php
 include(dirname(__FILE__) . '/prepend.php');
 
-use Tbx\Console\Application;
 use Tbx\Console\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Application;
 
 set_time_limit(0);
 
