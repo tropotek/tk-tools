@@ -27,144 +27,85 @@ class Git
     /**
      * The repository base URI, all paths used should
      * be prepended with this base uri.
-     * @var string
      */
-    protected $uri = '';
+    protected string $uri = '';
 
     /**
      * The root directory of the project
-     * @var string
      */
-    protected $path = '';
+    protected string $path = '';
 
-    /**
-     * @var string
-     */
-    protected $name = null;
+    protected string $name = '';
 
+    public ?OutputInterface $output = null;
 
-    /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
-     */
-    public $output = null;
+    public ?InputInterface $input = null;
 
-    /**
-     * @var \Symfony\Component\Console\Input\InputInterface
-     */
-    public $input = null;
+    protected string $changelog = '';
 
-    /**
-     * @var string
-     */
-    protected $changelog = '';
-
-    /**
-     * @var array
-     */
-    protected $tagList = null;
+    protected array $tagList = [];
 
     /**
      * This will hold any command output text
-     * @var null|array
      */
-    public $cmdBuf = array();
+    public array $cmdBuf = [];
 
-    /**
-     * @var string
-     */
-    protected $defaultMessage = '';
+    protected string $defaultMessage = '';
 
-    /**
-     * @var array
-     */
-    protected $options = array();
+    protected array $options = [];
 
-    /**
-     * @var \stdClass|null
-     */
-    protected $composerObj = null;
-
-    /**
-     * If true nothing is committed to the repository
-     * @var boolean
-     * @deprcated Use isDryRun()
-     */
-    protected $dryRun = false;
+    protected ?\stdClass $composerObj = null;
 
 
     /**
-     * @param string $path
-     * @param array $options
      * @throws \Exception
      */
-    public function __construct($path, $options = array())
+    public function __construct(string $path, array $options = [])
     {
         $this->setPath($path);
         $this->options = $options;
     }
 
     /**
-     * @param string $path
-     * @param array $options
-     * @return static
      * @throws \Exception
      */
-    public static function create($path, $options = array())
+    public static function create(string $path, array $options = []): static
     {
         $obj = new static($path, $options);
         return $obj;
     }
 
-
-    /**
-     * Is the path GIT repository
-     *
-     * @param $path
-     * @return bool
-     */
-    public static function isGit($path)
+    public static function isGit(string $path): bool
     {
         $path = rtrim($path, '/');
         return is_dir($path.'/.git');
     }
 
-    /**
-     * @param bool $b
-     * @return $this
-     */
-    public function setDryRun($b = true)
+    public function setDryRun(bool $b = true): static
     {
         $this->options['dryRun'] = $b;
         $this->writeComment('Dry Run Enabled.');
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDryRun()
+    public function isDryRun(): bool
     {
         return $this->getOption('dryRun', false);
     }
 
     /**
      * Is the path a composer package
-     *
-     * @param $path
-     * @return bool
      */
-    public static function isComposer($path)
+    public static function isComposer(string $path): bool
     {
         $path = rtrim($path, '/');
         return file_exists($path.'/composer.json');
     }
 
     /**
-     * Try to load a composer.jsong for this repository
-     *
-     * @return \stdClass
+     * Try to load a composer.json for this repository
      */
-    public function getComposer()
+    public function getComposer(): ?\stdClass
     {
         if (!$this->composerObj && self::isComposer($this->getPath())) {
             $composerFile = $this->getPath() . '/composer.json';
@@ -175,17 +116,14 @@ class Git
         return $this->composerObj;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         if (!$this->name) {
-            $this->name = basename($this->getPath());
+            $this->name = basename($this->getPath()) ?? '';
             if ($this->getComposer()) {
                 $composerObj = $this->getComposer();
                 if ($composerObj && property_exists($composerObj, 'name')) {
-                    $this->name = $composerObj->name;
+                    $this->name = $composerObj->name ?? '';
                 }
             }
         }
@@ -193,11 +131,9 @@ class Git
     }
 
     /**
-     * @param $path
-     * @return $this
      * @throws \Exception
      */
-    public function setPath($path)
+    public function setPath(string $path): static
     {
         $path = rtrim($path, '/');
         if (!is_dir($path.'/.git')) {
@@ -207,28 +143,20 @@ class Git
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
 
-    /**
-     * @return string
-     */
-    public function getGitArgs()
+    public function getGitArgs(): string
     {
         return ' -C ' . escapeshellarg($this->getPath());
     }
 
     /**
      * getChangelog
-     *
-     * @return string
      */
-    public function getChangelog()
+    public function getChangelog(): string
     {
         return $this->changelog;
     }
@@ -236,28 +164,8 @@ class Git
     /**
      * Get the current branch
      */
-    public function getCurrentBranch()
+    public function getCurrentBranch(): string
     {
-        // TODO: This is not working as expected???
-        //       [3.0.58]    tk-table
-        //       Tagging and releasing branch `M Tk/Table/Cell/Iface.php` with version `3.0.60`.
-        // Array[6]
-        //(
-        //  [0] => M      composer.json
-        //  [1] => M      src/App/Controller/Animal/View.php
-        //  [2] => M      src/App/Form/Animal.php
-        //  [3] => 92276c8 ~Auto: Commit
-        //  [4] => 256f534 ~Auto: Commit
-        //  [5] => 3.0                          <<--- This is what we need
-        //
-        //)
-//        $cmd = sprintf('git %s rev-parse --abbrev-ref HEAD 2>&1 ', $this->getGitArgs());
-//        $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
-//        exec($cmd, $this->cmdBuf);
-//        $this->write(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-//        vd($this->cmdBuf);
-//        if (count($this->cmdBuf)) return $this->cmdBuf[0];
-
         $cmd = sprintf('git %s branch 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         exec($cmd, $this->cmdBuf);
@@ -271,13 +179,10 @@ class Git
         return 'master';
     }
 
-
     /**
      * Get the repository status
-     *
-     * @return string
      */
-    public function getStatus()
+    public function getStatus(): string
     {
         $cmd = sprintf('git %s status 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
@@ -286,19 +191,16 @@ class Git
         if (!preg_match('/^(nothing to commit)|(nothing added to commit)/', $lastLine)) {
             $buff = trim(implode("\n", $this->cmdBuf));
         }
-        //$this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
         return $buff;
     }
 
     /**
      * Get the repository package base URI
-     *
-     * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
         if (!$this->uri) {
-            $this->cmdBuf = array();
+            $this->cmdBuf = [];
             $cmd = sprintf('git %s remote -v 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
             exec($cmd, $this->cmdBuf);
@@ -317,23 +219,20 @@ class Git
     /**
      * Check to see if the given tag name has changes to the HEAD of the repository
      * returns a list of changed files
-     *
-     * @param string $tagName
-     * @return array
      */
-    public function diff($tagName)
+    public function diff(string $tagName): array
     {
         if ($tagName == '0.0.0') {
-            return array('Tagged initial project');
+            return ['Tagged initial project'];
         }
-        $this->cmdBuf = array();
+        $this->cmdBuf = [];
         $tagName = trim($tagName, '/');
         $cmd = sprintf('git %s diff --name-status 2>&1 %s HEAD', $this->getGitArgs(), escapeshellarg($tagName));
         $this->write($this->getPath(), OutputInterface::VERBOSITY_VERY_VERBOSE);
         $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
         exec($cmd, $this->cmdBuf);
         $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-        $changed = array();
+        $changed = [];
         foreach($this->cmdBuf as $line) {
             if (!preg_match('/^[a-z]\s+(\S+)/i', $line, $regs)) {
                 continue;
@@ -347,17 +246,14 @@ class Git
     }
 
     /**
-     * Returns true if the tag is different than the head
+     * Returns true if the tag is different than `head`
      * IE: master/head has modifications since last release.
      *
      * This can be used to make decisions based on if the two tags
      * have had any modifications, ie: like releasing a version if
      * changes have been committed or not.
-     *
-     * @param string $tagName The tag/version name of the tag folder
-     * @return integer
      */
-    public function isDiff($tagName)
+    public function isDiff(string $tagName): bool|int
     {
         return
             preg_match('/\.x$/', $tagName) ||        // if no major version exists
@@ -367,17 +263,14 @@ class Git
     /**
      * Commit the current branch and push to remote repos
      *
+     * @throws \Exception
+     *
      * @todo We need to call git pull if there is a sync error with the remote,
      *       then re-push the code again...
-     *
-     * @param string $message
-     * @param bool $force
-     * @return static
-     * @throws \Exception
      */
-    public function commit($message = '', $force = false)
+    public function commit(string $message = '', bool $force = false): static
     {
-        $this->cmdBuf = array();
+        $this->cmdBuf = [];
         $ret = null;
         if (!$force) {
             if (!$message) {
@@ -394,6 +287,7 @@ class Git
         // Try committing any changes if any
         $cmd = sprintf('git %s commit -am %s 2>&1 ', $this->getGitArgs(), escapeshellarg($message));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+        $lastLine = '';
         if (!$this->isDryRun()) {
             $lastLine = exec($cmd, $this->cmdBuf, $ret);
         }
@@ -410,7 +304,7 @@ class Git
             }
         }
 
-        $this->cmdBuf = array();
+        $this->cmdBuf = [];
         $cmd = sprintf('git %s push 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -418,8 +312,9 @@ class Git
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
         }
 
-        if ($ret) {     // TODO: check if this is the correct response here
+        if ($ret) {
             throw new \Exception('Cannot push branch: ' . $lastLine);
+            // TODO: Try adding a git pull then push here.
         }
         return $this;
     }
@@ -428,11 +323,10 @@ class Git
      * update the repository from the remote
      *
      * @throws \Exception
-     * @return static
      */
-    public function update()
+    public function update(): static
     {
-        $this->cmdBuf = array();
+        $this->cmdBuf = [];
 
         $cmd = sprintf('git %s pull 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
@@ -456,12 +350,11 @@ class Git
     /**
      * Checkout a branch
      *
-     * @param string $branch
      * @throws \Exception
      */
-    public function checkout($branch = 'master')
+    public function checkout(string $branch = 'master')
     {
-        $this->cmdBuf = array();
+        $this->cmdBuf = [];
         $cmd = sprintf('git %s checkout %s 2>&1 ', $this->getGitArgs(), escapeshellarg($branch));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = exec($cmd, $this->cmdBuf, $ret);
@@ -473,14 +366,11 @@ class Git
 
     /**
      * Get an array of changes to the tag since the last copy command was executed.
-     *
-     * @param string $version
-     * @return array
      */
-    protected function makeChangelog($version)
+    protected function makeChangelog(string $version): array
     {
-        $exists = array();
-        $logs = array();
+        $exists = [];
+        $logs = [];
 
         $cmd = sprintf('git %s log --oneline %s..HEAD 2>&1 ', $this->getGitArgs(), escapeshellarg($version));
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
@@ -514,13 +404,9 @@ class Git
     }
 
     /**
-     *
-     *
-     * @param string $tagName If not set then it will be automatically generated from the composerJson branch alias
-     * @return string
      * @throws \Exception
      */
-    public function tagRelease($tagName = '')
+    public function tagRelease(string $tagName = ''): string
     {
         $curTag = $this->getCurrentTag($this->getBranchAlias());
         if (!$tagName || !preg_match('/^([0-9]+)\.([0-9]+)\.([0-9]+)$/', $tagName)) {
@@ -536,17 +422,15 @@ class Git
     /**
      * Tag a repository, basically copy the release to a tag and update the changelog
      *
-     * @param string $version A version string in the format of x.x.x
      * @throws \Exception
      */
-    protected function tag($version)
+    protected function tag(string $version)
     {
         $composerFile = $this->getPath() . '/composer.json';
         $changelogFile = $this->getPath() . '/changelog.md';
         $versionFile = $this->getPath() . '/version.md';
         $vb = $this->output->getVerbosity();
 
-        $composerObj = null;
         $composerJson = null;
 
         // update the release composer file
@@ -555,8 +439,6 @@ class Git
             $composerObj = \Tbx\Util::jsonDecode($composerJson);
             if (!$composerObj) $composerObj = new \stdClass();
 
-            // TODO: I think we need a version.md file instead, as composer is validating its .json file now
-            //$composerObj->version = $version;
             if (!$this->isDryRun()) {
                 file_put_contents($versionFile, $version);
             }
@@ -612,7 +494,7 @@ class Git
         $this->output->setVerbosity($vb);
 
         // Tag the repository
-        $this->cmdBuf = array();
+        $this->cmdBuf = [];
         $cmd = sprintf("git %s tag -a %s -m %s 2>&1 ", $this->getGitArgs(), $version, escapeshellarg($message) );
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -621,7 +503,7 @@ class Git
         }
 
         // Push the tag to the remote repository
-        $this->cmdBuf = array();
+        $this->cmdBuf = [];
         $cmd = sprintf("git %s push --tags 2>&1 ", $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -647,10 +529,8 @@ class Git
      * determin the next release version
      * EG:
      *   3.0.x-dev
-     *
-     * @return string
      */
-    public function getBranchAlias()
+    public function getBranchAlias(): string
     {
         $alias = '';
         if ($this->getComposer()) {
@@ -671,11 +551,8 @@ class Git
      *   - 3.0-dev => 3.0.x
      *   - 3.0.x-dev => 3.0.x
      *   - 3.0 => 3.0.x
-     *
-     * @param string $verAlias
-     * @return string|string[]
      */
-    private function cleanAlias($verAlias = '1.0.x-dev')
+    private function cleanAlias(string $verAlias = '1.0.x-dev'): array|string
     {
         $verAlias = trim($verAlias, ". \t\n\r\0\x0B");
         $verAlias = str_replace('.x-dev', '.x', $verAlias);
@@ -688,11 +565,9 @@ class Git
     /**
      * Return the current tag based on the largest version number for this branch
      *
-     *
-     * @param null|string $branchAlias If no branch alias is supplied then return the current tag for the project
-     * @return string
+     * @param string $branchAlias If no branch alias is supplied then return the current tag for the project
      */
-    public function getCurrentTag($branchAlias = '')
+    public function getCurrentTag(string $branchAlias = ''): string
     {
         $ver = '1.0.x';
         $tags = $this->getTagList();
@@ -716,7 +591,6 @@ class Git
     /**
      *
      * @param string $curTag Either a static tag version or a branch-alias to increment
-     * @return string
      */
     public function getNextTagName(string $curTag = ''): string
     {
@@ -734,8 +608,7 @@ class Git
                 $step = 1;
             }
         }
-        $nextTag = \Tbx\Util::incrementVersion($curTag, $alias, $step);
-        return $nextTag;
+        return \Tbx\Util::incrementVersion($curTag, $alias, $step);
     }
 
     public function canCreateTag(string $curTag = ''): bool
