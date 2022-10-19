@@ -1,4 +1,4 @@
-#! /usr/bin/php
+#! /usr/bin/php7.4
 <?php
 /*
  * Tropotek Web Development Tools.
