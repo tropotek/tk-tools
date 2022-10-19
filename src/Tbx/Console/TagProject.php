@@ -1,28 +1,22 @@
 <?php
 namespace Tbx\Console;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @see http://www.tropotek.com/
- * @license Copyright 2017 Michael Mifsud
+ * Tag a release from the repository. Works only on checked out projects.
+ * This command will search the project for all packages
+ * in use and tag and release them with new version along with the
+ * parent project.
+ *
+ * @author Tropotek <info@tropotek.com>
  */
 class TagProject extends Iface
 {
 
-    /*
-      Tag a release from the repository. Works only on checked out projects.
-      This command will search the search the project for all packages
-      in use and tag and release them with new version along with the
-      parent project.
-    */
-
-    /**
-     *
-     */
     protected function configure()
     {
         $this->setName('tagProject')
@@ -37,17 +31,13 @@ class TagProject extends Iface
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int|null|void
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
-
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+
         $projectPath = rtrim($this->getCwd(), '/');
 
         $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
@@ -64,7 +54,7 @@ class TagProject extends Iface
                 $vendorPath = $projectPath . $vPath;
                 if (!is_dir($vendorPath)) continue;
                 foreach (new \DirectoryIterator($vendorPath) as $res) {
-                    if ($res->isDot() || substr($res->getFilename(), 0, 1) == '_') continue;
+                    if ($res->isDot() || str_starts_with($res->getFilename(), '_')) continue;
                     $path = $res->getRealPath();
                     if (!$res->isDir() || !\Tbx\Git::isGit($path)) continue;
                     try {
@@ -107,7 +97,7 @@ class TagProject extends Iface
                 $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
             }
         }
-
+        return Command::SUCCESS;
     }
 
 }

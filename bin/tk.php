@@ -36,7 +36,6 @@ try {
     $app->add(new \Tbx\Console\TagProject());
     $app->add(new \Tbx\Console\DbBackup());
     $app->add(new \Tbx\Console\DbRestore());
-    $app->add(new \Tbx\Console\Sync());
 
     // Other commands
     $app->add(new \Tbx\Console\Hash());

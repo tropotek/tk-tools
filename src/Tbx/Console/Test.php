@@ -1,15 +1,14 @@
 <?php
 namespace Tbx\Console;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @see http://www.tropotek.com/
- * @license Copyright 2017 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class Test extends Iface
 {
@@ -25,16 +24,14 @@ class Test extends Iface
     }
 
     /**
-     * @param \Tbx\Console\ArgvInput $input
-     * @param OutputInterface $output
-     * @return int|null|void
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
-
-        $this->writeInfo(ucwords($this->getName()));
+        if (!$this->getConfig()->isDebug()) {
+            $this->writeError('Error: Only run this command in a debug environment.');
+            return Command::FAILURE;
+        }
 
         $options = $input->getOptions();
         $arguments = $input->getArguments();
@@ -53,9 +50,8 @@ class Test extends Iface
         $this->write('write');
 
 
-
-
-
+        $output->writeln('Complete!!!');
+        return Command::SUCCESS;
     }
 
 

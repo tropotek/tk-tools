@@ -9,27 +9,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @see http://www.tropotek.com/
- * @license Copyright 2017 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class Upgrade extends Iface
 {
 
-    /**
-     * @var OutputInterface
-     */
-    public $output = null;
-
-    /**
-     * @var InputInterface
-     */
-    public $input = null;
-
-
-    /**
-     *
-     */
     protected function configure()
     {
         $this->setName('upgrade')
@@ -38,17 +22,12 @@ class Upgrade extends Iface
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         parent::execute($input, $output);
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($this->getCwd()));
-
-
-        $config = \Tk\Config::getInstance();
+        $this->writeGreenStrong('Notice: For ttek libs use the upgrade command in the projects /bin folder.');
 
         $cmdList = array(
             'git reset --hard',
@@ -59,7 +38,7 @@ class Upgrade extends Iface
             'composer update'
         );
 
-        if ($config->isDebug()) {
+        if ($this->getConfig()->isDebug()) {
             throw new \Tk\Exception('Projects should not be upgraded in debug mode');
 //            array_unshift($cmdList, 'ci');
 //            $cmdList[] = 'git reset --hard';
@@ -67,25 +46,21 @@ class Upgrade extends Iface
 //            $cmdList[] = 'composer update';
         }
 
-
         $tag = '';
         $output = array();
         foreach ($cmdList as $i => $cmd) {
             unset($output);
             if (preg_match('/^git log /', $cmd)) {      // find tag version
-                //$this->writeInfo($cmd);
                 exec($cmd . ' 2>&1', $output, $ret);
                 foreach ($output as $line) {
                     if (preg_match('/\(tag\: ([0-9\.]+)\)/', $line, $regs)) {
                         $tag = $regs[1];
-                        //$this->writeComment('Checking Out: ' . $tag);
                         break;
                     }
                 }
                 if (!$tag) {
-                    // Exit there
                     $this->writeError('Error: Cannot find version tag.');
-                    return;
+                    return Command::FAILURE;
                 }
             } else {
                 if ($tag) {
@@ -104,8 +79,7 @@ class Upgrade extends Iface
             }
         }
 
+        return Command::SUCCESS;
     }
-
-
 
 }

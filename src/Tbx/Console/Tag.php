@@ -1,43 +1,32 @@
 <?php
 namespace Tbx\Console;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Michael Mifsud <info@tropotek.com>
- * @see http://www.tropotek.com/
- * @license Copyright 2017 Michael Mifsud
+ * @author Tropotek <info@tropotek.com>
  */
 class Tag extends Iface
 {
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this->setName('tag')
             ->addOption('name', 't', InputOption::VALUE_OPTIONAL, 'Specify a tag version name.', '')
             ->addOption('notStable', 's', InputOption::VALUE_NONE, 'Default stable(even) version tag (1.0.2, 1.0.4, etc). Set to enable odd version increments (1.0.1, 1.0.3, etc).')
             ->addOption('forceTag', 'f', InputOption::VALUE_NONE, 'Forces a tag version even if there is no change from the previous version.')
-
-            //->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not commit ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
             ->setDescription('Tag and release a repository.');
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int|null|void
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
-
         if (!\Tbx\Git::isGit($this->getCwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
 
@@ -70,6 +59,7 @@ class Tag extends Iface
             $this->write('Nothing To Tag');
         }
 
+        return Command::SUCCESS;
     }
 
 
