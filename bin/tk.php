@@ -23,8 +23,8 @@ try {
     $app->setDispatcher($factory->getEventDispatcher());
 
     //Determine Environment
-    $env = $input->getParameterOption(array('--env', '-e'), getenv('MYAPP_ENV') ?: 'prod');
-    $app->environment = $env;
+    //$env = $input->getParameterOption(array('--env', '-e'), getenv('MYAPP_ENV') ?: 'prod');
+    //$app->environment = $env;
 
     // Git commands
     $app->add(new \Tbx\Console\Update());

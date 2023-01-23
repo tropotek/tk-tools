@@ -289,7 +289,10 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = '';
         if (!$this->isDryRun()) {
-            $lastLine = exec($cmd, $this->cmdBuf, $ret);
+            $lastLine = '';
+            passthru($cmd, $ret);
+            //$lastLine = exec($cmd, $this->cmdBuf, $ret);
+
         }
         $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
 
