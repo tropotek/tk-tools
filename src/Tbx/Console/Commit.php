@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 class Commit extends Iface
 {
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('commit')
             ->setAliases(['ci'])
@@ -28,7 +28,7 @@ class Commit extends Iface
     {
         $sp = '%s: %-18s %s';
 
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
+        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');
         $this->writeStrongInfo($s);

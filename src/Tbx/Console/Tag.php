@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 class Tag extends Iface
 {
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('tag')
             ->addOption('name', 't', InputOption::VALUE_OPTIONAL, 'Specify a tag version name.', '')
@@ -22,15 +22,12 @@ class Tag extends Iface
             ->setDescription('Tag and release a repository.');
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!\Tbx\Git::isGit($this->getCwd()))
-            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+        if (!\Tbx\Git::isGit(getcwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
 
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
+        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
 
         $keywords = [];

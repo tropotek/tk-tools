@@ -29,15 +29,12 @@ class TagProject extends Iface
             ->setDescription('Tag a release from the repository.');
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!\Tbx\Git::isGit($this->getCwd()))
-            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+        if (!\Tbx\Git::isGit(getcwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
 
-        $projectPath = rtrim($this->getCwd(), '/');
+        $projectPath = rtrim(getcwd(), '/');
 
         $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
         $keywords = [];

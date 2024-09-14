@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 class Hash extends Iface
 {
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('hash')
             ->addArgument('string', InputArgument::OPTIONAL, 'The string that is to have the hash applied to it.')
@@ -22,9 +22,6 @@ class Hash extends Iface
             ->setDescription('Generate a hash value. (i.e. "md5", "sha256", etc..)');
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$input->getOption('algoList')) {

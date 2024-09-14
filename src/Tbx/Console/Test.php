@@ -12,11 +12,11 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class Test extends Iface
 {
-    
+
     /**
      *
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('test')
             ->setAliases(array('t'))
@@ -25,9 +25,6 @@ class Test extends Iface
             ->setDescription('This is a test script only');
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$this->getConfig()->isDebug()) {

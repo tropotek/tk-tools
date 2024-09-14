@@ -24,6 +24,7 @@
   "require": {
     "php": "^8.0",
     "ext-json": "*",
+    "ext-pdo": "*",
     "ttek/tk-base": "^8.0.0"
   },
   "extra": {

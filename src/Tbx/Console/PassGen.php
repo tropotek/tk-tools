@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 class PassGen extends Iface
 {
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('passGen')
             ->setAliases(['pg'])
@@ -21,9 +21,6 @@ class PassGen extends Iface
             ->setDescription('Generate Temporary password for projects');
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->writeInfo(ucwords($this->getName()));

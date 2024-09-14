@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 class Status extends Iface
 {
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('status')
             ->setAliases(['st'])
@@ -21,14 +21,11 @@ class Status extends Iface
             ->setDescription("Run from the root of a ttek project to get the status of the lib and it vendor libs.");
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!\Tbx\Git::isGit($this->getCwd()))
-            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
+        if (!\Tbx\Git::isGit(getcwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
+        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 

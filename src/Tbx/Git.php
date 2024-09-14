@@ -3,7 +3,7 @@ namespace Tbx;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Tk\Traits\SystemTrait;
+use Tk\Config;
 
 /**
  * Use this to do operations on a Git repository
@@ -12,7 +12,6 @@ use Tk\Traits\SystemTrait;
  */
 class Git
 {
-    use SystemTrait;
 
     /**
      * The default commit message
@@ -237,7 +236,7 @@ class Git
             if (!preg_match('/^[a-z]\s+(\S+)/i', $line, $regs)) {
                 continue;
             }
-            if (in_array(trim($regs[1]), $this->getConfig()->get('diff.exclude.files'))) {
+            if (in_array(trim($regs[1]), Config::instance()->get('diff.exclude.files'))) {
                 continue;
             }
             $changed[] = trim($regs[1]);

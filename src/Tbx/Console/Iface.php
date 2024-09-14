@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @author Tropotek <info@tropotek.com>
  */
-abstract class Iface extends \Tk\Console\Console
+abstract class Iface extends \Bs\Console\Console
 {
 
     protected array $vendorPaths = [];

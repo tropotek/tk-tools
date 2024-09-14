@@ -1,16 +1,15 @@
 <?php
+
+use Bs\Factory;
+use Tk\Config;
+
 $classLoader = include(dirname(dirname(__FILE__)) . '/vendor/autoload.php');
 
 try {
+    $config = Config::instance();
+    $factory = Factory::instance();
 
-    $system = \Tk\System::instance();
-    $config = \Tk\Config::instance();
-    $factory = \Tk\Factory::instance();
-
-    // Define App Constants/Settings
-    include_once(dirname(__DIR__) . '/src/config/config.php');
-
-    \Tk\Factory::instance()->getBootstrap()->init();
+    Factory::instance()->getBootstrap()->init();
 
 } catch (\Exception $e) {
     error_log($e->__toString());

@@ -43,11 +43,7 @@ fi
 
 FILES=(
   'tk.php'
-  'tkLdapFind'
   'tklog'
-  'tkStrreplace.php'
-  'tkToUtf8.php'
-  'tkTraceAnalyser.php'
 )
 
 

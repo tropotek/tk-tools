@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 class Update extends Iface
 {
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('update')
             ->setAliases(array('up'))
@@ -21,16 +21,13 @@ class Update extends Iface
             ->setDescription("Run from the root of a ttek project to update the repository and ttek libs.");
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $sp = '%s: %-18s %s';
 
-        if (!\Tbx\Git::isGit($this->getCwd()))
-            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
+        if (!\Tbx\Git::isGit(getcwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
+        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
 
         $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');

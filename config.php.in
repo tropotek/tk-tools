@@ -1,0 +1,11 @@
+<?php
+/**
+ * Site Config
+ * Copy this to config.php and edit with your server settings
+ */
+use Tk\Config;
+
+return function (Config $config)
+{
+
+};

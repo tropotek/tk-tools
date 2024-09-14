@@ -1,7 +1,17 @@
 # Created by .gitignore support plugin (hsz.mobi)
+[Tt]humbs.db
+*.DS_Store
 .idea
 .directory
-/_notes
+.phpunit.result.cache
+/*.bak
+/*.sql
+/.vscode
+
+/_*
 /vendor
-/src/config/config.php
 /data
+
+# Project Files
+/config.php
+/.htaccess
