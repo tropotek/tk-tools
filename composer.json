@@ -24,7 +24,7 @@
   "require": {
     "php": "^8.0",
     "ext-json": "*",
-    "ttek/tk-framework": "^8.0.0"
+    "ttek/tk-base": "^8.0.0"
   },
   "extra": {
     "branch-alias": {

@@ -1,10 +1,3 @@
-# TODO v2.0
-
-
- - Whenever a major tag is released create a branch for the old major version
-   so that we can make updates to that branch if needed. the master branch
-   should always contain the most current working version
-
 
 
 # TODO V3.0
