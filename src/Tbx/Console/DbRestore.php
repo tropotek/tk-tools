@@ -81,7 +81,7 @@ class DbRestore extends Iface
                                 continue;
                             } else {
                                 // delete all tables if not implementing drop tables
-                                //$this->dropAllTables();
+                                //Db::dropAllTables(true);
                             }
                         }
                     } catch (\Exception $e) {
@@ -109,20 +109,6 @@ class DbRestore extends Iface
 
         $this->writeInfo('Restore complete. Remember to reload all views, events, and procedures');
         return Command::SUCCESS;
-    }
-
-    /**
-     * Drop all tables, views are ignored as they are not exported via mysqldump
-     */
-    protected function dropAllTables($exclude = []): bool
-    {
-        Db::execute('SET FOREIGN_KEY_CHECKS = 0;SET UNIQUE_CHECKS = 0');
-        foreach (Db::getTableList(Db::TABLES) as $table) {
-            if (in_array($table, $exclude)) continue;
-            Db::execute(sprintf('DROP TABLE IF EXISTS `%s` CASCADE', trim($table)));
-        }
-        Db::execute('SET FOREIGN_KEY_CHECKS = 1;SET UNIQUE_CHECKS = 1');
-        return true;
     }
 
 }
