@@ -18,16 +18,12 @@ use Tbx\Console\TagProject;
 use Tbx\Console\TagShow;
 use Tbx\Console\Test;
 use Tbx\Console\Update;
-use Tbx\Util;
 
 set_time_limit(0);
 
 try {
-    $iniParams = [];
     $input = new ArgvInput();
     $output = new ConsoleOutput();
-
-    $composer = Util::jsonDecode(file_get_contents(dirname(__DIR__) . '/composer.json'));
 
     $app = new Application('Tropotek Command Utilities', \Tk\System::getVersion());
     $app->setDispatcher(Factory::instance()->getEventDispatcher());
