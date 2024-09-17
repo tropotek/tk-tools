@@ -25,11 +25,11 @@ class BranchShow extends Iface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!\Tbx\Git::isGit($this->getCwd()))
-            throw new \Tk\Exception('Not a GIT repository: ' . $this->getCwd());
+        if (!\Tbx\Git::isGit(getcwd()))
+            throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
 
         $sformat = '<info>%-25s</info> <comment>%-12s</comment>';
-        $vcs = \Tbx\Git::create($this->getCwd(), $input->getOptions());
+        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $this->getOutput()->writeln(sprintf($sformat, $vcs->getName(), $vcs->getCurrentBranch()));
 
