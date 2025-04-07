@@ -18,7 +18,7 @@ class ArgvInput extends \Symfony\Component\Console\Input\ArgvInput
     /**
      * ArgvInput constructor.
      */
-    public function __construct(array $argv = null, InputDefinition $definition = null)
+    public function __construct(?array $argv = null, ?InputDefinition $definition = null)
     {
         parent::__construct($argv, $definition);
 

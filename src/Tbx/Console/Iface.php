@@ -13,7 +13,7 @@ abstract class Iface extends \Bs\Console\Console
 
     protected array $vendorPaths = [];
 
-    public function __construct(string $name = null)
+    public function __construct(?string $name = null)
     {
         parent::__construct($name);
         $this->setVendorPaths($this->getConfig()->get('vendor.paths', []));
