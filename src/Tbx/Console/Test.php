@@ -32,9 +32,9 @@ class Test extends Iface
             return Command::FAILURE;
         }
 
-        $options = $input->getOptions();
-        $arguments = $input->getArguments();
-        $iniOptions = $input->getIniOptions();
+//        $options = $input->getOptions();
+//        $arguments = $input->getArguments();
+//        $iniOptions = $input->getIniOptions();
 
         $this->writeRed('writeRed');
         $this->writeGrey('writeGrey');

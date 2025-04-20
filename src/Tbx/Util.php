@@ -79,13 +79,16 @@ class Util
 
     public static function jsonEncode(mixed $obj): string
     {
-        return self::jsonPrettyPrint(json_encode($obj));
+        return self::jsonPrettyPrint((string)json_encode($obj));
     }
 
-    public static function jsonDecode(string $json): mixed
+    public static function jsonDecode(string $json): \stdClass
     {
-        $str = json_decode($json);
-        return $str;
+        $obj = json_decode($json);
+        if (!$obj instanceof \stdClass) {
+            return new \stdClass();
+        }
+        return $obj;
     }
 
     /**
@@ -108,6 +111,7 @@ class Util
 
         for ($i = 0; $i < strlen($json); $i++) {
             $char = $json[$i];
+            /** @phpstan-ignore-next-line */
             if ($ignorenext) {
                 $result .= $char;
                 $ignorenext = false;

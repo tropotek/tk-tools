@@ -22,10 +22,13 @@
     }
   },
   "require": {
-    "php": "^8.0",
+    "php": "^8.3",
     "ext-json": "*",
     "ext-pdo": "*",
     "ttek/tk-base": "^8.0.0"
+  },
+  "require-dev": {
+    "composer/composer": "^2.0"
   },
   "extra": {
     "branch-alias": {

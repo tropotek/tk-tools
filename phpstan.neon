@@ -1,0 +1,18 @@
+parameters:
+  level: 7
+  tmpDir: data/private/tmp/phpstan
+#  checkGenericClassInNonGenericObjectType: false
+  treatPhpDocTypesAsCertain: false
+  excludePaths:
+    - data
+    - vendor/ttek/tk-table/templates
+    - vendor/ttek/tk-form/templates
+    - vendor/ttek/tk-domtemplate/docs
+    - vendor/ttek/tk-base/Bs/Traits/OrderByTrait.php
+    - vendor/ttek/tk-base/Bs/Traits/AuthTrait.php
+  paths:
+    - src
+    - bin
+    - vendor/ttek
+  ignoreErrors:
+    - identifier: missingType.iterableValue

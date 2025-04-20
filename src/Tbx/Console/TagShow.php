@@ -23,14 +23,14 @@ class TagShow extends Iface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!\Tbx\Git::isGit(getcwd())) {
+        if (!\Tbx\Git::isGit((string)getcwd())) {
             throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
         }
 
         $sformat = '<info>%-25s</info> <comment>%-12s %-12s</comment>';
         $this->getOutput()->writeln(sprintf('<fg=magenta>%-25s</> <fg=magenta>%-12s %-12s</>', 'package', 'curr', 'next'));
 
-        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
+        $vcs = \Tbx\Git::create((string)getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $tag = $vcs->getCurrentTag($vcs->getBranchAlias());
         $nextTag = $vcs->lookupNextTag($tag);

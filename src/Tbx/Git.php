@@ -56,21 +56,15 @@ class Git
     protected ?\stdClass $composerObj = null;
 
 
-    /**
-     * @throws \Exception
-     */
     public function __construct(string $path, array $options = [])
     {
         $this->setPath($path);
         $this->options = $options;
     }
 
-    /**
-     * @throws \Exception
-     */
-    public static function create(string $path, array $options = []): static
+    public static function create(string $path, array $options = []): self
     {
-        $obj = new static($path, $options);
+        $obj = new self($path, $options);
         return $obj;
     }
 
@@ -80,7 +74,7 @@ class Git
         return is_dir($path.'/.git');
     }
 
-    public function setDryRun(bool $b = true): static
+    public function setDryRun(bool $b = true): self
     {
         $this->options['dryRun'] = $b;
         $this->writeComment('Dry Run Enabled.');
@@ -106,10 +100,10 @@ class Git
      */
     public function getComposer(): ?\stdClass
     {
-        if (!$this->composerObj && self::isComposer($this->getPath())) {
+        if (self::isComposer($this->getPath())) {
             $composerFile = $this->getPath() . '/composer.json';
             if (is_file($composerFile)) {
-                $this->composerObj = \Tbx\Util::jsonDecode(file_get_contents($composerFile));
+                $this->composerObj = \Tbx\Util::jsonDecode((string)file_get_contents($composerFile));
             }
         }
         return $this->composerObj;
@@ -118,10 +112,10 @@ class Git
     public function getName(): string
     {
         if (!$this->name) {
-            $this->name = basename($this->getPath()) ?? '';
+            $this->name = basename($this->getPath());
             if ($this->getComposer()) {
                 $composerObj = $this->getComposer();
-                if ($composerObj && property_exists($composerObj, 'name')) {
+                if (property_exists($composerObj, 'name')) {
                     $this->name = $composerObj->name ?? '';
                 }
             }
@@ -129,10 +123,7 @@ class Git
         return $this->name;
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function setPath(string $path): static
+    public function setPath(string $path): self
     {
         $path = rtrim($path, '/');
         if (!is_dir($path.'/.git')) {
@@ -185,7 +176,7 @@ class Git
     {
         $cmd = sprintf('git %s status 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
-        $lastLine = exec($cmd, $this->cmdBuf);
+        $lastLine = (string)exec($cmd, $this->cmdBuf);
         $buff = '';
         if (!preg_match('/^(nothing to commit)|(nothing added to commit)/', $lastLine)) {
             $buff = trim(implode("\n", $this->cmdBuf));
@@ -261,13 +252,8 @@ class Git
 
     /**
      * Commit the current branch and push to remote repos
-     *
-     * @throws \Exception
-     *
-     * @todo We need to call git pull if there is a sync error with the remote,
-     *       then re-push the code again...
      */
-    public function commit(string $message = '', bool $force = false): static
+    public function commit(string $message = '', bool $force = false): self
     {
         $this->cmdBuf = [];
         $ret = null;
@@ -278,7 +264,7 @@ class Git
             // Check for any changes in this repository
             $cmd = sprintf('git %s status -s --untracked-files=no 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
-            $lastLine = exec($cmd, $this->cmdBuf, $ret);
+            $lastLine = (string)exec($cmd, $this->cmdBuf, $ret);
             $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
             if (!$lastLine) return $this;
         }
@@ -288,20 +274,16 @@ class Git
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         $lastLine = '';
         if (!$this->isDryRun()) {
-            $lastLine = '';
             passthru($cmd, $ret);
-            //$lastLine = exec($cmd, $this->cmdBuf, $ret);
-
         }
-        $this->write($lastLine, OutputInterface::VERBOSITY_VERBOSE);
 
         if (!$force) {
-            if (count($this->cmdBuf) && $lastLine) {
+            if (count($this->cmdBuf)) {
                 if (preg_match('/^(nothing to commit)|(nothing added)|(Everything up-to-date)/', $lastLine)) {
-                    $this->writeComment('Nothing to commit', OutputInterface::VERBOSITY_NORMAL);
+                    $this->writeComment('Nothing to commit');
                     return $this;
                 } else {
-                    $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_NORMAL);
+                    $this->writeComment(implode("\n", $this->cmdBuf));
                 }
             }
         }
@@ -310,23 +292,21 @@ class Git
         $cmd = sprintf('git %s push 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
-            $lastLine = exec($cmd, $this->cmdBuf, $ret);
+            exec($cmd, $this->cmdBuf, $ret);
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERBOSE);
         }
 
         if ($ret) {
-            throw new \Exception('Cannot push branch: ' . $lastLine);
-            // TODO: Try adding a git pull then push here.
+            $this->writeError("Cannot push updates, external changes exist, manually pull first then push.");
+            throw new \Exception('Failed to push updates');
         }
         return $this;
     }
 
     /**
      * update the repository from the remote
-     *
-     * @throws \Exception
      */
-    public function update(): static
+    public function update(): self
     {
         $this->cmdBuf = [];
 
@@ -336,9 +316,9 @@ class Git
 
         if (count($this->cmdBuf) && $lastLine) {
             $out = implode("\n", $this->cmdBuf);
-            if (preg_match('/error:/', $out)) {
+            if (str_contains($out, 'error:')) {
                 $this->writeError($out);
-            } else if (preg_match('/Already up-to-date/', $lastLine)) {
+            } else if (str_contains($lastLine, 'Already up-to-date')) {
                 $this->writeComment('Already up-to-date');
             } else if (preg_match('/([0-9]+) files? changed/', $lastLine, $reg)) {
                 $this->writeComment('  + ' . $reg[1] . ' files changed');
@@ -351,10 +331,8 @@ class Git
 
     /**
      * Checkout a branch
-     *
-     * @throws \Exception
      */
-    public function checkout(string $branch = 'master')
+    public function checkout(string $branch = 'master'): void
     {
         $this->cmdBuf = [];
         $cmd = sprintf('git %s checkout %s 2>&1 ', $this->getGitArgs(), escapeshellarg($branch));
@@ -405,9 +383,6 @@ class Git
         return $logs;
     }
 
-    /**
-     * @throws \Exception
-     */
     public function tagRelease(string $tagName = ''): string
     {
         $curTag = $this->getCurrentTag($this->getBranchAlias());
@@ -423,23 +398,19 @@ class Git
 
     /**
      * Tag a repository, basically copy the release to a tag and update the changelog
-     *
-     * @throws \Exception
      */
-    protected function tag(string $version)
+    protected function tag(string $version): void
     {
         $composerFile = $this->getPath() . '/composer.json';
         $changelogFile = $this->getPath() . '/changelog.md';
         $versionFile = $this->getPath() . '/version.md';
         $vb = $this->output->getVerbosity();
-
-        $composerJson = null;
+        $composerJson = '';
 
         // update the release composer file
         if (is_file($composerFile)) {
-            $composerJson = file_get_contents($composerFile);
+            $composerJson = (string)file_get_contents($composerFile);
             $composerObj = \Tbx\Util::jsonDecode($composerJson);
-            if (!$composerObj) $composerObj = new \stdClass();
 
             if (!$this->isDryRun()) {
                 file_put_contents($versionFile, $version);
@@ -466,7 +437,7 @@ class Git
             $this->changelog .= wordwrap(ucfirst($line), 100, "\n   ") . "\n";
         }
         $log = file_get_contents($changelogFile);
-        if ($log && $this->changelog && !preg_match('/Ver\s+'.preg_quote($version).'\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
+        if ($log && $this->changelog && !preg_match('/Ver\s+' . preg_quote($version, '/') . '\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
             $logTag = '#CHANGELOG#';
             $changelog = $logTag . "\n\n" . $this->changelog;
             $log = str_replace($logTag, $changelog, $log);
@@ -481,9 +452,6 @@ class Git
                 file_put_contents($changelogFile, $log);
             }
         }
-
-        // TODO: we should call composer update with stable so the composer.lock file is correct then revert after tagging
-        //       Check for $composer.json->type == 'project'
 
         $cmd = sprintf('git %s add . 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
@@ -517,7 +485,6 @@ class Git
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
 
-
         // Restore the dev composer.json
         if ($composerJson) {
             $this->writeComment('Restoring branch composer.json', OutputInterface::VERBOSITY_VERBOSE);
@@ -527,16 +494,13 @@ class Git
             $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $this->commit();
 
-            // TODO: re-run the composer update command if this is a project tagging
-            //       Check for $composer.json->type == 'project'
-
             $this->output->setVerbosity($vb);
         }
     }
 
     /**
      * Return the branch alias from the composer object as this is what we use to
-     * determin the next release version
+     * determine the next release version
      * EG:
      *   3.0.x-dev
      */
@@ -562,13 +526,14 @@ class Git
      *   - 3.0.x-dev => 3.0.x
      *   - 3.0 => 3.0.x
      */
-    private function cleanAlias(string $verAlias = '1.0.x-dev'): array|string
+    protected function cleanAlias(string $verAlias = '1.0.x-dev'): string
     {
         $verAlias = trim($verAlias, ". \t\n\r\0\x0B");
         $verAlias = str_replace('.x-dev', '.x', $verAlias);
         $verAlias = str_replace('-dev', '.x', $verAlias);
-        if (!preg_match('/\.x$/', $verAlias))
-            $verAlias = $verAlias.'.x';
+        if (!preg_match('/\.x$/', $verAlias)) {
+            $verAlias = $verAlias . '.x';
+        }
         return $verAlias;
     }
 
@@ -582,10 +547,10 @@ class Git
         $ver = '1.0.x';
         $tags = $this->getTagList();
         if ($branchAlias) {
-            $verPrefix = substr($branchAlias, 0, strrpos($branchAlias, '.'));
+            $verPrefix = substr($branchAlias, 0, (int)strrpos($branchAlias, '.'));
             $ver = $verPrefix.'.x';
             foreach ($tags as $tag) {
-                if (preg_match('/^'.preg_quote($verPrefix).'/', $tag)) {
+                if (preg_match('/^'.preg_quote($verPrefix, '/').'/', $tag)) {
                     $ver = $tag;
                 }
             }
@@ -604,17 +569,17 @@ class Git
      */
     public function getNextTagName(string $curTag = ''): string
     {
-        $alias = substr($curTag, 0, strrpos($curTag, '.')).'.x';
+        $alias = substr($curTag, 0, (int)strrpos($curTag, '.')).'.x';
         if (preg_match('/\.x-dev$/', $curTag)) {
             $curTag = $this->getCurrentTag($curTag);
-            $alias = substr($curTag, 0, strrpos($curTag, '.')).'.x';
+            $alias = substr($curTag, 0, (int)strrpos($curTag, '.')).'.x';
         }
         $step = 2;
         $notStable = $this->getOption('notStable', false);
         if ($notStable) {   // increment ver by 1
             $step = 1;
         } else {
-            if (((int)substr($curTag, strrpos($curTag, '.')+1) % 2) > 0) {
+            if (((int)substr($curTag, (int)strrpos($curTag, '.')+1) % 2) > 0) {
                 $step = 1;
             }
         }
@@ -663,7 +628,7 @@ class Git
             foreach($this->cmdBuf as $line) {
                 $line = trim($line);
                 if (!$line) continue;
-                if (preg_match('/^([0-9\.]+)/i', $line, $regs)) {
+                if (preg_match('/^([0-9.]+)/i', $line, $regs)) {
                     $this->tagList[$line] = $line;
                 }
             }
@@ -685,7 +650,7 @@ class Git
         return $default;
     }
 
-    public function setInputOutput(InputInterface $input, OutputInterface $output): static
+    public function setInputOutput(InputInterface $input, OutputInterface $output): self
     {
         $this->input = $input;
         $this->output = $output;
@@ -702,33 +667,32 @@ class Git
         return $this->input;
     }
 
-
-    protected function writeStrong($str = '', $options = OutputInterface::VERBOSITY_NORMAL)
+    protected function writeStrong(string $str = '', int $options = OutputInterface::VERBOSITY_NORMAL): void
     {
         $this->write(sprintf('<options=bold>%s</>', $str), $options);
     }
 
-    protected function writeInfo($str, $options = OutputInterface::VERBOSITY_NORMAL)
+    protected function writeInfo(string $str, int $options = OutputInterface::VERBOSITY_NORMAL): void
     {
         $this->write(sprintf('<info>%s</info>', $str), $options);
     }
 
-    protected function writeComment($str, $options = OutputInterface::VERBOSITY_NORMAL)
+    protected function writeComment(string $str, int $options = OutputInterface::VERBOSITY_NORMAL): void
     {
         $this->write(sprintf('<comment>%s</comment>', $str), $options);
     }
 
-    protected function writeQuestion($str, $options = OutputInterface::VERBOSITY_NORMAL)
+    protected function writeQuestion(string $str, int $options = OutputInterface::VERBOSITY_NORMAL): void
     {
         $this->write(sprintf('<question>%s</question>', $str), $options);
     }
 
-    protected function writeError($str, $options = OutputInterface::VERBOSITY_NORMAL)
+    protected function writeError(string $str, int $options = OutputInterface::VERBOSITY_NORMAL): void
     {
         $this->write(sprintf('<error>%s</error>', $str), $options);
     }
 
-    protected function write($str, $options = OutputInterface::VERBOSITY_NORMAL)
+    protected function write(string $str, int $options = OutputInterface::VERBOSITY_NORMAL): void
     {
         if ($this->getOutput())
             $this->getOutput()->writeln($str, $options);

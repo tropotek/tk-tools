@@ -28,7 +28,7 @@ class Commit extends Iface
     {
         $sp = '%s: %-18s %s';
 
-        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
+        $vcs = \Tbx\Git::create((string)getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');
         $this->writeStrongInfo($s);

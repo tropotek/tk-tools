@@ -35,24 +35,30 @@ class DbBackup extends Iface
         $options = $input->getOptions();
 
         $backupName = $options['backupName'];
+        if (!is_string($backupName)) $backupName = '';
+
         $tempPath = sys_get_temp_dir().'/tk-dbBackup-'.getmyuid();
-        if ($input->getOption('dbName'))
-            $tempPath = sys_get_temp_dir().'/'.$input->getOption('dbName').'-'.getmyuid();
+        if ($input->getOption('dbName')) {
+            $tempPath = sys_get_temp_dir() . '/' . $input->getOption('dbName') . '-' . getmyuid();
+        }
 
         $backupDir = $tempPath . '/' . $backupName;
         $archivePath = $tempPath . '/' . $backupName . '.tgz';
 
-        if (!is_dir($backupDir))
+        if (!is_dir($backupDir)) {
             mkdir($backupDir, 0777, true);
+        }
 
-        $exclude = array('Database', 'information_schema', 'performance_schema', 'phpmyadmin', 'mysql', 'dbispconfig', 'roundcube');
-        $databaseList = array($input->getOption('dbName'));
+        $exclude = ['Database', 'information_schema', 'performance_schema', 'phpmyadmin', 'mysql', 'dbispconfig', 'roundcube'];
+        $databaseList = [$input->getOption('dbName')];
 
         $db = Db::connect(Db::toDsn($options));
 
         if (!$input->getOption('dbName')) {
             $dbs = $db->query('SHOW DATABASES');
-            $databaseList = $dbs->fetchAll(\PDO::FETCH_COLUMN, 0);
+            if ($dbs !== false) {
+                $databaseList = $dbs->fetchAll(\PDO::FETCH_COLUMN, 0);
+            }
         }
 
         foreach ($databaseList as $dbName) {
@@ -67,11 +73,13 @@ class DbBackup extends Iface
         $this->writeComment($cmd,OutputInterface::VERBOSITY_VERBOSE);
         system($cmd);
 
-        $cmd = sprintf('mv %s %s ', $archivePath, $options['path']);
+        $path = $options['path'];
+        if (!is_string($path)) $path = '';
+        $cmd = sprintf('mv %s %s ', $archivePath, $path);
         $this->writeComment($cmd,OutputInterface::VERBOSITY_VERBOSE);
         system($cmd);
 
-        $this->write($options['path'].'/'.basename($archivePath));
+        $this->write($path.'/'.basename($archivePath));
         \Tk\FileUtil::rmdir($tempPath);
 
         return Command::SUCCESS;

@@ -24,7 +24,10 @@ class ArgvInput extends \Symfony\Component\Console\Input\ArgvInput
 
         $iniFile = \Tbx\Util::getHomePath() . '/' . self::$INI_FILE;
         if (is_file($iniFile)) {
-            $this->ini = parse_ini_file($iniFile, true);
+            $ini = parse_ini_file($iniFile, true);
+            if ($ini !== false) {
+                $this->ini = $ini;
+            }
         }
     }
 

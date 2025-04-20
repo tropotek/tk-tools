@@ -23,9 +23,9 @@ class Status extends Iface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!\Tbx\Git::isGit(getcwd()))
+        if (!\Tbx\Git::isGit((string)getcwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
-        $vcs = \Tbx\Git::create(getcwd(), $input->getOptions());
+        $vcs = \Tbx\Git::create((string)getcwd(), $input->getOptions());
         $vcs->setInputOutput($input, $output);
         $this->writeInfo(ucwords($this->getName()) . ': ' . basename($vcs->getPath()));
 

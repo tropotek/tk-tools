@@ -31,10 +31,10 @@ class TagProject extends Iface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!\Tbx\Git::isGit(getcwd()))
+        if (!\Tbx\Git::isGit((string)getcwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
 
-        $projectPath = rtrim(getcwd(), '/');
+        $projectPath = rtrim((string)getcwd(), '/');
 
         $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
         $keywords = [];
