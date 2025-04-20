@@ -456,23 +456,24 @@ class Git
         }
 
         // Update the release changelog file
-        $logArr =  $this->makeChangelog($this->getCurrentTag());
+        $logArr = $this->makeChangelog($this->getCurrentTag());
         $log = '';
-        if (is_array($logArr)) {
-            $this->changelog = sprintf("Ver %s [%s]:\n-------------------------------\n", $version, date('Y-m-d'));
-            foreach ($logArr as $line) {
-                if (str_word_count($line) <= 1)
-                    continue;
-                $this->changelog .= '' . wordwrap(ucfirst($line), 100, "\n   ") . "\n";
-            }
-            $log = file_get_contents($changelogFile);
-            if ($log && $this->changelog && !preg_match('/Ver\s+'.preg_quote($version).'\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
-                $logTag = '#CHANGELOG#';
-                $changelog = $logTag . "\n\n" . $this->changelog;
-                $log = str_replace($logTag, $changelog, $log);
-            }
-            $this->write($this->changelog, OutputInterface::VERBOSITY_VERY_VERBOSE);
+
+        $this->changelog = sprintf("Ver %s [%s]:\n-------------------------------\n", $version, date('Y-m-d'));
+        foreach ($logArr as $line) {
+            if (str_word_count($line) <= 1)
+                continue;
+            $this->changelog .= wordwrap(ucfirst($line), 100, "\n   ") . "\n";
         }
+        $log = file_get_contents($changelogFile);
+        if ($log && $this->changelog && !preg_match('/Ver\s+'.preg_quote($version).'\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
+            $logTag = '#CHANGELOG#';
+            $changelog = $logTag . "\n\n" . $this->changelog;
+            $log = str_replace($logTag, $changelog, $log);
+        }
+        $this->write($this->changelog, OutputInterface::VERBOSITY_VERY_VERBOSE);
+
+
         // Save release changelog file
         if ($log && $this->changelog) {
             $this->writeComment('Updating changelog.md.', OutputInterface::VERBOSITY_VERBOSE);
@@ -480,6 +481,9 @@ class Git
                 file_put_contents($changelogFile, $log);
             }
         }
+
+        // TODO: we should call composer update with stable so the composer.lock file is correct then revert after tagging
+        //       Check for $composer.json->type == 'project'
 
         $cmd = sprintf('git %s add . 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
@@ -522,6 +526,10 @@ class Git
             }
             $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $this->commit();
+
+            // TODO: re-run the composer update command if this is a project tagging
+            //       Check for $composer.json->type == 'project'
+
             $this->output->setVerbosity($vb);
         }
     }
