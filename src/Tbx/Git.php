@@ -428,7 +428,6 @@ class Git
 
         // Update the release changelog file
         $logArr = $this->makeChangelog($this->getCurrentTag());
-        $log = '';
 
         $this->changelog = sprintf("Ver %s [%s]:\n-------------------------------\n", $version, date('Y-m-d'));
         foreach ($logArr as $line) {
@@ -436,14 +435,15 @@ class Git
                 continue;
             $this->changelog .= wordwrap(ucfirst($line), 100, "\n   ") . "\n";
         }
-        $log = file_get_contents($changelogFile);
+
+        $log = (string)file_get_contents($changelogFile);
+
         if ($log && $this->changelog && !preg_match('/Ver\s+' . preg_quote($version, '/') . '\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
             $logTag = '#CHANGELOG#';
             $changelog = $logTag . "\n\n" . $this->changelog;
             $log = str_replace($logTag, $changelog, $log);
         }
         $this->write($this->changelog, OutputInterface::VERBOSITY_VERY_VERBOSE);
-
 
         // Save release changelog file
         if ($log && $this->changelog) {
