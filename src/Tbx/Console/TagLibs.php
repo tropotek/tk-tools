@@ -32,7 +32,7 @@ class TagLibs extends Iface
             throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
 
         $projectPath = rtrim((string)getcwd(), '/');
-
+vd($projectPath);
         $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
         $keywords = [];
         if (!empty($vcs->getComposer()->keywords)) {
