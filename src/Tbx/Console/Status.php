@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class Status extends Iface
 {

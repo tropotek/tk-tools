@@ -8,7 +8,7 @@ use Tk\Config;
 /**
  * Use this to do operations on a Git repository
  *
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class Git
 {

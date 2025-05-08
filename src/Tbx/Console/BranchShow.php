@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class BranchShow extends Iface
 {
@@ -20,9 +20,6 @@ class BranchShow extends Iface
             ->setDescription("Run from the root of a ttek project.");
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!\Tbx\Git::isGit((string)getcwd()))

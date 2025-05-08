@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Tk\Db;
 
 /**
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class DbBackup extends Iface
 {

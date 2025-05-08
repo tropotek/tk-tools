@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class Tag extends Iface
 {
@@ -15,10 +15,10 @@ class Tag extends Iface
     protected function configure(): void
     {
         $this->setName('tag')
-            ->addOption('name', 't', InputOption::VALUE_OPTIONAL, 'Specify a tag version name.', '')
-            ->addOption('notStable', 's', InputOption::VALUE_NONE, 'Default stable(even) version tag (1.0.2, 1.0.4, etc). Set to enable odd version increments (1.0.1, 1.0.3, etc).')
-            ->addOption('forceTag', 'f', InputOption::VALUE_NONE, 'Forces a tag version even if there is no change from the previous version.')
-            ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
+            ->addOption('name', 't', InputOption::VALUE_OPTIONAL, '(optional) Specify a tag version name. by default the tag version will be used.', '')
+            //->addOption('notStable', 's', InputOption::VALUE_NONE, 'Default stable(even) version tag (1.0.2, 1.0.4, etc). Set to enable odd version increments (1.0.1, 1.0.3, etc).')
+            //->addOption('forceTag', 'f', InputOption::VALUE_NONE, 'Forces a tag version even if there is no change from the previous version.')
+            //->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
             ->setDescription('Tag and release a repository.');
     }
 

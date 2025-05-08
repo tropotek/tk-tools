@@ -3,7 +3,7 @@ namespace Tbx;
 
 
 /**
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class Util
 {

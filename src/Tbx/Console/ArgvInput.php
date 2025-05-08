@@ -4,7 +4,7 @@ namespace Tbx\Console;
 use Symfony\Component\Console\Input\InputDefinition;
 
 /**
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class ArgvInput extends \Symfony\Component\Console\Input\ArgvInput
 {
@@ -12,12 +12,9 @@ class ArgvInput extends \Symfony\Component\Console\Input\ArgvInput
      * The name of the ini file that can be placed in the users home dir
      */
     public static string $INI_FILE = '.tkrc';
-
     private array $ini = [];
 
-    /**
-     * ArgvInput constructor.
-     */
+
     public function __construct(?array $argv = null, ?InputDefinition $definition = null)
     {
         parent::__construct($argv, $definition);

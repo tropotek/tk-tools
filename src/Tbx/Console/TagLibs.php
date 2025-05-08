@@ -7,27 +7,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * Tag a release from the repository. Works only on checked out projects.
- * This command will search the project for all packages
- * in use and tag and release them with new version along with the
- * parent project.
+ * Tag and release the libs of a tk project
+ * This command will search the project for all Tk lib packages
  *
  * @author Tropotek <https://tropotek.com/>
- * @deprecated
  */
-class TagProject extends Iface
+class TagLibs extends Iface
 {
 
     protected function configure()
     {
-        $this->setName('tagProject')
-            ->setAliases(array('tp'))
+        $this->setName('tagLibs')
+            ->setAliases(array('tl'))
             //->addOption('static', 'c', InputOption::VALUE_NONE, 'If set, then the existing composer.json \'require \' versions are updated to use specific versions of the libs EG: ~1.0 becomes 1.0.6 for example.')
             //->addOption('notStable', 's', InputOption::VALUE_NONE, 'Default stable(even) version numbers (1.0.2, 1.0.4, etc). Set to enable odd version increments (1.0.1, 1.0.3, etc).')
             //->addOption('forceTag', 'f', InputOption::VALUE_NONE, 'Forces a tag version even if there is no change from the previous version.')
-            ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not tag vendor ttek libs.')
             //->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the commit would run without uploading changes.')
-            ->setDescription('(deprecated) Tag and release libs and the project. Deprecated Use tagLibs then tag the project');
+            ->setDescription('Tag and release libs of a tk project.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -39,14 +35,16 @@ class TagProject extends Iface
 
         $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
         $keywords = [];
-        if (!empty($vcs->getComposer()->keywords))
+        if (!empty($vcs->getComposer()->keywords)) {
             $keywords = $vcs->getComposer()->keywords;
+        }
+
         if (in_array('tk-template', $keywords)) {
             throw new \Tk\Exception('Template projects cannot be tagged');
         }
 
         // Tag Libs
-        if (!$input->getOption('noLibs') && count($this->getVendorPaths())) {
+        if (count($this->getVendorPaths())) {
             foreach ($this->getVendorPaths() as $vPath) {
                 $vendorPath = $projectPath . $vPath;
                 if (!is_dir($vendorPath)) continue;
@@ -75,24 +73,6 @@ class TagProject extends Iface
                         $this->writeError($e->getMessage());
                     }
                 }
-            }
-        }
-
-        // Tag Project
-        $vcs = \Tbx\Git::create($projectPath, $input->getOptions());
-        $vcs->setInputOutput($input, $output);
-        $projCurVer = $vcs->getCurrentTag($vcs->getBranchAlias());
-        if (!$curVer) $curVer = '0.0.0';
-        if ($vcs->isDiff($projCurVer)) {
-            $title = sprintf('%-11s %s', '['.$projCurVer.']', basename($vcs->getPath()));
-            $this->writeStrongInfo($title);
-
-            $projVersion = $vcs->tagRelease();
-            if (version_compare($projVersion, $projCurVer, '>')) {
-                $this->write('New Version: ' . $projVersion, OutputInterface::VERBOSITY_VERY_VERBOSE);
-                $this->writeGrey('Changelog: ' . $vcs->getChangelog(), OutputInterface::VERBOSITY_VERY_VERBOSE);
-            } else {
-                $this->writeGrey('Nothing To Tag', OutputInterface::VERBOSITY_VERY_VERBOSE);
             }
         }
         return Command::SUCCESS;

@@ -11,7 +11,7 @@ use Tk\FileUtil;
 use Tk\Log;
 
 /**
- * @author Tropotek <info@tropotek.com>
+ * @author Tropotek <https://tropotek.com/>
  */
 class DbRestore extends Iface
 {
