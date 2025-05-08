@@ -14,6 +14,7 @@ use Tbx\Console\Hash;
 use Tbx\Console\PassGen;
 use Tbx\Console\Status;
 use Tbx\Console\Tag;
+use Tbx\Console\TagLibs;
 use Tbx\Console\TagProject;
 use Tbx\Console\TagShow;
 use Tbx\Console\Test;
@@ -38,6 +39,7 @@ try {
     $app->add(new Tag());
     $app->add(new TagShow());
     $app->add(new BranchShow());
+    $app->add(new TagLibs());
     $app->add(new TagProject());
     $app->add(new DbBackup());
     $app->add(new DbRestore());
