@@ -40,7 +40,7 @@ try {
     $app->add(new TagShow());
     $app->add(new BranchShow());
     $app->add(new TagLibs());
-    $app->add(new TagProject());
+    //$app->add(new TagProject());
     $app->add(new DbBackup());
     $app->add(new DbRestore());
 

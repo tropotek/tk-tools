@@ -29,9 +29,6 @@ class Test extends Iface
             return Command::FAILURE;
         }
 
-        $projectPath = rtrim((string)getcwd(), '/');
-        vd(getcwd(), );
-
 //        $options = $input->getOptions();
 //        $arguments = $input->getArguments();
 //        $iniOptions = $input->getIniOptions();

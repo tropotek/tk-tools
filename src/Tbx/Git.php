@@ -453,6 +453,15 @@ class Git
             }
         }
 
+        if (is_file($composerFile)) {
+            // run composer update for stable sources
+            $cmd = sprintf("composer update 2>&1 ");
+            if (!$this->isDryRun()) {
+                exec($cmd, $this->cmdBuf);
+                $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+            }
+        }
+
         $cmd = sprintf('git %s add . 2>&1 ', $this->getGitArgs());
         $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
         if (!$this->isDryRun()) {
@@ -491,8 +500,17 @@ class Git
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, $composerJson);
             }
+
+            if (is_file($composerFile)) {
+                // run composer update to return to dev sources
+                $cmd = sprintf("composer update 2>&1 ");
+                if (!$this->isDryRun()) {
+                    exec($cmd, $this->cmdBuf);
+                    $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                }
+            }
             $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-            $this->commit();
+            $this->commit('Revert branch to dev mode');
 
             $this->output->setVerbosity($vb);
         }

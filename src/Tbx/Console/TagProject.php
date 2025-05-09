@@ -32,6 +32,8 @@ class TagProject extends Iface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        throw new \Tk\Exception('This command is deprecated, use \'tk tl\' and then \'tk tag\'');
+
         if (!\Tbx\Git::isGit((string)getcwd()))
             throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
 
