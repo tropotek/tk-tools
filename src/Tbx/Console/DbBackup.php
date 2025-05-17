@@ -16,7 +16,6 @@ class DbBackup extends Iface
 
     protected function configure()
     {
-        $timestamp = date(\Tk\Date::FORMAT_ISO_DATE);
         $this->setName('dbBackup')
             ->setAliases(['db'])
             ->addOption('user', 'U', InputOption::VALUE_OPTIONAL, 'The database username', 'dev')
@@ -26,7 +25,7 @@ class DbBackup extends Iface
             ->addOption('type', 'M', InputOption::VALUE_OPTIONAL, 'The database type', 'mysql')
             ->addOption('dbName', 'N', InputOption::VALUE_OPTIONAL, 'The database name to export, if none then all available databases to the user are exported', '')
             ->addOption('path', 'p', InputOption::VALUE_OPTIONAL, 'The path to save the archive', getcwd())
-            ->addOption('backupName', 'B', InputOption::VALUE_OPTIONAL, 'the name of the archive', 'dbBackup-' . $timestamp)
+            ->addOption('backupName', 'B', InputOption::VALUE_OPTIONAL, 'the name of the archive', '')
             ->setDescription('Backup all tables in a DB');
     }
 
@@ -35,7 +34,10 @@ class DbBackup extends Iface
         $options = $input->getOptions();
 
         $backupName = $options['backupName'];
-        if (!is_string($backupName)) $backupName = '';
+        if (empty($backupName)) {
+            $timestamp = date('Ymd');
+            $backupName = $input->getOption('dbName') . '-db-' . $timestamp;
+        }
 
         $tempPath = sys_get_temp_dir().'/tk-dbBackup-'.getmyuid();
         if ($input->getOption('dbName')) {

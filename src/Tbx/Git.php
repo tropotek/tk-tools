@@ -406,11 +406,13 @@ class Git
         $versionFile = $this->getPath() . '/version.md';
         $vb = $this->output->getVerbosity();
         $composerJson = '';
+        $isProject = false;
 
         // update the release composer file
         if (is_file($composerFile)) {
             $composerJson = (string)file_get_contents($composerFile);
             $composerObj = \Tbx\Util::jsonDecode($composerJson);
+            $isProject = ($composerObj->type == 'project');
 
             if (!$this->isDryRun()) {
                 file_put_contents($versionFile, $version);
@@ -424,6 +426,15 @@ class Git
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, \Tbx\Util::jsonEncode($composerObj));
             }
+
+            if ($isProject) {
+                // run composer update to set stable sources in composer.lock file
+                $cmd = sprintf("composer update 2>&1 ");
+                if (!$this->isDryRun()) {
+                    exec($cmd, $this->cmdBuf);
+                    $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                }
+            }
         }
 
         // Update the release changelog file
@@ -436,7 +447,10 @@ class Git
             $this->changelog .= wordwrap(ucfirst($line), 100, "\n   ") . "\n";
         }
 
-        $log = (string)file_get_contents($changelogFile);
+        $log = @file_get_contents($changelogFile);
+        if ($log === false) {
+            $log = '';
+        }
 
         if ($log && $this->changelog && !preg_match('/Ver\s+' . preg_quote($version, '/') . '\s+\[[0-9]{4}\-[0-9]{2}\[0-9]{2}\]/i', $this->changelog)) {
             $logTag = '#CHANGELOG#';
@@ -450,15 +464,6 @@ class Git
             $this->writeComment('Updating changelog.md.', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
                 file_put_contents($changelogFile, $log);
-            }
-        }
-
-        if (is_file($composerFile)) {
-            // run composer update for stable sources
-            $cmd = sprintf("composer update 2>&1 ");
-            if (!$this->isDryRun()) {
-                exec($cmd, $this->cmdBuf);
-                $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
             }
         }
 
@@ -494,14 +499,14 @@ class Git
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
 
-        // Restore the dev composer.json
+        // Restore composer.lock file back to dev libs
         if ($composerJson) {
             $this->writeComment('Restoring branch composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, $composerJson);
             }
 
-            if (is_file($composerFile)) {
+            if ($isProject) {
                 // run composer update to return to dev sources
                 $cmd = sprintf("composer update 2>&1 ");
                 if (!$this->isDryRun()) {
@@ -581,6 +586,15 @@ class Git
         return $ver;
     }
 
+    public function getRecentTag(): string
+    {
+        $cmd = sprintf('git %s describe --abbrev=0 2>&1 ', $this->getGitArgs());
+        $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
+        exec($cmd, $this->cmdBuf);
+        $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+        return trim($this->cmdBuf[0]);
+    }
+
     /**
      *
      * @param string $curTag Either a static tag version or a branch-alias to increment
@@ -641,7 +655,8 @@ class Git
             $cmd = sprintf('git %s tag 2>&1 ', $this->getGitArgs());
             $this->write($cmd, OutputInterface::VERBOSITY_VERY_VERBOSE);
             exec($cmd, $this->cmdBuf);
-            $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+            //$this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_DEBUG);
+
 
             foreach($this->cmdBuf as $line) {
                 $line = trim($line);
