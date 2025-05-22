@@ -8,4 +8,31 @@ use Tk\Config;
 return function (Config $config)
 {
 
+    /**
+     * When using `tk up` in a project directory it will
+     * look for these projects to update
+     * Saves having to git update all projects by hand
+     */
+    $config['tk.projects'] = [
+        'tk8base',
+        'tkapd',
+        'tktask',
+        'tkbtc',
+        'tkwiki',
+    ];
+
+    // Debug settings below
+    $config['env.type'] = 'dev';
+
+    // Setup dev environment
+    if ($config->isDev()) {
+        // Send all emails to the debug address
+        //$config['system.debug.email'] = 'godar@dev.ttek.org';
+
+        error_reporting(-1);
+        $config['php.display_errors'] = 'On';
+        $config['php.error_log'] = '/home/logs/error.log';
+        $config['log.logLevel'] = \Psr\Log\LogLevel::DEBUG;
+    }
+
 };
