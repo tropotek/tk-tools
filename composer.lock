@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "phpmailer/phpmailer",
-            "version": "v6.9.3",
+            "version": "v6.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "2f5c94fe7493efc213f643c23b1b1c249d40f47e"
+                "reference": "bf74d75a1fde6beaa34a0ddae2ec5fce0f72a144"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/2f5c94fe7493efc213f643c23b1b1c249d40f47e",
-                "reference": "2f5c94fe7493efc213f643c23b1b1c249d40f47e",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/bf74d75a1fde6beaa34a0ddae2ec5fce0f72a144",
+                "reference": "bf74d75a1fde6beaa34a0ddae2ec5fce0f72a144",
                 "shasum": ""
             },
             "require": {
@@ -77,7 +77,7 @@
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
             "support": {
                 "issues": "https://github.com/PHPMailer/PHPMailer/issues",
-                "source": "https://github.com/PHPMailer/PHPMailer/tree/v6.9.3"
+                "source": "https://github.com/PHPMailer/PHPMailer/tree/v6.10.0"
             },
             "funding": [
                 {
@@ -85,7 +85,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-11-24T18:04:13+00:00"
+            "time": "2025-04-24T15:19:31+00:00"
         },
         {
             "name": "psr/container",
@@ -452,12 +452,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "a3011c7b7adb58d89f6c0d822abb641d7a5f9719"
+                "reference": "7d29659bc3c9d8e9a34e2c3414ef9e9e003e6cf3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/a3011c7b7adb58d89f6c0d822abb641d7a5f9719",
-                "reference": "a3011c7b7adb58d89f6c0d822abb641d7a5f9719",
+                "url": "https://api.github.com/repos/symfony/console/zipball/7d29659bc3c9d8e9a34e2c3414ef9e9e003e6cf3",
+                "reference": "7d29659bc3c9d8e9a34e2c3414ef9e9e003e6cf3",
                 "shasum": ""
             },
             "require": {
@@ -538,7 +538,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-07T15:42:41+00:00"
+            "time": "2025-05-07T07:05:04+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -590,7 +590,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/main"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.6.0-BETA1"
             },
             "funding": [
                 {
@@ -824,7 +824,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/event-dispatcher-contracts/tree/main"
+                "source": "https://github.com/symfony/event-dispatcher-contracts/tree/v3.6.0-BETA1"
             },
             "funding": [
                 {
@@ -848,12 +848,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "b0e234d4907616eda45c00ed479bc4074017b7df"
+                "reference": "6b7c97fe1ddac8df3cc9ba6410c8abc683e148ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/b0e234d4907616eda45c00ed479bc4074017b7df",
-                "reference": "b0e234d4907616eda45c00ed479bc4074017b7df",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/6b7c97fe1ddac8df3cc9ba6410c8abc683e148ae",
+                "reference": "6b7c97fe1ddac8df3cc9ba6410c8abc683e148ae",
                 "shasum": ""
             },
             "require": {
@@ -917,7 +917,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-09T06:05:54+00:00"
+            "time": "2025-05-11T15:36:20+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -925,12 +925,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
-                "reference": "eade992bdf9017cf85fca5bb2404a0069ffab71c"
+                "reference": "e31903d6d4dccf51dda505c131eeb51bea407adc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/eade992bdf9017cf85fca5bb2404a0069ffab71c",
-                "reference": "eade992bdf9017cf85fca5bb2404a0069ffab71c",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/e31903d6d4dccf51dda505c131eeb51bea407adc",
+                "reference": "e31903d6d4dccf51dda505c131eeb51bea407adc",
                 "shasum": ""
             },
             "require": {
@@ -1031,7 +1031,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-07T09:51:11+00:00"
+            "time": "2025-05-02T09:01:42+00:00"
         },
         {
             "name": "symfony/lock",
@@ -1174,7 +1174,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -1253,7 +1253,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -1335,7 +1335,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -1417,7 +1417,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/1.x"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -1494,7 +1494,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php83/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-php83/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -1518,12 +1518,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/routing.git",
-                "reference": "e9bfc94953019089acdfb9be51c1b9142c4afa68"
+                "reference": "1f5234e8457164a3a0038a4c0a4ba27876a9c670"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/routing/zipball/e9bfc94953019089acdfb9be51c1b9142c4afa68",
-                "reference": "e9bfc94953019089acdfb9be51c1b9142c4afa68",
+                "url": "https://api.github.com/repos/symfony/routing/zipball/1f5234e8457164a3a0038a4c0a4ba27876a9c670",
+                "reference": "1f5234e8457164a3a0038a4c0a4ba27876a9c670",
                 "shasum": ""
             },
             "require": {
@@ -1593,7 +1593,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-09T08:51:02+00:00"
+            "time": "2025-04-27T16:08:38+00:00"
         },
         {
             "name": "symfony/service-contracts",
@@ -1601,12 +1601,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/service-contracts.git",
-                "reference": "5ad38698559cf88b6296629e19b15ef3239c9d7a"
+                "reference": "f021b05a130d35510bd6b25fe9053c2a8a15d5d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/5ad38698559cf88b6296629e19b15ef3239c9d7a",
-                "reference": "5ad38698559cf88b6296629e19b15ef3239c9d7a",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/f021b05a130d35510bd6b25fe9053c2a8a15d5d4",
+                "reference": "f021b05a130d35510bd6b25fe9053c2a8a15d5d4",
                 "shasum": ""
             },
             "require": {
@@ -1661,7 +1661,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/service-contracts/tree/main"
+                "source": "https://github.com/symfony/service-contracts/tree/v3.6.0-BETA1"
             },
             "funding": [
                 {
@@ -1677,7 +1677,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-25T14:21:43+00:00"
+            "time": "2025-04-25T09:37:31+00:00"
         },
         {
             "name": "symfony/string",
@@ -1685,12 +1685,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "a75110076ac661a4a52792b5a1d286d113653a70"
+                "reference": "f3570b8c61ca887a9e2938e85cb6458515d2b125"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/a75110076ac661a4a52792b5a1d286d113653a70",
-                "reference": "a75110076ac661a4a52792b5a1d286d113653a70",
+                "url": "https://api.github.com/repos/symfony/string/zipball/f3570b8c61ca887a9e2938e85cb6458515d2b125",
+                "reference": "f3570b8c61ca887a9e2938e85cb6458515d2b125",
                 "shasum": ""
             },
             "require": {
@@ -1764,7 +1764,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-02-24T14:05:52+00:00"
+            "time": "2025-04-20T20:19:01+00:00"
         },
         {
             "name": "symfony/var-dumper",
@@ -1772,12 +1772,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "5be5bdd07600c270083d821a4b20697a47526311"
+                "reference": "548f6760c54197b1084e1e5c71f6d9d523f2f78e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/5be5bdd07600c270083d821a4b20697a47526311",
-                "reference": "5be5bdd07600c270083d821a4b20697a47526311",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/548f6760c54197b1084e1e5c71f6d9d523f2f78e",
+                "reference": "548f6760c54197b1084e1e5c71f6d9d523f2f78e",
                 "shasum": ""
             },
             "require": {
@@ -1848,20 +1848,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-09T08:14:14+00:00"
+            "time": "2025-04-27T18:39:23+00:00"
         },
         {
             "name": "tinymce/tinymce",
-            "version": "7.8.0",
+            "version": "7.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tinymce/tinymce-dist.git",
-                "reference": "88d1b2874256895338034dba28bf6e920aa4ba17"
+                "reference": "41ca209b741864a96b11ca34294b2eeba873ff01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/88d1b2874256895338034dba28bf6e920aa4ba17",
-                "reference": "88d1b2874256895338034dba28bf6e920aa4ba17",
+                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/41ca209b741864a96b11ca34294b2eeba873ff01",
+                "reference": "41ca209b741864a96b11ca34294b2eeba873ff01",
                 "shasum": ""
             },
             "type": "component",
@@ -1905,9 +1905,9 @@
                 "wysiwyg"
             ],
             "support": {
-                "source": "https://github.com/tinymce/tinymce-dist/tree/7.8.0"
+                "source": "https://github.com/tinymce/tinymce-dist/tree/7.9.0"
             },
-            "time": "2025-04-09T02:06:27+00:00"
+            "time": "2025-05-15T01:47:37+00:00"
         },
         {
             "name": "ttek/tk-base",
@@ -1915,23 +1915,23 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-base.git",
-                "reference": "3754f382e9477291117e48d6dad6cfb7815c3806"
+                "reference": "1c0c0209f9baf948097593f9fa66b9ab25e3856d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-base/zipball/3754f382e9477291117e48d6dad6cfb7815c3806",
-                "reference": "3754f382e9477291117e48d6dad6cfb7815c3806",
+                "url": "https://api.github.com/repos/tropotek/tk-base/zipball/1c0c0209f9baf948097593f9fa66b9ab25e3856d",
+                "reference": "1c0c0209f9baf948097593f9fa66b9ab25e3856d",
                 "shasum": ""
             },
             "require": {
-                "studio-42/elfinder": "~2.1.0",
-                "symfony/console": "^6.2",
-                "symfony/event-dispatcher": "^6.2",
-                "symfony/http-foundation": "^6.2",
-                "symfony/http-kernel": "^6.2",
-                "symfony/lock": "^6.2",
-                "symfony/routing": "^6.2",
-                "tinymce/tinymce": "~7.0",
+                "studio-42/elfinder": "~2.1.0-@stable",
+                "symfony/console": "^6.2-@stable",
+                "symfony/event-dispatcher": "^6.2-@stable",
+                "symfony/http-foundation": "^6.2-@stable",
+                "symfony/http-kernel": "^6.2-@stable",
+                "symfony/lock": "^6.2-@stable",
+                "symfony/routing": "^6.2-@stable",
+                "tinymce/tinymce": "~7.0-@stable",
                 "ttek/tk-domtemplate": "~8.0.0",
                 "ttek/tk-form": "~8.0.0",
                 "ttek/tk-framework": "~8.0.0",
@@ -1946,7 +1946,6 @@
             },
             "autoload": {
                 "psr-4": {
-                    "Au\\": "Au/",
                     "Bs\\": "Bs/"
                 }
             },
@@ -1960,15 +1959,16 @@
                     "homepage": "http://www.tropotek.com/"
                 }
             ],
-            "description": "Base site library for the Au lib",
+            "description": "Tk8 Lib: Tk Lib MVC framework using low-level Symfony framework objects",
             "keywords": [
+                "mvc",
                 "tropotek"
             ],
             "support": {
                 "issues": "https://github.com/tropotek/tk-base/issues",
                 "source": "https://github.com/tropotek/tk-base/tree/8.0"
             },
-            "time": "2022-11-13T00:00:00+00:00"
+            "time": "2025-04-21T00:00:00+00:00"
         },
         {
             "name": "ttek/tk-domtemplate",
@@ -1976,19 +1976,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-domtemplate.git",
-                "reference": "1f9173a6462ea7ae6d07882ef118aea2265afdbb"
+                "reference": "6b2186efdad8b397d8e69b97726c6beb94b0b4db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-domtemplate/zipball/1f9173a6462ea7ae6d07882ef118aea2265afdbb",
-                "reference": "1f9173a6462ea7ae6d07882ef118aea2265afdbb",
+                "url": "https://api.github.com/repos/tropotek/tk-domtemplate/zipball/6b2186efdad8b397d8e69b97726c6beb94b0b4db",
+                "reference": "6b2186efdad8b397d8e69b97726c6beb94b0b4db",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-tidy": "*",
                 "php": "^8.1",
-                "scssphp/scssphp": "^1.11.0"
+                "scssphp/scssphp": "^1.11.0-@stable"
             },
             "type": "library",
             "extra": {
@@ -2011,7 +2011,7 @@
                     "homepage": "http://www.tropotek.com/"
                 }
             ],
-            "description": "A PHP DOM Template library using XML/HTML files for templates",
+            "description": "Tk8 Lib: PHP DOM Template library with inline SCSS file compiler",
             "keywords": [
                 "dom",
                 "dom-template",
@@ -2035,12 +2035,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-form.git",
-                "reference": "bd1cd22b465671ec55cd63753605b30909a6db8d"
+                "reference": "e59728daa982de7f08892e1ed8e65fc38d0a55bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-form/zipball/bd1cd22b465671ec55cd63753605b30909a6db8d",
-                "reference": "bd1cd22b465671ec55cd63753605b30909a6db8d",
+                "url": "https://api.github.com/repos/tropotek/tk-form/zipball/e59728daa982de7f08892e1ed8e65fc38d0a55bf",
+                "reference": "e59728daa982de7f08892e1ed8e65fc38d0a55bf",
                 "shasum": ""
             },
             "require": {
@@ -2067,7 +2067,7 @@
                     "homepage": "http://www.tropotek.com/"
                 }
             ],
-            "description": "Create dynamic forms easily with the Tk framework",
+            "description": "Tk8 Lib: Form rendering with DOM and PHP templates",
             "keywords": [
                 "form",
                 "tropotek"
@@ -2076,7 +2076,7 @@
                 "issues": "https://github.com/tropotek/tk-form/issues",
                 "source": "https://github.com/tropotek/tk-form/tree/8.0"
             },
-            "time": "2022-10-23T00:00:00+00:00"
+            "time": "2025-05-08T00:00:00+00:00"
         },
         {
             "name": "ttek/tk-framework",
@@ -2084,12 +2084,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-framework.git",
-                "reference": "cb964932d2cceec27ffbcb748474fa20f3dd9be9"
+                "reference": "9ed69dfc10b1c8f9f211e1701a71673645f5d6e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/cb964932d2cceec27ffbcb748474fa20f3dd9be9",
-                "reference": "cb964932d2cceec27ffbcb748474fa20f3dd9be9",
+                "url": "https://api.github.com/repos/tropotek/tk-framework/zipball/9ed69dfc10b1c8f9f211e1701a71673645f5d6e4",
+                "reference": "9ed69dfc10b1c8f9f211e1701a71673645f5d6e4",
                 "shasum": ""
             },
             "require": {
@@ -2098,8 +2098,8 @@
                 "ext-json": "*",
                 "ext-pdo": "*",
                 "php": "^8.2",
-                "phpmailer/phpmailer": "~6.0",
-                "psr/http-message": "^1.0"
+                "phpmailer/phpmailer": "~6.0-@stable",
+                "psr/http-message": "^1.0-@stable"
             },
             "type": "library",
             "extra": {
@@ -2126,7 +2126,7 @@
                     "homepage": "http://www.tropotek.com/"
                 }
             ],
-            "description": "Tropotek Framework",
+            "description": "Tk8 Lib: Tropotek Framework Library",
             "keywords": [
                 "Tk",
                 "framework",
@@ -2150,12 +2150,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-installers.git",
-                "reference": "a15889956a0651e5b275e62af4d35a21a9eb5b1e"
+                "reference": "d6e9154a46344b270e5e0297b35af3cc0357d9e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-installers/zipball/a15889956a0651e5b275e62af4d35a21a9eb5b1e",
-                "reference": "a15889956a0651e5b275e62af4d35a21a9eb5b1e",
+                "url": "https://api.github.com/repos/tropotek/tk-installers/zipball/d6e9154a46344b270e5e0297b35af3cc0357d9e3",
+                "reference": "d6e9154a46344b270e5e0297b35af3cc0357d9e3",
                 "shasum": ""
             },
             "require": {
@@ -2191,7 +2191,7 @@
                     "homepage": "http://www.tropotek.com/"
                 }
             ],
-            "description": "Tropotek composer installer plugin",
+            "description": "Tk8 Lib: composer install/update plugin for the Tk Lib framework",
             "keywords": [
                 "installers",
                 "tropotek"
@@ -2200,7 +2200,7 @@
                 "issues": "https://github.com/tropotek/tk-installers/issues",
                 "source": "https://github.com/tropotek/tk-installers/tree/8.0"
             },
-            "time": "2022-10-15T00:00:00+00:00"
+            "time": "2025-05-10T00:00:00+00:00"
         },
         {
             "name": "ttek/tk-table",
@@ -2208,12 +2208,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tropotek/tk-table.git",
-                "reference": "a301a6bb4486f1cc89649e7ab19399ee8d832a94"
+                "reference": "979d0dbc7bea516ab5e3df35ba3059bb39b2b72c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tropotek/tk-table/zipball/a301a6bb4486f1cc89649e7ab19399ee8d832a94",
-                "reference": "a301a6bb4486f1cc89649e7ab19399ee8d832a94",
+                "url": "https://api.github.com/repos/tropotek/tk-table/zipball/979d0dbc7bea516ab5e3df35ba3059bb39b2b72c",
+                "reference": "979d0dbc7bea516ab5e3df35ba3059bb39b2b72c",
                 "shasum": ""
             },
             "require": {
@@ -2240,7 +2240,7 @@
                     "homepage": "http://www.tropotek.com/"
                 }
             ],
-            "description": "A dynamic table lib to manage table rendering",
+            "description": "Tk8 Lib: Table rendering with DOM and PHP templates",
             "keywords": [
                 "table",
                 "tropotek"
@@ -2249,7 +2249,7 @@
                 "issues": "https://github.com/tropotek/tk-table/issues",
                 "source": "https://github.com/tropotek/tk-table/tree/8.0"
             },
-            "time": "2022-10-23T00:00:00+00:00"
+            "time": "2025-05-08T00:00:00+00:00"
         }
     ],
     "packages-dev": [
@@ -2410,12 +2410,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "29e47ed68cea82a0006c1c8949d85c7b15b11a0e"
+                "reference": "282bba0ad285a5ca1104960f094031828f328024"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/29e47ed68cea82a0006c1c8949d85c7b15b11a0e",
-                "reference": "29e47ed68cea82a0006c1c8949d85c7b15b11a0e",
+                "url": "https://api.github.com/repos/composer/composer/zipball/282bba0ad285a5ca1104960f094031828f328024",
+                "reference": "282bba0ad285a5ca1104960f094031828f328024",
                 "shasum": ""
             },
             "require": {
@@ -2466,7 +2466,7 @@
                     ]
                 },
                 "branch-alias": {
-                    "dev-main": "2.8-dev"
+                    "dev-main": "2.9-dev"
                 }
             },
             "autoload": {
@@ -2517,7 +2517,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-16T11:38:39+00:00"
+            "time": "2025-05-13T13:40:39+00:00"
         },
         {
             "name": "composer/metadata-minifier",
@@ -2758,12 +2758,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/spdx-licenses.git",
-                "reference": "614a1b86ff628ca7e0713f733ee09f94569548b0"
+                "reference": "edf364cefe8c43501e21e88110aac10b284c3c9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/614a1b86ff628ca7e0713f733ee09f94569548b0",
-                "reference": "614a1b86ff628ca7e0713f733ee09f94569548b0",
+                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/edf364cefe8c43501e21e88110aac10b284c3c9f",
+                "reference": "edf364cefe8c43501e21e88110aac10b284c3c9f",
                 "shasum": ""
             },
             "require": {
@@ -2815,7 +2815,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/spdx-licenses/issues",
-                "source": "https://github.com/composer/spdx-licenses/tree/main"
+                "source": "https://github.com/composer/spdx-licenses/tree/1.5.9"
             },
             "funding": [
                 {
@@ -2831,7 +2831,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-08-26T15:22:11+00:00"
+            "time": "2025-05-12T21:07:07+00:00"
         },
         {
             "name": "composer/xdebug-handler",
@@ -2905,12 +2905,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jsonrainbow/json-schema.git",
-                "reference": "0f69f0e72cb3812348f5cc668d8995a7c70276d7"
+                "reference": "b209eb8f203fd36284b2c7470b3d65d0c0b8dff0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/0f69f0e72cb3812348f5cc668d8995a7c70276d7",
-                "reference": "0f69f0e72cb3812348f5cc668d8995a7c70276d7",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/b209eb8f203fd36284b2c7470b3d65d0c0b8dff0",
+                "reference": "b209eb8f203fd36284b2c7470b3d65d0c0b8dff0",
                 "shasum": ""
             },
             "require": {
@@ -2973,7 +2973,7 @@
                 "issues": "https://github.com/jsonrainbow/json-schema/issues",
                 "source": "https://github.com/jsonrainbow/json-schema/tree/master"
             },
-            "time": "2025-04-11T13:32:43+00:00"
+            "time": "2025-05-07T19:56:24+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -3486,7 +3486,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php73/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-php73/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -3567,7 +3567,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/1.x"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -3644,7 +3644,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php81/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-php81/tree/v1.32.0"
             },
             "funding": [
                 {
