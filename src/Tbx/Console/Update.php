@@ -32,8 +32,12 @@ class Update extends Iface
             $list = scandir($cwd);
             foreach ($list as $file) {
                 if (!in_array($file, Config::getValue('tk.projects', []))) continue;
-
-                $v = \Tbx\Git::create($cwd.'/'.$file, $input->getOptions());
+                $path = $cwd.'/'.$file;
+                if (!\Tbx\Git::isGit($path)) {
+                    $this->writeInfo("{$path} not a git repository");
+                    continue;
+                }
+                $v = \Tbx\Git::create($path, $input->getOptions());
                 $v->setInputOutput($input, $output);
                 $s = sprintf($sp, ucwords($this->getName()), basename($v->getPath()), '{' . $v->getCurrentBranch() . '}');
                 $this->writeStrongInfo($s);
