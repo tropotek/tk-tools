@@ -7,6 +7,11 @@ use Tk\Config;
 return function (Config $config) {
 
     /**
+     * Enable DB sessions
+     */
+    $config['session.db_enable'] = false;
+
+    /**
      * Vendor paths to look for libs we manage
      */
     $config['vendor.paths'] = ['/vendor/uom', '/vendor/ttek', '/vendor/tropotek', '/assets', '/plugin', '/html'];

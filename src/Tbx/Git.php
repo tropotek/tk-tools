@@ -368,7 +368,7 @@ class Git
             $msgLines = explode('- ', $msgLine);
             foreach($msgLines as $msg) {
                 $msg = trim($msg);
-                if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg)) {   // Remove any system messages
+                if (strlen($msg) <= 2 || preg_match('/^~?Auto/', $msg) || $msg == 'Revert branch to dev mode') {   // Remove any system messages
                     $this->writeComment('$msg(-) => ' . $msg, OutputInterface::VERBOSITY_VERY_VERBOSE);
                     continue;
                 } else {

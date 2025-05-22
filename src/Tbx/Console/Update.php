@@ -5,6 +5,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Tk\Config;
 
 /**
  * @author Tropotek <https://tropotek.com/>
@@ -18,16 +19,32 @@ class Update extends Iface
             ->setAliases(array('up'))
             ->addOption('noLibs', 'X', InputOption::VALUE_NONE, 'Do not update the ttek libs.')
             ->addOption('dryRun', 'D', InputOption::VALUE_NONE, 'Test how the update would run without uploading changes.')
-            ->setDescription("Run from the root of a ttek project to update the repository and ttek libs.");
+            ->setDescription("Run from the root of a ttek project to update the repository and ttek libs. Run from the projects root to update all tk v8.0 projects");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $sp = '%s: %-18s %s';
 
-        if (!\Tbx\Git::isGit((string)getcwd()))
-            throw new \Tk\Exception('Not a GIT repository: ' . getcwd());
-        $vcs = \Tbx\Git::create((string)getcwd(), $input->getOptions());
+        $cwd = (string)getcwd();
+
+        if (!\Tbx\Git::isGit($cwd)) {
+            $list = scandir($cwd);
+            foreach ($list as $file) {
+                if (!in_array($file, Config::getValue('tk.projects', []))) continue;
+
+                $v = \Tbx\Git::create($cwd.'/'.$file, $input->getOptions());
+                $v->setInputOutput($input, $output);
+                $s = sprintf($sp, ucwords($this->getName()), basename($v->getPath()), '{' . $v->getCurrentBranch() . '}');
+                $this->writeStrongInfo($s);
+                $v->update();
+            }
+
+            return Command::SUCCESS;
+        }
+
+        // update project and libs
+        $vcs = \Tbx\Git::create($cwd, $input->getOptions());
         $vcs->setInputOutput($input, $output);
 
         $s = sprintf($sp, ucwords($this->getName()), basename($vcs->getPath()), '{' . $vcs->getCurrentBranch() . '}');
