@@ -6,6 +6,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Tk\Config;
 
 /**
  * @author Tropotek <https://tropotek.com/>
@@ -24,7 +25,7 @@ class Test extends Iface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->getConfig()->isDebug()) {
+        if (!Config::isDev()) {
             $this->writeError('Error: Only run this command in a debug environment.');
             return Command::FAILURE;
         }

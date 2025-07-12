@@ -10,12 +10,13 @@ use Tbx\Console\BranchShow;
 use Tbx\Console\Commit;
 use Tbx\Console\DbBackup;
 use Tbx\Console\DbRestore;
+use Tbx\Console\Enc;
 use Tbx\Console\Hash;
 use Tbx\Console\PassGen;
+use Tbx\Console\SiteBackup;
 use Tbx\Console\Status;
 use Tbx\Console\Tag;
 use Tbx\Console\TagLibs;
-use Tbx\Console\TagProject;
 use Tbx\Console\TagShow;
 use Tbx\Console\Test;
 use Tbx\Console\Update;
@@ -40,9 +41,10 @@ try {
     $app->add(new TagShow());
     $app->add(new BranchShow());
     $app->add(new TagLibs());
-    //$app->add(new TagProject());
     $app->add(new DbBackup());
     $app->add(new DbRestore());
+    $app->add(new Enc());
+    $app->add(new SiteBackup());
 
     // Other commands
     $app->add(new Hash());

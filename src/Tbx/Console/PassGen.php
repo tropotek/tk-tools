@@ -18,7 +18,7 @@ class PassGen extends Iface
             ->setAliases(['pg'])
             ->addOption('key', 'k', InputOption::VALUE_OPTIONAL, 'specify a date format to use as the key', '=d-m-Y=')
             ->addOption('timezone', 't', InputOption::VALUE_OPTIONAL, 'Specify a tag version name.', 'Australia/victoria')
-            ->setDescription('Generate Temporary password for projects');
+            ->setDescription('Generate Temporary password for old tklib sites (no longer valid for new sites)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

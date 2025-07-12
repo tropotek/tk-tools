@@ -37,11 +37,12 @@ class Update extends Iface
                     $this->writeInfo("{$path} not a git repository");
                     continue;
                 }
-                $v = \Tbx\Git::create($path, $input->getOptions());
-                $v->setInputOutput($input, $output);
-                $s = sprintf($sp, ucwords($this->getName()), basename($v->getPath()), '{' . $v->getCurrentBranch() . '}');
-                $this->writeStrongInfo($s);
-                $v->update();
+
+                // update project repos
+                $cmd = sprintf('cd %s && tk up', escapeshellarg($path));
+                $this->write($cmd, OutputInterface::VERBOSITY_VERBOSE);
+                passthru($cmd, $ret);
+                echo PHP_EOL;
             }
 
             return Command::SUCCESS;

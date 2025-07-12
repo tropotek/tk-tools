@@ -25,6 +25,7 @@
     "php": "^8.3",
     "ext-json": "*",
     "ext-pdo": "*",
+    "ext-curl": "*",
     "ttek/tk-base": "^8.0.0"
   },
   "require-dev": {
