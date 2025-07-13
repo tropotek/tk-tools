@@ -6,6 +6,7 @@ use Bs\Factory;
 use Tbx\Console\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Application;
+use Tbx\Console\BackupClean;
 use Tbx\Console\BranchShow;
 use Tbx\Console\Commit;
 use Tbx\Console\DbBackup;
@@ -45,6 +46,7 @@ try {
     $app->add(new DbRestore());
     $app->add(new Enc());
     $app->add(new SiteBackup());
+    $app->add(new BackupClean());
 
     // Other commands
     $app->add(new Hash());
