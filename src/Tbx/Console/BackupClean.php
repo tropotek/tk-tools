@@ -12,8 +12,7 @@ use Tk\Log;
 use Tk\Uri;
 
 /**
- * List through all the site in the $config['tk.mirror.sites'] array
- * and backup their DB nightly and data weekly to a defined backup folder
+ * remove all files with a specific extension keeping the newest n number of files
  *
  * @author Tropotek <https://tropotek.com/>
  */
@@ -31,7 +30,7 @@ class BackupClean extends Iface
             ->addArgument('destPath', InputArgument::REQUIRED, 'Specify the path of the backup files.')
             ->addArgument('extension', InputArgument::REQUIRED, 'Specify a file extension to search for.')
             ->addOption('min', 'M', InputOption::VALUE_OPTIONAL, 'Number of files to keep', 5)
-            ->setDescription('Remove backup files, keeping the newest [min] number of files');
+            ->setDescription('Remove files, keeping the newest [min] number of files with the same extension.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
