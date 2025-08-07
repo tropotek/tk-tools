@@ -114,10 +114,10 @@ class SiteBackup extends Iface
                 "authorization-key: " . $secret,
             ],
         ];
-        if (Config::isDev()) {
-            $opts[CURLOPT_SSL_VERIFYHOST] = false;
-            $opts[CURLOPT_SSL_VERIFYPEER] = false;
-        }
+//        if (Config::isDev()) {
+//            $opts[CURLOPT_SSL_VERIFYHOST] = false;
+//            $opts[CURLOPT_SSL_VERIFYPEER] = false;
+//        }
 
         curl_setopt_array($curl, $opts);
 
