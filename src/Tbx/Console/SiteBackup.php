@@ -33,6 +33,7 @@ class SiteBackup extends Iface
             ->setAliases(['sb'])
             ->addOption('list', 'L', InputOption::VALUE_NONE, 'List available sites to backup.')
             ->addOption('data', 'D', InputOption::VALUE_NONE, 'Mirror data files not DB')
+            ->addOption('noverify', 'N', InputOption::VALUE_NONE, 'Disable verify SSL')
             ->addArgument('site', InputArgument::OPTIONAL, 'Name of the site in $config[\'tk.mirror.sites\'] to backup.', '')
             ->addArgument('destPath', InputArgument::OPTIONAL, 'Specify a destination backup file path.', getcwd())
             ->setDescription('Backup a site DB or data files defined in $config[\'tk.mirror.sites\']');
@@ -77,7 +78,7 @@ class SiteBackup extends Iface
             'p' => $site['encPassword']
         ]);
 
-        if (!$this->postRequest($url, $site['secret'], $filename)) {
+        if (!$this->postRequest($url, $site['secret'], $filename, !$input->getOption('noverify'))) {
             $this->writeError("Error downloading from mirror site");
             unlink($filename);
             return Command::FAILURE;
@@ -86,7 +87,7 @@ class SiteBackup extends Iface
         return Command::SUCCESS;
     }
 
-    protected function postRequest(Uri $srcUrl, string $secret, string $filename): bool
+    protected function postRequest(Uri $srcUrl, string $secret, string $filename, bool $verifyssl = true): bool
     {
         $srcUrl = $srcUrl->withScheme('https');
 
@@ -113,11 +114,12 @@ class SiteBackup extends Iface
             CURLOPT_HTTPHEADER     => [
                 "authorization-key: " . $secret,
             ],
+            CURLOPT_USERAGENT      => Uri::USERAGENT,
         ];
-//        if (Config::isDev()) {
-//            $opts[CURLOPT_SSL_VERIFYHOST] = false;
-//            $opts[CURLOPT_SSL_VERIFYPEER] = false;
-//        }
+        if (!$verifyssl) {
+            $opts[CURLOPT_SSL_VERIFYHOST] = false;
+            $opts[CURLOPT_SSL_VERIFYPEER] = false;
+        }
 
         curl_setopt_array($curl, $opts);
 
