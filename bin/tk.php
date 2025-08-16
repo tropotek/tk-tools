@@ -2,7 +2,6 @@
 <?php
 include(dirname(__FILE__) . '/prepend.php');
 
-use Bs\Factory;
 use Tbx\Console\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Application;
