@@ -29,7 +29,6 @@ try {
     $output = new ConsoleOutput();
 
     $app = new Application('Tropotek Command Utilities', \Tk\System::getVersion());
-    $app->setDispatcher(Factory::instance()->getEventDispatcher());
 
     //Determine Environment
     $env = $input->getParameterOption(array('--env', '-e'), \Tk\Config::instance()->get('env.type', 'prod'));

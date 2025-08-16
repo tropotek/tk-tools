@@ -26,19 +26,14 @@
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-curl": "*",
-    "ttek/tk-base": "^8.0.0"
-  },
-  "require-dev": {
-    "composer/composer": "^2.0"
+
+    "ttek/tk-framework": "~8.0.0",
+    "symfony/console": "^6.2-@stable",
+    "symfony/lock": "^6.2-@stable"
   },
   "extra": {
     "branch-alias": {
       "dev-master": "8.0.x-dev"
-    }
-  },
-  "config": {
-    "allow-plugins": {
-      "ttek/tk-installers": true
     }
   }
 }
