@@ -40,6 +40,10 @@ class BackupClean extends Iface
         $this->min       = $input->getOption('min');
 
         $files = glob($this->destPath.'/*.'.$this->extension);
+        if ($files === false) {
+            $this->writeError('Error: Unable to find files with extension: ' . $this->extension);
+            return Command::FAILURE;
+        }
         usort($files, function($a, $b) {
             return filemtime($b) - filemtime($a);
         });

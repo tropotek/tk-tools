@@ -33,7 +33,9 @@ class DbBackup extends Iface
     {
         $options = $input->getOptions();
 
-        $backupName = $options['backupName'];
+        $backupName = $options['backupName'] ?? '';
+        if ( !is_string($backupName)) $backupName = '';
+
         if (empty($backupName)) {
             $timestamp = date('Ymd');
             $backupName = $input->getOption('dbName') . '-db-' . $timestamp;
