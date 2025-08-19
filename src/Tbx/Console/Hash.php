@@ -24,27 +24,27 @@ class Hash extends Iface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$input->getOption('algoList')) {
-            $this->writeInfo(ucwords($this->getName()));
-            $str = $input->getArgument('string');
-            $algo = $input->getOption('algorithm');
-            if (!$input->getArgument('string')) {
-                throw new \Exception('Please supply a valid string to hash');
-            }
-            $hash = hash($algo, $str);
-            $this->writeComment('String: ' . $str);
-            $this->writeComment(ucfirst($algo) . ' Hash: ' . $hash);
-        } else {
+        if ($input->getOption('algoList')) {
             $this->writeInfo(sprintf('%-12s %3s %s', 'Hash', 'Len', 'Example'));
             $this->writeInfo(sprintf('---------------------------------------------------'));
             foreach (hash_algos() as $v) {
                     $r = hash($v, $this->getName(), false);
                     $this->writeComment(sprintf('%-12s %3d %s', $v, strlen($r), $r));
             }
+            return Command::SUCCESS;
         }
+
+        $this->writeInfo(ucwords($this->getName()));
+        $str = $input->getArgument('string');
+        $algo = $input->getOption('algorithm');
+
+        if (!$input->getArgument('string')) {
+            throw new \Exception('Please supply a valid string to hash');
+        }
+        $hash = hash($algo, $str);
+        $this->writeComment('String: ' . $str);
+        $this->writeComment(ucfirst($algo) . ' Hash: ' . $hash);
         return Command::SUCCESS;
     }
-
-
 
 }

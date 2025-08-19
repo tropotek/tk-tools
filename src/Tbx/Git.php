@@ -429,7 +429,7 @@ class Git
 
             if ($isProject) {
                 // run composer update to set stable sources in composer.lock file
-                $cmd = sprintf("composer update 2>&1 ");
+                $cmd = sprintf("composer update --no-scripts 2>&1 ");
                 if (!$this->isDryRun()) {
                     exec($cmd, $this->cmdBuf);
                     $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -508,7 +508,7 @@ class Git
 
             if ($isProject) {
                 // run composer update to return to dev sources
-                $cmd = sprintf("composer update 2>&1 ");
+                $cmd = sprintf("composer update --no-scripts 2>&1 ");
                 if (!$this->isDryRun()) {
                     exec($cmd, $this->cmdBuf);
                     $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
