@@ -20,6 +20,7 @@ class Enc extends Iface
             ->setAliases(['enc'])
             ->addArgument('secret', InputArgument::REQUIRED, 'Specify a secret key to use for encryption.')
             ->addArgument('string', InputArgument::REQUIRED, 'The string that is to have the hash applied to it.')
+            ->addOption('basic', 'b', InputOption::VALUE_NONE, 'Use basic encryption instead of AES-256-CBC ')
             ->setDescription('Encrypt a string using a secret key.');
     }
 
@@ -27,8 +28,13 @@ class Enc extends Iface
     {
         $enc = Encrypt::create($input->getArgument('secret'));
         $str = $input->getArgument('string');
+        $useBasic = $input->getOption('basic');
 
-        $r = $enc->encrypt($str);
+        if ($useBasic) {
+            $r = $enc->basicEncrypt($str);
+        } else {
+            $r = $enc->encrypt($str);
+        }
         $this->writeComment($r);
 
         return Command::SUCCESS;
