@@ -397,7 +397,8 @@ class Git
     }
 
     /**
-     * Tag a repository, basically copy the release to a tag and update the changelog
+     * Tag a repository, copy the release to a tag, and update the changelog
+     * Remember to run `composer update --prefer-stable` and commit before tagging
      */
     protected function tag(string $version): void
     {
@@ -422,14 +423,14 @@ class Git
             if (property_exists($composerObj, 'minimum-stability')) {
                 $composerObj->{'minimum-stability'} = 'stable';
             }
-            $this->writeComment('Updating composer.json', OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeComment('Updating composer.json for stable release');
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, \Tbx\Util::jsonEncode($composerObj));
             }
 
             if ($isProject) {
                 // run composer update to set stable sources in composer.lock file
-                $cmd = sprintf("composer update --no-scripts 2>&1 ");
+                $cmd = sprintf("composer update --ignore-platform-reqs --no-scripts 2>&1 ");
                 if (!$this->isDryRun()) {
                     exec($cmd, $this->cmdBuf);
                     $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -508,7 +509,7 @@ class Git
 
             if ($isProject) {
                 // run composer update to return to dev sources
-                $cmd = sprintf("composer update --no-scripts 2>&1 ");
+                $cmd = sprintf("composer update --ignore-platform-reqs --no-scripts 2>&1 ");
                 if (!$this->isDryRun()) {
                     exec($cmd, $this->cmdBuf);
                     $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
