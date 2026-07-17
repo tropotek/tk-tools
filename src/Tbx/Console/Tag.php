@@ -38,6 +38,7 @@ class Tag extends Iface
             throw new \Tk\Exception('Template projects cannot be tagged');
         }
 
+        var_dump($vcs->getBranchAlias());
         $curVer = $vcs->getCurrentTag($vcs->getBranchAlias());
         if (!$curVer) {
             $curVer = '0.0.0';

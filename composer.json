@@ -27,7 +27,7 @@
     "ext-pdo": "*",
     "ext-curl": "*",
 
-    "ttek/tk-framework": "~8.0.0",
+    "ttek/tk-framework": "~8.1.0",
     "symfony/console": "^6.2-@stable",
     "symfony/lock": "^6.2-@stable"
   },

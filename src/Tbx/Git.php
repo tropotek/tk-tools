@@ -419,16 +419,16 @@ class Git
                 file_put_contents($versionFile, $version);
             }
 
-            $composerObj->time = date('Y-m-d');
-            if (property_exists($composerObj, 'minimum-stability')) {
-                $composerObj->{'minimum-stability'} = 'stable';
-            }
-            $this->writeComment('Updating composer.json for stable release');
-            if (!$this->isDryRun()) {
-                file_put_contents($composerFile, \Tbx\Util::jsonEncode($composerObj));
-            }
-
             if ($isProject) {
+                $composerObj->time = date('Y-m-d');
+                if (property_exists($composerObj, 'minimum-stability')) {
+                    $composerObj->{'minimum-stability'} = 'stable';
+                }
+                $this->writeComment('Updating composer.json for stable release');
+                if (!$this->isDryRun()) {
+                    file_put_contents($composerFile, \Tbx\Util::jsonEncode($composerObj));
+                }
+
                 // run composer update to set stable sources in composer.lock file
                 $cmd = sprintf("composer update --ignore-platform-reqs --no-scripts 2>&1 ");
                 if (!$this->isDryRun()) {
@@ -500,21 +500,20 @@ class Git
             $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
         }
 
-        // Restore composer.lock file back to dev libs
-        if ($composerJson) {
+        // Restore composer.lock file back to dev
+        if ($composerJson && $isProject) {
             $this->writeComment('Restoring branch composer.json', OutputInterface::VERBOSITY_VERBOSE);
             if (!$this->isDryRun()) {
                 file_put_contents($composerFile, $composerJson);
             }
 
-            if ($isProject) {
-                // run composer update to return to dev sources
-                $cmd = sprintf("composer update --ignore-platform-reqs --no-scripts 2>&1 ");
-                if (!$this->isDryRun()) {
-                    exec($cmd, $this->cmdBuf);
-                    $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
-                }
+            // run composer update to return to dev sources
+            $cmd = sprintf("composer update --ignore-platform-reqs --no-scripts 2>&1 ");
+            if (!$this->isDryRun()) {
+                exec($cmd, $this->cmdBuf);
+                $this->writeComment(implode("\n", $this->cmdBuf), OutputInterface::VERBOSITY_VERY_VERBOSE);
             }
+
             $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $this->commit('Revert branch to dev mode');
 
@@ -532,8 +531,12 @@ class Git
     {
         $alias = '';
         if ($this->getComposer()) {
-            if (isset($this->getComposer()->extra->{'branch-alias'}->{'dev-master'})) {
+            if (isset($this->getComposer()->extra->{'branch-alias'}->{'dev-main'})) {
+                $alias = $this->getComposer()->extra->{'branch-alias'}->{'dev-main'};
+            } else if (isset($this->getComposer()->extra->{'branch-alias'}->{'dev-master'})) {
                 $alias = $this->getComposer()->extra->{'branch-alias'}->{'dev-master'};
+            }
+            if ($alias) {
                 // TODO we need to handle 3.0.x-dev and 3.0-dev better
                 if (preg_match('/\.[0-9]+-dev$/', $alias)) {
                     $alias = str_replace('-dev', '.x-dev', $alias);
